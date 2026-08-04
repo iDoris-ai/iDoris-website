@@ -21,9 +21,11 @@
     font-size:14px;color:var(--paper)}
   .subject .k{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
     color:var(--muted)}
-  .letter iframe{display:block;width:100%;height:1180px;border:1px solid var(--line);
+  /* 高度由脚本按信件实际内容量出来(见页尾 fit())。这里的数值只是无 JS 时的兜底,
+     取三语里最高的一封再留点余量 —— 宁可底部多一条空白,也不能把落款切掉。 */
+  .letter iframe{display:block;width:100%;height:1280px;border:1px solid var(--line);
     border-radius:0 0 12px 12px;background:#EFEBE4}
-  @media(max-width:700px){.lead h1{font-size:28px}.letter iframe{height:1500px}}
+  @media(max-width:700px){.lead h1{font-size:28px}.letter iframe{height:1560px}}
 </style>
 </head>
 <body>
@@ -73,7 +75,7 @@
 
   &lt;table role=&quot;presentation&quot; width=&quot;600&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; border=&quot;0&quot; style=&quot;width:600px;max-width:100%;background:#FFFFFF;border:1px solid #E2DBD0;border-radius:14px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,&#x27;Segoe UI&#x27;,&#x27;Noto Sans Thai&#x27;,Thonburi,sans-serif&quot;&gt;
 
-    &lt;!-- 抬头:字标(链到官网) + Cherry --&gt;
+    &lt;!-- 抬头:字标(链到官网) + Doris 头像 --&gt;
     &lt;tr&gt;&lt;td style=&quot;padding:22px 28px 14px;border-bottom:1px solid #E2DBD0&quot;&gt;
       &lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; border=&quot;0&quot;&gt;&lt;tr&gt;
         &lt;td align=&quot;left&quot; style=&quot;vertical-align:middle&quot;&gt;
@@ -141,7 +143,7 @@
     <div class="letter" data-mail="zh" hidden>
       <div class="subject"><span class="k">Subject</span>给贵司的一封信 —— 来自清迈的 iDoris</div>
       <iframe title="中文 letter" loading="lazy" srcdoc="&lt;!doctype html&gt;
-&lt;html lang=&quot;en&quot;&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
 &lt;head&gt;
 &lt;meta charset=&quot;utf-8&quot;&gt;
 &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1&quot;&gt;
@@ -154,7 +156,7 @@
 
   &lt;table role=&quot;presentation&quot; width=&quot;600&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; border=&quot;0&quot; style=&quot;width:600px;max-width:100%;background:#FFFFFF;border:1px solid #E2DBD0;border-radius:14px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,&#x27;Segoe UI&#x27;,&#x27;Noto Sans Thai&#x27;,Thonburi,sans-serif&quot;&gt;
 
-    &lt;!-- 抬头:字标(链到官网) + Cherry --&gt;
+    &lt;!-- 抬头:字标(链到官网) + Doris 头像 --&gt;
     &lt;tr&gt;&lt;td style=&quot;padding:22px 28px 14px;border-bottom:1px solid #E2DBD0&quot;&gt;
       &lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; border=&quot;0&quot;&gt;&lt;tr&gt;
         &lt;td align=&quot;left&quot; style=&quot;vertical-align:middle&quot;&gt;
@@ -222,7 +224,7 @@
     <div class="letter" data-mail="th" hidden>
       <div class="subject"><span class="k">Subject</span>AI ที่พอดีกับทีมของท่าน — ทักมาจากเชียงใหม่ครับ</div>
       <iframe title="ไทย letter" loading="lazy" srcdoc="&lt;!doctype html&gt;
-&lt;html lang=&quot;en&quot;&gt;
+&lt;html lang=&quot;th&quot;&gt;
 &lt;head&gt;
 &lt;meta charset=&quot;utf-8&quot;&gt;
 &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1&quot;&gt;
@@ -235,7 +237,7 @@
 
   &lt;table role=&quot;presentation&quot; width=&quot;600&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; border=&quot;0&quot; style=&quot;width:600px;max-width:100%;background:#FFFFFF;border:1px solid #E2DBD0;border-radius:14px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,&#x27;Segoe UI&#x27;,&#x27;Noto Sans Thai&#x27;,Thonburi,sans-serif&quot;&gt;
 
-    &lt;!-- 抬头:字标(链到官网) + Cherry --&gt;
+    &lt;!-- 抬头:字标(链到官网) + Doris 头像 --&gt;
     &lt;tr&gt;&lt;td style=&quot;padding:22px 28px 14px;border-bottom:1px solid #E2DBD0&quot;&gt;
       &lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; border=&quot;0&quot;&gt;&lt;tr&gt;
         &lt;td align=&quot;left&quot; style=&quot;vertical-align:middle&quot;&gt;
@@ -325,12 +327,43 @@
   // 迟早会不同步。
   (function () {
     var root = document.documentElement;
+
+    // 信是 srcdoc 写进去的,和本页同源,所以可以直接量它的真实高度。
+    // 写死一个 px 值撑不住:三种语言长短不同、字体一换行数就变,总有一版被切掉落款。
+    // 只量看得见的那一封 —— display:none 的 iframe 没有布局,量出来是 0。
+    function fit(el) {
+      var ifr = el.querySelector('iframe');
+      if (!ifr || el.hidden) return;
+      var doc = ifr.contentDocument;
+      if (!doc || !doc.body) return;                    // 还没解析完,load 事件里会再来一次
+      var h = doc.documentElement.scrollHeight;
+      if (h > 0) ifr.style.height = h + 'px';
+    }
+
+    function fitVisible() {
+      document.querySelectorAll('.letter').forEach(fit);
+    }
+
     function sync() {
       var lang = root.getAttribute('data-lang') || 'en';
       document.querySelectorAll('.letter').forEach(function (el) {
         el.hidden = el.getAttribute('data-mail') !== lang;
       });
+      // 刚显示出来的那封还没排版完,等下一帧再量
+      requestAnimationFrame(fitVisible);
     }
+
+    document.querySelectorAll('.letter iframe').forEach(function (ifr) {
+      ifr.addEventListener('load', function () { fit(ifr.closest('.letter')); });
+    });
+
+    // 窗口变窄会让信里的文字重排,高度得跟着重新量
+    var t;
+    addEventListener('resize', function () {
+      clearTimeout(t);
+      t = setTimeout(fitVisible, 150);
+    });
+
     new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-lang'] });
     sync();
   })();
