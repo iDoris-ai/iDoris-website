@@ -93,8 +93,11 @@
         &lt;td align=&quot;right&quot; style=&quot;vertical-align:middle;width:60px&quot;&gt;
           &lt;!-- 抬头放 Doris:她是品牌的那张脸,公司就叫 iDoris,字标旁边站着本人最说得通;
                Cherry 留到落款,收尾时出现更像「顺带介绍家里那只狗」的暖场,而不是开门先见狗。
-               这里用头像而不是全身像 —— 全身像缩到 50px 只剩一个黑条,认不出是谁 --&gt;
-          &lt;img src=&quot;/assets/email/doris-face.png&quot; width=&quot;52&quot; alt=&quot;Doris, the iDoris AI assistant&quot;
+               这里用头像而不是全身像 —— 全身像缩到 50px 只剩一个黑条,认不出是谁。
+               三张图后面的 ?v= 不要删:图上线前这些路径被请求过,Pages 返回的 HTML
+               兜底页按 /assets/* 的长 TTL 存进了边缘缓存,裸路径会拿到 text/html。
+               换资源时把版本号 +1,别指望缓存自己过期 --&gt;
+          &lt;img src=&quot;/assets/email/doris-face.png?v=1&quot; width=&quot;52&quot; alt=&quot;Doris, the iDoris AI assistant&quot;
                style=&quot;display:block;width:52px;height:52px;border-radius:50%;border:0&quot;&gt;
         &lt;/td&gt;
       &lt;/tr&gt;&lt;/table&gt;
@@ -113,9 +116,9 @@
           &lt;!-- 两张图按「身高」而不是按宽度对齐:Doris 是竖构图、Cherry 是横构图,
                同宽会让狗看着比人还大。人 150px 高、狗 83px 高 —— 这个比例接近
                凯利蓝㹴站在成年人身边的真实高度,并排看着才像一个人牵着一条狗 --&gt;
-          &lt;img src=&quot;/assets/email/doris.png&quot; width=&quot;62&quot; height=&quot;150&quot; alt=&quot;Doris, the iDoris AI assistant&quot;
+          &lt;img src=&quot;/assets/email/doris.png?v=1&quot; width=&quot;62&quot; height=&quot;150&quot; alt=&quot;Doris, the iDoris AI assistant&quot;
                style=&quot;display:inline-block;width:62px;height:150px;border:0;vertical-align:bottom&quot;&gt;
-          &lt;img src=&quot;/assets/email/cherry.png&quot; width=&quot;64&quot; height=&quot;83&quot; alt=&quot;Cherry, her Kerry Blue Terrier&quot;
+          &lt;img src=&quot;/assets/email/cherry.png?v=1&quot; width=&quot;64&quot; height=&quot;83&quot; alt=&quot;Cherry, her Kerry Blue Terrier&quot;
                style=&quot;display:inline-block;width:64px;height:83px;border:0;vertical-align:bottom&quot;&gt;
         &lt;/td&gt;
         &lt;td style=&quot;vertical-align:bottom;padding:18px 0 6px 12px&quot;&gt;
@@ -178,8 +181,11 @@
         &lt;td align=&quot;right&quot; style=&quot;vertical-align:middle;width:60px&quot;&gt;
           &lt;!-- 抬头放 Doris:她是品牌的那张脸,公司就叫 iDoris,字标旁边站着本人最说得通;
                Cherry 留到落款,收尾时出现更像「顺带介绍家里那只狗」的暖场,而不是开门先见狗。
-               这里用头像而不是全身像 —— 全身像缩到 50px 只剩一个黑条,认不出是谁 --&gt;
-          &lt;img src=&quot;/assets/email/doris-face.png&quot; width=&quot;52&quot; alt=&quot;Doris, the iDoris AI assistant&quot;
+               这里用头像而不是全身像 —— 全身像缩到 50px 只剩一个黑条,认不出是谁。
+               三张图后面的 ?v= 不要删:图上线前这些路径被请求过,Pages 返回的 HTML
+               兜底页按 /assets/* 的长 TTL 存进了边缘缓存,裸路径会拿到 text/html。
+               换资源时把版本号 +1,别指望缓存自己过期 --&gt;
+          &lt;img src=&quot;/assets/email/doris-face.png?v=1&quot; width=&quot;52&quot; alt=&quot;Doris, the iDoris AI assistant&quot;
                style=&quot;display:block;width:52px;height:52px;border-radius:50%;border:0&quot;&gt;
         &lt;/td&gt;
       &lt;/tr&gt;&lt;/table&gt;
@@ -198,9 +204,9 @@
           &lt;!-- 两张图按「身高」而不是按宽度对齐:Doris 是竖构图、Cherry 是横构图,
                同宽会让狗看着比人还大。人 150px 高、狗 83px 高 —— 这个比例接近
                凯利蓝㹴站在成年人身边的真实高度,并排看着才像一个人牵着一条狗 --&gt;
-          &lt;img src=&quot;/assets/email/doris.png&quot; width=&quot;62&quot; height=&quot;150&quot; alt=&quot;Doris, the iDoris AI assistant&quot;
+          &lt;img src=&quot;/assets/email/doris.png?v=1&quot; width=&quot;62&quot; height=&quot;150&quot; alt=&quot;Doris, the iDoris AI assistant&quot;
                style=&quot;display:inline-block;width:62px;height:150px;border:0;vertical-align:bottom&quot;&gt;
-          &lt;img src=&quot;/assets/email/cherry.png&quot; width=&quot;64&quot; height=&quot;83&quot; alt=&quot;Cherry, her Kerry Blue Terrier&quot;
+          &lt;img src=&quot;/assets/email/cherry.png?v=1&quot; width=&quot;64&quot; height=&quot;83&quot; alt=&quot;Cherry, her Kerry Blue Terrier&quot;
                style=&quot;display:inline-block;width:64px;height:83px;border:0;vertical-align:bottom&quot;&gt;
         &lt;/td&gt;
         &lt;td style=&quot;vertical-align:bottom;padding:18px 0 6px 12px&quot;&gt;
@@ -263,8 +269,11 @@
         &lt;td align=&quot;right&quot; style=&quot;vertical-align:middle;width:60px&quot;&gt;
           &lt;!-- 抬头放 Doris:她是品牌的那张脸,公司就叫 iDoris,字标旁边站着本人最说得通;
                Cherry 留到落款,收尾时出现更像「顺带介绍家里那只狗」的暖场,而不是开门先见狗。
-               这里用头像而不是全身像 —— 全身像缩到 50px 只剩一个黑条,认不出是谁 --&gt;
-          &lt;img src=&quot;/assets/email/doris-face.png&quot; width=&quot;52&quot; alt=&quot;Doris, the iDoris AI assistant&quot;
+               这里用头像而不是全身像 —— 全身像缩到 50px 只剩一个黑条,认不出是谁。
+               三张图后面的 ?v= 不要删:图上线前这些路径被请求过,Pages 返回的 HTML
+               兜底页按 /assets/* 的长 TTL 存进了边缘缓存,裸路径会拿到 text/html。
+               换资源时把版本号 +1,别指望缓存自己过期 --&gt;
+          &lt;img src=&quot;/assets/email/doris-face.png?v=1&quot; width=&quot;52&quot; alt=&quot;Doris, the iDoris AI assistant&quot;
                style=&quot;display:block;width:52px;height:52px;border-radius:50%;border:0&quot;&gt;
         &lt;/td&gt;
       &lt;/tr&gt;&lt;/table&gt;
@@ -283,9 +292,9 @@
           &lt;!-- 两张图按「身高」而不是按宽度对齐:Doris 是竖构图、Cherry 是横构图,
                同宽会让狗看着比人还大。人 150px 高、狗 83px 高 —— 这个比例接近
                凯利蓝㹴站在成年人身边的真实高度,并排看着才像一个人牵着一条狗 --&gt;
-          &lt;img src=&quot;/assets/email/doris.png&quot; width=&quot;62&quot; height=&quot;150&quot; alt=&quot;Doris, the iDoris AI assistant&quot;
+          &lt;img src=&quot;/assets/email/doris.png?v=1&quot; width=&quot;62&quot; height=&quot;150&quot; alt=&quot;Doris, the iDoris AI assistant&quot;
                style=&quot;display:inline-block;width:62px;height:150px;border:0;vertical-align:bottom&quot;&gt;
-          &lt;img src=&quot;/assets/email/cherry.png&quot; width=&quot;64&quot; height=&quot;83&quot; alt=&quot;Cherry, her Kerry Blue Terrier&quot;
+          &lt;img src=&quot;/assets/email/cherry.png?v=1&quot; width=&quot;64&quot; height=&quot;83&quot; alt=&quot;Cherry, her Kerry Blue Terrier&quot;
                style=&quot;display:inline-block;width:64px;height:83px;border:0;vertical-align:bottom&quot;&gt;
         &lt;/td&gt;
         &lt;td style=&quot;vertical-align:bottom;padding:18px 0 6px 12px&quot;&gt;
