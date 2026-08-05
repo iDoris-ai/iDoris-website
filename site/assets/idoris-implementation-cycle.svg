@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+  <defs>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.4" fill="#111111" opacity="0.08"/>
+    </pattern>
+    <marker id="arrow2" markerWidth="13" markerHeight="13" refX="10" refY="6.5" orient="auto">
+      <path d="M0,0 L13,6.5 L0,13 z" fill="#FF5A1F"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="1000" fill="#FAFAF7"/>
+  <rect width="1600" height="1000" fill="url(#dots)"/>
+
+  <text x="90" y="95" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4" fill="#FF5A1F">HOW WE IMPLEMENT AI</text>
+  <text x="90" y="160" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="800" fill="#111111">Use what works. Build what is missing.</text>
+  <text x="90" y="205" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#6E6E68">A forward-deployed cycle that starts with one real workflow and grows only after value is proven.</text>
+
+  <!-- center -->
+  <circle cx="800" cy="575" r="165" fill="#111111"/>
+  <circle cx="800" cy="575" r="145" fill="#FAFAF7" stroke="#FF5A1F" stroke-width="8"/>
+  <text x="800" y="535" text-anchor="middle" font-family="Courier New, monospace" font-size="19" font-weight="700" fill="#FF5A1F">iDORIS</text>
+  <text x="800" y="585" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="800" fill="#111111">Applied AI</text>
+  <text x="800" y="625" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="800" fill="#111111">Partner</text>
+
+  <!-- nodes -->
+  <g font-family="Arial, Helvetica, sans-serif">
+    <!-- 1 top -->
+    <rect x="610" y="275" width="380" height="135" fill="#FAFAF7" stroke="#111111" stroke-width="3"/>
+    <rect x="610" y="275" width="16" height="135" fill="#FF5A1F"/>
+    <text x="655" y="317" font-family="Courier New, monospace" font-size="17" font-weight="700" fill="#FF5A1F">01 / DISCOVER</text>
+    <text x="655" y="353" font-size="28" font-weight="800" fill="#111111">Find the workflow</text>
+    <text x="655" y="383" font-size="17" fill="#6E6E68">Observe the people, context, data and friction.</text>
+
+    <!-- 2 right upper -->
+    <rect x="1120" y="410" width="390" height="135" fill="#FAFAF7" stroke="#111111" stroke-width="3"/>
+    <rect x="1120" y="410" width="16" height="135" fill="#FF5A1F"/>
+    <text x="1165" y="452" font-family="Courier New, monospace" font-size="17" font-weight="700" fill="#FF5A1F">02 / CHOOSE</text>
+    <text x="1165" y="488" font-size="28" font-weight="800" fill="#111111">Select the right stack</text>
+    <text x="1165" y="518" font-size="17" fill="#6E6E68">Open source, SaaS, models, APIs and data.</text>
+
+    <!-- 3 right lower -->
+    <rect x="1040" y="710" width="470" height="135" fill="#FAFAF7" stroke="#111111" stroke-width="3"/>
+    <rect x="1040" y="710" width="16" height="135" fill="#FF5A1F"/>
+    <text x="1085" y="752" font-family="Courier New, monospace" font-size="17" font-weight="700" fill="#FF5A1F">03 / BUILD</text>
+    <text x="1085" y="788" font-size="28" font-weight="800" fill="#111111">Integrate + customize</text>
+    <text x="1085" y="818" font-size="17" fill="#6E6E68">Connect what exists; engineer only the gaps.</text>
+
+    <!-- 4 left lower -->
+    <rect x="90" y="710" width="470" height="135" fill="#FAFAF7" stroke="#111111" stroke-width="3"/>
+    <rect x="90" y="710" width="16" height="135" fill="#FF5A1F"/>
+    <text x="135" y="752" font-family="Courier New, monospace" font-size="17" font-weight="700" fill="#FF5A1F">04 / DEPLOY</text>
+    <text x="135" y="788" font-size="28" font-weight="800" fill="#111111">Launch + enable the team</text>
+    <text x="135" y="818" font-size="17" fill="#6E6E68">Embed it in daily work and transfer ownership.</text>
+
+    <!-- 5 left upper -->
+    <rect x="90" y="410" width="390" height="135" fill="#FAFAF7" stroke="#111111" stroke-width="3"/>
+    <rect x="90" y="410" width="16" height="135" fill="#FF5A1F"/>
+    <text x="135" y="452" font-family="Courier New, monospace" font-size="17" font-weight="700" fill="#FF5A1F">05 / IMPROVE</text>
+    <text x="135" y="488" font-size="28" font-weight="800" fill="#111111">Measure + expand</text>
+    <text x="135" y="518" font-size="17" fill="#6E6E68">Track adoption, quality, cost and the next step.</text>
+  </g>
+
+  <!-- arrows -->
+  <path d="M990 345 C1120 345, 1240 360, 1300 410" fill="none" stroke="#FF5A1F" stroke-width="6" marker-end="url(#arrow2)"/>
+  <path d="M1375 545 C1400 620, 1370 670, 1300 710" fill="none" stroke="#FF5A1F" stroke-width="6" marker-end="url(#arrow2)"/>
+  <path d="M1040 810 C880 915, 700 915, 560 810" fill="none" stroke="#FF5A1F" stroke-width="6" marker-end="url(#arrow2)"/>
+  <path d="M300 710 C215 660, 190 610, 220 545" fill="none" stroke="#FF5A1F" stroke-width="6" marker-end="url(#arrow2)"/>
+  <path d="M300 410 C390 315, 500 290, 610 330" fill="none" stroke="#FF5A1F" stroke-width="6" marker-end="url(#arrow2)"/>
+
+  <!-- principles -->
+  <rect x="420" y="900" width="760" height="58" fill="#111111"/>
+  <text x="800" y="936" text-anchor="middle" font-family="Courier New, monospace" font-size="18" font-weight="700" letter-spacing="2" fill="#FAFAF7">FORWARD-DEPLOYED · OPEN-FIRST · OUTCOME-LED</text>
+</svg>
