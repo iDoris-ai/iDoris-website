@@ -105,6 +105,9 @@ h1, h2, h3 { font-weight: 400; letter-spacing: -0.01em; line-height: 1.25; margi
 }
 
 a { color: var(--paper); text-decoration: none; }
+/* 正文里指向 /hello 的服务名链接:红字 + 细下划线,可点但不喧宾夺主 */
+.svc-link { color: var(--red); border-bottom: 1px solid rgba(255,59,48,.35); transition: border-color .15s; }
+.svc-link:hover { border-bottom-color: var(--red); }
 
 p { margin: 0 0 1.1em; color: var(--paper-dim); }
 strong { color: var(--paper); font-weight: 500; }
