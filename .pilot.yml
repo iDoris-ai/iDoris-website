@@ -1,0 +1,28 @@
+# .pilot.yml — pilot skill 读它取分支与清理策略。
+#
+# 注意写法:git-guard.sh 是用 sed 抽值的(`s/^base_branch:[[:space:]]*//p`),它既不剥
+# 行内注释、也不解析多行 YAML 列表。所以这里两条硬规矩:
+#   1. 注释单独占一行,绝不写在值后面 —— 否则注释会被当成分支名的一部分读进去;
+#   2. protect_patterns 用单行 flow 写法 [a, b] —— 写成多行 `- a` 列表它读到的是空值,
+#      该字段就成了摆设(release/hotfix 之所以还被护住,是脚本里另有硬编码兜底)。
+
+# 主干。Cloudflare Pages 的 production 分支就是它,合进来即代表「要发布」。禁止直推/直合。
+base_branch: main
+
+# PR 合并进这里。preview → main 的晋升是一次人做的动作 —— git-guard 永远拒绝把 PR
+# 合进主干,这是设计不是故障。
+integration_branch: preview
+
+protect_patterns: [release, hotfix]
+
+remote: origin
+docs_dir: docs/agent
+
+# 本仓库还没有 docs/agent/ 那套规划文档(现有的 docs/ROADMAP.md 是产品规划稿,不是
+# pilot 的运行态文档)。保持 docs 意味着 `pilot run` 起跑前 check-docs.sh 会 exit 1、
+# 要求先 `pilot plan` —— 这是想要的行为:fail closed。改成 external 会让门禁在什么都
+# 没检查的情况下放行,那是一句人做的担保,现在没人担保。
+planning_source: docs
+
+# 外部评审服务的根目录(默认值,写出来是为了显式)。
+pr_daemon_root: ~/Dev/tools/PR-Daemon
