@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-zh="模型定价 — iDoris" data-th="ราคาโมเดล — iDoris">Model pricing — iDoris</title>
+<meta name="description" content="What AI actually costs — official published rates for US and Chinese frontier models, per million tokens, in US dollars. Updated whenever vendors change theirs." data-zh="AI 到底多少钱——美国与中国主流模型的官方公开价格,每百万 token,美元计。模型一变价,这页就得跟着改。" data-th="AI ราคาเท่าไหร่กันแน่ — ราคาที่ผู้ให้บริการโมเดลของสหรัฐฯ และจีนประกาศเอง คิดต่อล้านโทเคน เป็นดอลลาร์สหรัฐ ราคาเปลี่ยนเมื่อไหร่ หน้านี้ก็ต้องตามไปแก้">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2309090C'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23FF3B30'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+  .lead{max-width:660px;margin:0 auto 20px;text-align:center}
+  .lead h1{font-family:var(--display),var(--han);font-weight:500;font-size:clamp(32px,4.4vw,48px);
+    line-height:1.14;letter-spacing:-.01em;margin-bottom:14px}
+  .lead p{font-size:15px;line-height:1.6;color:var(--paper-dim);max-width:56ch;margin:0 auto}
+
+  .price-note{max-width:780px;margin:0 auto 52px}
+
+  .price-wrap{max-width:900px;margin:0 auto;overflow-x:auto}
+  .price-group{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--muted);margin:40px 0 12px}
+  .price-group:first-child{margin-top:0}
+  table.price{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px}
+  table.price th{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);text-align:right;font-weight:500;padding:0 0 10px;border-bottom:1px solid var(--line)}
+  table.price th:first-child{text-align:left}
+  table.price td{padding:14px 0;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  table.price td:not(:first-child){text-align:right;font-family:var(--mono);color:var(--paper-dim);
+    white-space:nowrap;padding-left:18px}
+  table.price td:first-child{color:var(--paper)}
+  table.price .model-name{font-weight:500}
+  table.price .model-sub{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
+  table.price a{color:var(--muted);border-bottom:1px dotted var(--line);font-family:var(--mono);font-size:11px}
+  table.price a:hover{color:var(--red)}
+  table.price .dash{color:var(--muted)}
+
+  .price-foot{max-width:780px;margin:44px auto 0;font-size:12px;line-height:1.7;color:var(--muted)}
+  .price-cta{max-width:780px;margin:60px auto 0;text-align:center;padding:34px 30px;
+    border:1px solid var(--line);border-radius:14px;background:var(--ink-2)}
+  .price-cta p{margin-bottom:18px}
+  @media(max-width:700px){
+    .lead h1{font-size:28px}
+    table.price{font-size:12.5px}
+  }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap">
+    <a class="brand" href="/"><span class="dot"></span>iDORIS</a>
+    <div class="nav-scroll">
+      <a class="link" href="/#directions" data-zh="三个方向" data-th="สามทิศทาง">Three Directions</a>
+      <a class="link" href="/hello" data-zh="我们发出的信" data-th="จดหมายของเรา">The letter</a>
+      <a class="link" href="/pricing" data-zh="模型定价" data-th="ราคาโมเดล" style="color:var(--red)">Model pricing</a>
+      <a class="link" href="/friends" data-zh="我们的 IP" data-th="ตัวละคร">Doris &amp; Cherry</a>
+      <a class="link" href="/join" data-zh="招聘" data-th="ร่วมงาน">We're hiring</a>
+      <a class="link" href="https://github.com/iDoris-ai">GitHub ↗</a>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
+      <button class="lang-btn" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-btn" data-lang="zh" aria-pressed="false">中文</button>
+      <button class="lang-btn" data-lang="th" aria-pressed="false">ไทย</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+<section>
+  <div class="wrap">
+
+    <div class="lead">
+      <h1 data-zh="AI 到底多少钱" data-th="AI ราคาเท่าไหร่กันแน่">What AI actually costs</h1>
+      <p data-zh="下面是各家自己公开的价格,每百万 token,美元计。同一个活换一个模型跑,价格能差出好几倍——这不是我们发明的折扣,只是换了台机器干同一件事。" data-th="ราคาด้านล่างคือราคาที่ผู้ให้บริการแต่ละรายประกาศเอง คิดต่อล้านโทเคน เป็นดอลลาร์สหรัฐ งานเดียวกัน เปลี่ยนโมเดลที่รัน ราคาต่างกันได้หลายเท่า — นี่ไม่ใช่ส่วนลดที่เราคิดขึ้นเอง แค่เปลี่ยนเครื่องที่ทำงานเดียวกัน">
+        Every number below is the vendor's own published rate, per million tokens, in US dollars. The same job can
+        cost several times less on a different model — that is not a discount we invented, it is the same work run
+        on a different engine.
+      </p>
+    </div>
+
+    <div class="aside-note price-note">
+      <span class="tag" data-zh="提醒" data-th="ข้อควรทราบ">Note</span>
+      <p data-zh="模型定价一直在变——新模型发布、降价、汇率波动都会改。表里每一行都是发布方在<b>2026-08-10</b>公开的价格,不是我们发明的固定折扣。给客户报价前,请以厂商当天的定价页为准。" data-th="ราคาโมเดลเปลี่ยนตลอดเวลา ทั้งจากโมเดลใหม่ ราคาที่ปรับลด หรืออัตราแลกเปลี่ยน ตัวเลขแต่ละแถวคือราคาที่ผู้ให้บริการประกาศไว้ ณ วันที่ <b>2026-08-10</b> ไม่ใช่ส่วนลดคงที่ที่เราตั้งขึ้นเอง ก่อนเสนอราคาลูกค้า กรุณายึดหน้าราคาทางการของผู้ให้บริการวันนั้นเป็นหลัก">
+        Model pricing keeps moving — new releases, price cuts, currency swings. Every row is the vendor's own rate
+        as checked on <b>2026-08-10</b>, not a fixed discount we made up. Before quoting a
+        client, confirm against the vendor's live pricing page.
+      </p>
+    </div>
+
+    <div class="price-wrap">
+      <div class="price-group" data-zh="美国旗舰模型" data-th="โมเดลเรือธงจากสหรัฐฯ">US frontier models</div>
+      <table class="price">
+        <thead>
+          <tr>
+            <th data-zh="型号" data-th="โมเดล">Model</th>
+            <th data-zh="输入" data-th="อินพุต">Input /1M</th>
+            <th data-zh="缓存输入" data-th="แคช">Cached /1M</th>
+            <th data-zh="输出" data-th="เอาต์พุต">Output /1M</th>
+            <th data-zh="来源" data-th="แหล่งที่มา">Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="model-name">Claude Opus 5</span><span class="model-sub">Anthropic</span></td>
+            <td>$5.00</td><td>$0.50</td><td>$25.00</td>
+            <td><a href="https://platform.claude.com/docs/en/about-claude/pricing" target="_blank" rel="noopener">anthropic ↗</a></td>
+          </tr>
+          <tr>
+            <td><span class="model-name">Claude Sonnet 5</span><span class="model-sub" data-zh="Anthropic · 限时价至 2026-08-31,此后 $3.00 / $0.30 / $15.00" data-th="Anthropic · ราคาจำกัดเวลาถึง 2026-08-31 หลังจากนั้น $3.00 / $0.30 / $15.00">Anthropic · promo through 2026-08-31, then $3.00 / $0.30 / $15.00</span></td>
+            <td>$2.00</td><td>$0.20</td><td>$10.00</td>
+            <td><a href="https://platform.claude.com/docs/en/about-claude/pricing" target="_blank" rel="noopener">anthropic ↗</a></td>
+          </tr>
+          <tr>
+            <td><span class="model-name">Claude Haiku 4.5</span><span class="model-sub">Anthropic</span></td>
+            <td>$1.00</td><td>$0.10</td><td>$5.00</td>
+            <td><a href="https://platform.claude.com/docs/en/about-claude/pricing" target="_blank" rel="noopener">anthropic ↗</a></td>
+          </tr>
+          <tr>
+            <td><span class="model-name">GPT-5.6 Sol</span><span class="model-sub" data-zh="OpenAI · 旗舰档" data-th="OpenAI · ระดับเรือธง">OpenAI · flagship tier</span></td>
+            <td>$5.00</td><td>$0.50</td><td>$30.00</td>
+            <td><a href="https://developers.openai.com/api/docs/pricing" target="_blank" rel="noopener">openai ↗</a></td>
+          </tr>
+          <tr>
+            <td><span class="model-name">GPT-5.6 Terra</span><span class="model-sub" data-zh="OpenAI · 标准档" data-th="OpenAI · ระดับมาตรฐาน">OpenAI · standard tier</span></td>
+            <td>$2.00</td><td>$0.20</td><td>$12.00</td>
+            <td><a href="https://developers.openai.com/api/docs/pricing" target="_blank" rel="noopener">openai ↗</a></td>
+          </tr>
+          <tr>
+            <td><span class="model-name">Gemini 3.1 Pro</span><span class="model-sub" data-zh="Google · preview,≤200k 上下文(超出后 $4.00 / $0.40 / $18.00)" data-th="Google · เวอร์ชัน preview, บริบท ≤200k (เกินจากนี้ $4.00 / $0.40 / $18.00)">Google · preview, ≤200k context (above that: $4.00 / $0.40 / $18.00)</span></td>
+            <td>$2.00</td><td>$0.20</td><td>$12.00</td>
+            <td><a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener">google ↗</a></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="price-group" data-zh="中国模型" data-th="โมเดลจากจีน">Chinese models</div>
+      <table class="price">
+        <thead>
+          <tr>
+            <th data-zh="型号" data-th="โมเดล">Model</th>
+            <th data-zh="输入" data-th="อินพุต">Input /1M</th>
+            <th data-zh="缓存输入" data-th="แคช">Cached /1M</th>
+            <th data-zh="输出" data-th="เอาต์พุต">Output /1M</th>
+            <th data-zh="来源" data-th="แหล่งที่มา">Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="model-name">DeepSeek V4 Pro</span><span class="model-sub" data-zh="DeepSeek · 官网预告近期将调价" data-th="DeepSeek · ผู้ให้บริการแจ้งว่าราคาจะปรับขึ้นเร็ว ๆ นี้">DeepSeek · vendor flags a price increase coming soon</span></td>
+            <td>$0.435</td><td>$0.0036</td><td>$0.87</td>
+            <td><a href="https://api-docs.deepseek.com/quick_start/pricing/" target="_blank" rel="noopener">deepseek ↗</a></td>
+          </tr>
+          <tr>
+            <td><span class="model-name">DeepSeek V4 Flash</span><span class="model-sub" data-zh="DeepSeek · 官网预告近期将调价" data-th="DeepSeek · ผู้ให้บริการแจ้งว่าราคาจะปรับขึ้นเร็ว ๆ นี้">DeepSeek · vendor flags a price increase coming soon</span></td>
+            <td>$0.14</td><td>$0.0028</td><td>$0.28</td>
+            <td><a href="https://api-docs.deepseek.com/quick_start/pricing/" target="_blank" rel="noopener">deepseek ↗</a></td>
+          </tr>
+          <tr>
+            <td><span class="model-name">Kimi K3</span><span class="model-sub" data-zh="Moonshot · 旗舰档,不含税" data-th="Moonshot · ระดับเรือธง ไม่รวมภาษี">Moonshot · flagship tier, tax not included</span></td>
+            <td>$3.00</td><td>$0.30</td><td>$15.00</td>
+            <td><a href="https://platform.kimi.ai/docs/pricing/chat-k3" target="_blank" rel="noopener">kimi ↗</a></td>
+          </tr>
+          <tr>
+            <td><span class="model-name">GLM-5.2</span><span class="model-sub" data-zh="Zhipu · 旗舰档" data-th="Zhipu · ระดับเรือธง">Zhipu · flagship tier</span></td>
+            <td>$1.40</td><td>$0.26</td><td>$4.40</td>
+            <td><a href="https://docs.z.ai/guides/overview/pricing" target="_blank" rel="noopener">zhipu ↗</a></td>
+          </tr>
+          <tr>
+            <td><span class="model-name">GLM-4.7</span><span class="model-sub">Zhipu</span></td>
+            <td>$0.60</td><td>$0.11</td><td>$2.20</td>
+            <td><a href="https://docs.z.ai/guides/overview/pricing" target="_blank" rel="noopener">zhipu ↗</a></td>
+          </tr>
+          <tr>
+            <td><span class="model-name">Qwen3-Max</span><span class="model-sub" data-zh="阿里云 · 旗舰档" data-th="Alibaba Cloud · ระดับเรือธง">Alibaba Cloud · flagship tier</span></td>
+            <td>$2.00</td><td class="dash" data-zh="≈输入价的 10%" data-th="≈10% ของราคาอินพุต">≈10% of input</td><td>$6.00</td>
+            <td><a href="https://www.alibabacloud.com/help/en/model-studio/model-pricing" target="_blank" rel="noopener">alibaba ↗</a></td>
+          </tr>
+          <tr>
+            <td><span class="model-name">Qwen3-Plus</span><span class="model-sub" data-zh="阿里云 · ≤256k 上下文,限时 8 折" data-th="Alibaba Cloud · บริบท ≤256k ลด 20% ชั่วคราว">Alibaba Cloud · ≤256k context, limited-time 20% off</span></td>
+            <td>$0.32</td><td class="dash" data-zh="≈输入价的 10%" data-th="≈10% ของราคาอินพุต">≈10% of input</td><td>$1.60</td>
+            <td><a href="https://www.alibabacloud.com/help/en/model-studio/model-pricing" target="_blank" rel="noopener">alibaba ↗</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="aside-note price-note" style="margin-top:44px">
+      <span class="tag" data-zh="这个对比在哪些地方会站不住" data-th="ข้อจำกัดของการเปรียบเทียบนี้">Where this breaks down</span>
+      <p data-zh="<b>不是所有中国模型都便宜</b>——Kimi K3 报价 $3.00 / $15.00,和 Claude Sonnet 5 涨价后的标准价持平。省下来的钱来自「挑对模型」,不是「挑中国」。" data-th="<b>ไม่ใช่ทุกโมเดลจากจีนจะถูก</b> — Kimi K3 ราคา $3.00 / $15.00 เท่ากับ Claude Sonnet 5 ราคามาตรฐาน เงินที่ประหยัดได้มาจากการ<b>เลือกโมเดลที่เหมาะกับงาน</b> ไม่ใช่การเลือกเพราะเป็นโมเดลจีน">
+        <b>Not every Chinese model is cheap</b> — Kimi K3 lists at $3.00 / $15.00, level with Claude Sonnet 5's
+        standard rate. The saving comes from picking the right model for the job, not from the vendor's flag.
+      </p>
+      <p data-zh="<b>上下文越长,价格可能跳档</b>——Gemini 以 200k、Qwen 以 32k/256k/1M 为界分档计价,这里列的是最低档;Anthropic、OpenAI 是全上下文统一价。" data-th="<b>บริบทยิ่งยาว ราคายิ่งขยับขึ้นได้</b> — Gemini แบ่งช่วงที่ 200k, Qwen แบ่งที่ 32k/256k/1M ตารางนี้แสดงราคาช่วงต่ำสุด ส่วน Anthropic และ OpenAI คิดราคาเดียวตลอดทั้งบริบท">
+        <b>Longer context can jump to a higher tier</b> — Gemini splits at 200k, Qwen at 32k/256k/1M; the rows
+        above show the lowest tier. Anthropic and OpenAI charge one flat rate across the full context.
+      </p>
+      <p data-zh="<b>促销价和预告涨价都有截止日</b>——Claude Sonnet 5 的低价 2026-08-31 到期,DeepSeek 官网写着近期会调价。核对日之后请以厂商当天的页面为准。" data-th="<b>ราคาโปรโมชันและการปรับราคามีกำหนดเวลา</b> — ราคาต่ำของ Claude Sonnet 5 หมดอายุ 2026-08-31 ส่วน DeepSeek ระบุว่าจะปรับราคาเร็ว ๆ นี้ หลังวันที่ตรวจสอบ กรุณายึดหน้าราคาทางการของผู้ให้บริการวันนั้นเป็นหลัก">
+        <b>Promo prices and flagged increases both have a clock</b> — Claude Sonnet 5's lower rate expires
+        2026-08-31, and DeepSeek's own page flags an upcoming increase. After the checked date, defer to the
+        vendor's live page.
+      </p>
+    </div>
+
+    <p class="price-foot" data-zh="以上均为各厂商官方定价页公开数字,查证于 2026-08-10,链接见每一行。汇率、地区定价差异、企业合同价可能与这里不同——这些是公开的标准 API 价格,不代表我们向客户的实际报价。" data-th="ตัวเลขทั้งหมดมาจากหน้าราคาทางการของแต่ละผู้ให้บริการ ตรวจสอบเมื่อ 2026-08-10 ลิงก์อยู่ในแต่ละแถว อัตราแลกเปลี่ยน ราคาตามภูมิภาค หรือสัญญาระดับองค์กรอาจต่างจากนี้ — นี่คือราคา API มาตรฐานที่เปิดเผยต่อสาธารณะ ไม่ใช่ราคาที่เราเสนอให้ลูกค้าจริง">
+      All figures are each vendor's own published rate, checked 2026-08-10, linked per row. Currency, regional
+      pricing, and enterprise contracts can differ from these — this is the public standard API rate, not what
+      we quote clients.
+    </p>
+
+    <div class="price-cta">
+      <p data-zh="已经在为上面某个模型付费了?告诉我们你们的用量,我们把同样的活换成中国模型跑一遍,算给你看差多少。" data-th="จ่ายค่าโมเดลด้านบนอยู่แล้วใช่ไหมครับ? บอกปริมาณการใช้งานของทีมมา แล้วเราจะคำนวณให้ว่างานเดียวกันรันด้วยโมเดลจีนจะประหยัดไปเท่าไหร่">
+        Already paying for one of these? Tell us your usage and we'll work out what the same job costs on a
+        Chinese model instead.
+      </p>
+      <a class="btn primary" href="/hello" data-zh="看我们发出的信 →" data-th="อ่านจดหมายของเรา →">See the letter we send →</a>
+    </div>
+
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div style="color:var(--paper);font-weight:500;margin-bottom:6px">iDoris.ai</div>
+      <div data-zh="iDoris · 应用 AI 伙伴 · 组织大脑 · 数字公共物品 · Apache 2.0" data-th="iDoris · พาร์ทเนอร์ AI ที่ใช้ได้จริง · สมององค์กร · สาธารณประโยชน์ดิจิทัล · Apache 2.0">iDoris · Applied AI Partner · The Organizational Brain · Digital Public Goods · Apache 2.0</div>
+    </div>
+    <div class="links">
+      <a href="/" data-zh="返回首页" data-th="กลับหน้าแรก">Home</a>
+      <a href="/hello" data-zh="我们发出的信" data-th="จดหมายของเรา">The letter</a>
+      <a href="https://github.com/iDoris-ai">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/i18n-v2.js"></script>
+</body>
+</html>
