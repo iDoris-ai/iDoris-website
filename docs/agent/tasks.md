@@ -31,7 +31,7 @@
 
 ## F1.1 — 服务定义与定价
 
-### T1.1.1 四阶段服务定义  `READY`
+### T1.1.1 四阶段服务定义  `DONE`
 - **优先级**：high
 - **目标**：把 Discover / Enable / Implement / Operate 写成任何人都能照着卖的定义
 - **开发范围**：`docs/business/services.md`。每阶段含：解决什么问题、做什么、
@@ -40,7 +40,7 @@
 - **交付物**：`docs/business/services.md`
 - **验收命令**：`for s in Discover Enable Implement Operate; do grep -q "$s" docs/business/services.md || exit 1; done; grep -q "不该" docs/business/services.md`
 
-### T1.1.2 泰铢定价表与区间判据  `READY`
+### T1.1.2 泰铢定价表与区间判据  `DONE`
 - **优先级**：high
 - **目标**：每档有价格区间，且写明**什么情况取上限、什么情况取下限**
 - **开发范围**：`docs/business/pricing.md`。以源文档第 6 节为起点，
@@ -50,7 +50,7 @@
 - **验收命令**：`grep -q "初始定价假设" docs/business/pricing.md && grep -q "取上限" docs/business/pricing.md && grep -q "THB" docs/business/pricing.md`
 - **风险**：价格是对外承诺，必须标明可调整
 
-### T1.1.3 竞争与替代方案分析  `READY`
+### T1.1.3 竞争与替代方案分析  `DONE`
 - **优先级**：high
 - **目标**：客户不买我们会买什么/自己干什么，我们凭什么赢
 - **开发范围**：`docs/business/alternatives.md`。至少覆盖五种替代：
@@ -60,20 +60,20 @@
 
 ## F1.2 — 三角色分工与上岗
 
-### T1.2.1 客户旅程手册  `READY`
+### T1.2.1 客户旅程手册  `DONE`
 - **优先级**：high
 - **目标**：把 spec.md 的状态机与 RACI 变成可以直接给新人的操作手册
 - **开发范围**：`docs/business/playbook-customer-journey.md`
 - **验收命令**：`grep -q "stateDiagram" docs/business/playbook-customer-journey.md && grep -q "RACI" docs/business/playbook-customer-journey.md && grep -q "退化" docs/business/playbook-customer-journey.md`
 
-### T1.2.2 阶段门检查表（可打印）  `READY`
+### T1.2.2 阶段门检查表（可打印）  `DONE`
 - **优先级**：high
 - **开发范围**：`docs/business/stage-gates.md`，checkbox 形式，每个阶段门列出
   「缺一项不准进下一阶段」的条目
 - **依赖**：T1.2.1
 - **验收命令**：`grep -c '^\- \[ \]' docs/business/stage-gates.md | awk '$1>=20{exit 0}{exit 1}'`
 
-### T1.2.3 新员工第一天上岗手册  `READY`
+### T1.2.3 新员工第一天上岗手册  `DONE`
 - **优先级**：high
 - **目标**：**明天有人入职，读这一份就能开始干活**
 - **开发范围**：`docs/business/onboarding-day1.md`。三条角色路径（BD / PM / Dev），
@@ -84,7 +84,7 @@
 
 ## F1.3 — 销售弹药
 
-### T1.3.1 一页纸（EN + TH）  `READY`
+### T1.3.1 一页纸（EN + TH）  `DONE`
 - **优先级**：high
 - **开发范围**：`docs/business/one-pager-en.md` 与 `one-pager-th.md`。
   结构：解决什么 → 四阶段 → 价格区间 → 为什么是我们 → 下一步
@@ -92,7 +92,7 @@
 - **验收命令**：`test -f docs/business/one-pager-en.md && test -f docs/business/one-pager-th.md && grep -q "待泰语 native 校对" docs/business/one-pager-th.md`
 - **风险**：泰语版由 AI 生成，**必须标注待 native 校对**
 
-### T1.3.2 Discovery Sprint 完整样例（虚构酒店）  `READY`
+### T1.3.2 Discovery Sprint 完整样例（虚构酒店）  `DONE`
 - **优先级**：high
 - **目标**：一个从访谈到 90 天路线图的完整样例，九项交付物齐全
 - **开发范围**：`docs/business/sample-discovery-hotel/`。虚构清迈精品酒店，
@@ -101,7 +101,7 @@
 - **依赖**：T2.1.1（先有 SOP 才知道样例长什么样）
 - **验收命令**：`ls docs/business/sample-discovery-hotel/*.md | wc -l | awk '$1>=10{exit 0}{exit 1}'`
 
-### T1.3.3 报价单模板  `READY`
+### T1.3.3 报价单模板  `DONE`
 - **优先级**：high
 - **开发范围**：`docs/business/quote-template.md`，填空式，含交付物清单与验收条款
 - **依赖**：T1.1.1、T1.1.2
@@ -109,7 +109,7 @@
 
 ## F1.4 — 官网可承接
 
-### T1.4.1 官网服务页 `/services`  `READY`
+### T1.4.1 官网服务页 `/services`  `DONE`
 - **优先级**：mid
 - **开发范围**：`site/services/index.html`，沿用 `/pricing` 的版式与 i18n 约定；
   `deploy.sh` 的 PAGES 加 `/services`；首页 nav 与 footer 挂链接
@@ -123,7 +123,7 @@
 
 ## F2.1 — iDoris Discovery Skill v0.1（今晚的重中之重）
 
-### T2.1.1 Discovery SOP：逐小时、逐问题、逐工具  `READY`
+### T2.1.1 Discovery SOP：逐小时、逐问题、逐工具  `DONE`
 - **优先级**：**highest**
 - **目标**：**任何一个 FDE 拿着它进企业，产出的九项交付物格式一致、质量可比**
 - **开发范围**：`docs/business/discovery-sop.md`。必须包含：
@@ -143,7 +143,7 @@
 - **备注**：**这份文档是整个 iDoris 差异化的载体。** 写不到「新人照着能干」
   的程度就是没写完
 
-### T2.1.2 Discovery Skill 打包为可分发资产  `READY`
+### T2.1.2 Discovery Skill 打包为可分发资产  `DONE`
 - **优先级**：high
 - **目标**：把 SOP 变成一个目录结构清晰、可开源、可被 Claude Code 直接调用的 Skill
 - **开发范围**：`docs/business/discovery-skill/`，结构见 architecture.md 3.1：
@@ -158,20 +158,20 @@
 > 它替谁省了什么时间 · 用哪个开源仓库（含 License）· 我们自己写哪一段 ·
 > 接口长什么样 · 最小可用形态是什么 · 怎么演示给客户看
 
-### T2.2.0 Starter Kit 总体设计与四组件边界  `READY`
+### T2.2.0 Starter Kit 总体设计与四组件边界  `DONE`
 - **优先级**：high
 - **开发范围**：`docs/business/starter-kit/README.md`。四个组件各自的定位、
   共用的 Gateway 契约、四者之间的数据流、统一的部署形态
 - **验收命令**：`grep -q "Voice" docs/business/starter-kit/README.md && grep -q "Gateway" docs/business/starter-kit/README.md`
 
-### T2.2.1 Voice 组件：现状盘点与补齐设计  `READY`
+### T2.2.1 Voice 组件：现状盘点与补齐设计  `DONE`
 - **优先级**：high
 - **目标**：已有的东西到什么程度、缺什么才能当产品演示
 - **开发范围**：`docs/business/starter-kit/voice.md`。含现状盘点、
   泰语识别质量的评测方法、三语混合输入的处理、语音→文档模板的衔接
 - **验收命令**：`grep -q "faster-whisper\|whisper" docs/business/starter-kit/voice.md && grep -q "泰语" docs/business/starter-kit/voice.md`
 
-### T2.2.2 Documents 组件设计  `READY`
+### T2.2.2 Documents 组件设计  `DONE`
 - **优先级**：**highest**
 - **目标**：定义清楚 Documents 到底是个什么东西
 - **开发范围**：`docs/business/starter-kit/documents.md`。必须回答：
@@ -185,7 +185,7 @@
   - **典型场景**：合同对比、会议纪要抽取、泰英文件翻译
 - **验收命令**：`grep -q "Docling" docs/business/starter-kit/documents.md && grep -c "^### " docs/business/starter-kit/documents.md | awk '$1>=6{exit 0}{exit 1}'`
 
-### T2.2.3 Creative 组件设计  `READY`
+### T2.2.3 Creative 组件设计  `DONE`
 - **优先级**：high
 - **开发范围**：`docs/business/starter-kit/creative.md`。必须回答：
   - **它是什么**：社媒素材 / 基础图像生成 / 营销内容 / 演示材料 / 品牌适配
@@ -195,7 +195,7 @@
   - **最小可用形态**：一个「输入产品描述 → 出三张社媒图 + 泰英文案」的流水线
 - **验收命令**：`grep -q "GPL" docs/business/starter-kit/creative.md && grep -q "独立进程\|隔离" docs/business/starter-kit/creative.md`
 
-### T2.2.4 Assistant 组件设计  `READY`
+### T2.2.4 Assistant 组件设计  `DONE`
 - **优先级**：**highest**
 - **开发范围**：`docs/business/starter-kit/assistant.md`。必须回答：
   - **它是什么**：会议→纪要→任务 / 邮件→草稿 / 文档→行动项 /
@@ -209,20 +209,20 @@
 
 ## F2.0 — 产品设计与开发计划
 
-### T2.0.1 产品清单与优先级  `READY`
+### T2.0.1 产品清单与优先级  `DONE`
 - **优先级**：high
 - **开发范围**：`docs/business/product-portfolio.md`。以 architecture.md 第二节展开，
   每个产品含：解决谁的什么问题、优先级理由、依赖、最小可用形态
 - **验收命令**：`grep -c "^## " docs/business/product-portfolio.md | awk '$1>=6{exit 0}{exit 1}'`
 
-### T2.0.2 基于开源组件的开发计划  `READY`
+### T2.0.2 基于开源组件的开发计划  `DONE`
 - **优先级**：high
 - **开发范围**：`docs/business/dev-plan.md`。每个产品含组件表
   （名称/License/用途/为什么选它）、装配图、分阶段实现路径、风险
 - **依赖**：T2.0.1、T2.2.0–4
 - **验收命令**：`grep -q "Apache" docs/business/dev-plan.md && grep -q "GPL" docs/business/dev-plan.md && grep -q "LiteLLM" docs/business/dev-plan.md`
 
-### T2.0.3 开源组件尽调  `READY`
+### T2.0.3 开源组件尽调  `DONE`
 - **优先级**：**highest**
 - **目标**：research.md 那张表逐行做实
 - **开发范围**：`docs/business/oss-due-diligence.md`。每个组件：仓库地址、
@@ -231,13 +231,13 @@
 - **备注**：**n8n 与 Dify 的许可条款必须逐条读过**——n8n 不是 OSI 开源，
   Dify 有品牌与多租户附加条款
 
-### T2.0.4 AI Gateway 设计  `READY`
+### T2.0.4 AI Gateway 设计  `DONE`
 - **优先级**：high
 - **开发范围**：`docs/business/gateway-design.md`。LiteLLM 基座 + 我们的路由策略表、
   成本闸、审计留痕。含「Gateway 绝不存内容只存元数据」的边界
 - **验收命令**：`grep -q "LiteLLM" docs/business/gateway-design.md && grep -q "元数据" docs/business/gateway-design.md`
 
-### T2.0.5 LINE AI Agent 设计  `READY`
+### T2.0.5 LINE AI Agent 设计  `DONE`
 - **优先级**：mid
 - **开发范围**：`docs/business/line-agent-design.md`。LINE SDK + LangGraph，
   含意图识别、业务检索、人工审批队列、默认全审的策略
@@ -249,7 +249,7 @@
 
 ## F3.1 — 度量
 
-### T3.1.1 Before/After 度量方法  `READY`
+### T3.1.1 Before/After 度量方法  `DONE`
 - **优先级**：high
 - **开发范围**：`docs/business/measurement.md`。怎么取基线（**防自欺**：
   不能事后回忆，必须事前测）、测什么、怎么算年化收益、案例模板
@@ -257,7 +257,7 @@
 
 ## F3.2 — 泰国渠道
 
-### T3.2.1 三条渠道路径调研  `READY`
+### T3.2.1 三条渠道路径调研  `DONE`
 - **优先级**：high
 - **开发范围**：`docs/business/thailand-channels.md`。depa 合作 / Digital Catalog
   注册 / 注册培训课程三条路径，各自：做什么、前置条件、时间成本、金钱成本、
@@ -265,7 +265,7 @@
 - **明确不做**：不联系任何外部机构
 - **验收命令**：`grep -c "^## " docs/business/thailand-channels.md | awk '$1>=3{exit 0}{exit 1}'`
 
-### T3.2.2 待核事实清单  `READY`
+### T3.2.2 待核事实清单  `DONE`
 - **优先级**：**highest**
 - **目标**：把所有 [待核] 集中一处，每条写明「去哪里、点哪个链接能核」
 - **开发范围**：`docs/business/facts-to-verify.md`。扫描 `docs/` 下所有 [待核]，
