@@ -6,8 +6,9 @@ cd "$(dirname "$0")"
 PY="${PYTHON:-python3}"
 RED=$'\033[31m'; GRN=$'\033[32m'; OFF=$'\033[0m'
 cp docir.py .docir.bak; cp extract.py .extract.bak; cp thai_dates.py .thai_dates.bak
-cp summarize.py .summarize.bak; cp translate.py .translate.bak
-trap 'mv -f .docir.bak docir.py; mv -f .extract.bak extract.py; mv -f .thai_dates.bak thai_dates.py; mv -f .translate.bak translate.py; mv -f .summarize.bak summarize.py' EXIT
+cp summarize.py .summarize.bak
+cp compare.py .compare.bak; cp translate.py .translate.bak
+trap 'mv -f .docir.bak docir.py; mv -f .extract.bak extract.py; mv -f .thai_dates.bak thai_dates.py; mv -f .translate.bak translate.py; mv -f .summarize.bak summarize.py; mv -f .compare.bak compare.py' EXIT
 fail=0
 n_mut=0        # 自动计数 —— 写死数字会随着加变异而过期,
                # 而一句过期的「各条属性都被兜住」比不说更糟。
@@ -188,6 +189,46 @@ mutate "破坏类型分歧留痕(默默取多数)" \
 
 mutate "破坏跨文档拦截(两份文档的决议混在一起)" \
   's/^    if len(doc_ids) != 1:/    if False:/' summarize.py test_summarize.py
+
+# ── compare:漏一条就可能造成损失 ───────────────────────────────────
+# 漏掉一条条款变更的表现是:差异清单看起来干净、专业、条理清楚,
+# 少的那条不会以任何形式出现。客户签下去,损失是真金白银。
+
+mutate "破坏覆盖对账(漏了块也不报)" \
+  's/^    if problems:/    if False:/' compare.py test_compare.py
+
+mutate "破坏漏配兜底(模型没提到的块就当没变)" \
+  's/^        if bid.id not in used_old:/        if False:/' compare.py test_compare.py
+
+mutate "破坏重复计入检测(同一块交代两次也放行)" \
+  's/^            elif n > 1:/            elif False:/' compare.py test_compare.py
+
+mutate "破坏重复配对拦截(同一块能配两次,凑数蒙混覆盖对账)" \
+  's/^                if bid in used:/                if False:/' compare.py test_compare.py
+
+mutate "破坏顺序调换判定(位置变了也算 unchanged)" \
+  's/^            kind = "moved" if _position_changed(oid, nid, o_order, n_order) else "unchanged"/            kind = "unchanged"/' \
+  compare.py test_compare.py
+
+mutate "破坏数字风险升级(数字改了也用模型给的风险)" \
+  's/^        if bn != nn:/        if False:/' compare.py test_compare.py
+
+mutate "破坏泰文数字识别(泰数字的金额改动静默漏过)" \
+  's/^    t = text.translate(_THAI_DIGITS)/    t = text/' compare.py test_compare.py
+
+mutate "破坏空白归一(重新解析同一份文档就报一堆假改动)" \
+  's/^    return _WS.sub(" ", s).strip()/    return s/' compare.py test_compare.py
+
+mutate "破坏双向出处强制(只指一头也放行)" \
+  's/^            if self.before is None or self.after is None:/            if False:/' \
+  compare.py test_compare.py
+
+mutate "破坏出处校验(编造的 block_id 放行)" \
+  's/^            if bid is not None and bid not in table:/            if False:/' \
+  compare.py test_compare.py
+
+mutate "破坏同文档拦截(跟自己比也放行)" \
+  's/^    if old.doc_id == new.doc_id:/    if False:/' compare.py test_compare.py
 
 # 反向对照
 sed -i.tmp 's/# 泰文字符范围/# 注释改动/' docir.py 2>/dev/null; rm -f docir.py.tmp
