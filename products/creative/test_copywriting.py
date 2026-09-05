@@ -11,6 +11,10 @@ import sys
 
 from copywriting import (
     CHANNEL_LIMITS,
+    MAX_SMS_SEGMENTS,
+    gsm7_septets,
+    sms_cost,
+    utf16_units,
     BrandKit,
     CopyRejected,
     CopyRequest,
@@ -82,6 +86,74 @@ def test_length_limit_is_a_gate() -> None:
                       ("email_subject", "en"): ["a", "b"]}
     expect_raises(CopyRejected, lambda: assemble(short, long_for_email),
                   "email_subject 用了别的渠道的上限 —— 61 字应超过 60")
+
+
+def test_sms_thai_counts_as_ucs2_not_characters() -> None:
+    """短信的 160 是 GSM-7 septet，不是「字符」。泰文强制 UCS-2，单段只有 70。
+
+    这是真实 bug 的回归测试：闸门原先用 len(t) > 160 判断，于是一条
+    152 字的泰文短信「没超 160」直接放行，实际发出去是 3 段、三倍话费，
+    而且没有任何东西报错。钱的事，不能靠人眼看。
+    """
+    thai = "สวัสดีค่ะ ยินดีต้อนรับสู่โรงแรมของเรา " * 4
+    thai = thai[:152]
+    enc, units, segs = sms_cost(thai)
+    check(enc == "UCS-2", "泰文短信编码判错：%s（泰文没有一个字在 GSM-7 表里）" % enc)
+    check(segs == 3, "泰文 152 字应是 3 段，得到 %d" % segs)
+    check(units <= CHANNEL_LIMITS["sms"],
+          "前提失效：这个样例得是「len() 看着没超 160」才有意义（units=%d）" % units)
+
+    r = req(channels=["sms"], langs=["th"], variants=1)
+    expect_raises(CopyRejected, lambda: assemble(r, {("sms", "th"): [thai]}),
+                  "超段泰文短信没被拒 —— len() 数出来「没超 160」正是 bug 本身")
+
+    # 正对照：70 以内的泰文必须放行，否则「一律拒绝」也能让上面绿
+    ok_thai = "สวัสดีค่ะ ยินดีต้อนรับ"
+    check(sms_cost(ok_thai)[2] == 1, "前提失效：短泰文应当只要 1 段")
+    try:
+        assemble(r, {("sms", "th"): [ok_thai]})
+    except Exception as e:                                   # noqa: BLE001
+        FAILS.append("正对照失败：70 以内的泰文短信被拒了（%s）" % e)
+
+    # 正对照：英文 160 走 GSM-7，仍应放行 —— 不能因为修泰文而误伤英文
+    en = "Welcome to our hotel! " * 7
+    en = en[:160]
+    check(gsm7_septets(en) is not None, "前提失效：这段英文应当全在 GSM-7 表里")
+    check(sms_cost(en)[2] == MAX_SMS_SEGMENTS, "英文 160 应当只要 1 段")
+    try:
+        assemble(req(channels=["sms"], langs=["en"], variants=1),
+                 {("sms", "en"): [en]})
+    except Exception as e:                                   # noqa: BLE001
+        FAILS.append("正对照失败：英文 160 字短信被拒了（%s）" % e)
+
+
+def test_emoji_counted_as_platform_counts_them() -> None:
+    """LINE/FB/IG 是 JS 栈，数的是 UTF-16 code unit —— 一个 emoji 算 2。
+
+    用 len() 数会**偏松**：我们放行的文案到了平台被截断，
+    而这个闸门存在的全部意义就是防这件事。
+    """
+    limit = CHANNEL_LIMITS["line_oa"]
+    # 造一段 python len() 不超限、但 UTF-16 超限的文案
+    n_emoji = 60
+    text = "🎉" * n_emoji + "x" * (limit - n_emoji - 1)
+    check(len(text) <= limit,
+          "前提失效：这个样例得是「len() 看着没超」才有意义（len=%d）" % len(text))
+    check(utf16_units(text) > limit,
+          "前提失效：UTF-16 单位数应当超限（得到 %d）" % utf16_units(text))
+
+    expect_raises(CopyRejected,
+                  lambda: assemble(req(langs=["en"], variants=1),
+                                   {("line_oa", "en"): [text]}),
+                  "emoji 文案按 len() 数放行了 —— 平台按 UTF-16 数会截断")
+
+    # 正对照：纯 BMP 文本恰好等于上限仍放行，UTF-16 计数没把普通文案误伤
+    plain = "x" * limit
+    check(utf16_units(plain) == limit, "纯 ASCII 的 UTF-16 单位数应当等于字符数")
+    try:
+        assemble(req(langs=["en"], variants=1), {("line_oa", "en"): [plain]})
+    except Exception as e:                                   # noqa: BLE001
+        FAILS.append("正对照失败：恰好等于上限的普通文案被拒（%s）" % e)
 
 
 def test_unknown_channel_not_guessed() -> None:
@@ -200,6 +272,22 @@ def test_instruction_states_the_hard_limits() -> None:
     en = build_instruction(req(), "line_oa", "en")
     check("ครับ" not in en, "负对照失败：英文指示里混进了泰文敬语规则")
     check("warm, concise" in en, "英文指示里没用英文 tone")
+
+
+def test_sms_instruction_states_the_language_specific_limit() -> None:
+    """给泰文短信的指示必须写 70，不是 160。
+
+    短信上限随语言变（泰文走 UCS-2）。告诉模型 160、再用 70 拒它，
+    是我们的错不是模型的 —— 白跑一轮，而且失败原因看起来毫无道理。
+    """
+    th = build_instruction(req(channels=["sms"]), "sms", "th")
+    check("70" in th, "泰文短信的指示没写 70：%r" % th)
+    check("160" not in th, "泰文短信的指示里出现了 160 —— 模型会照 160 写，然后被我们拒")
+    check("UCS-2" in th, "泰文短信的指示没说明编码")
+
+    en = build_instruction(req(channels=["sms"]), "sms", "en")
+    check("160" in en, "英文短信的指示没写 160：%r" % en)
+    check("70" not in en, "负对照失败：英文短信被按泰文的 70 限制了")
 
 
 def test_result_shape() -> None:

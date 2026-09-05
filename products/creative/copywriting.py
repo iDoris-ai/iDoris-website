@@ -43,16 +43,109 @@ import sys
 from dataclasses import dataclass, field
 from typing import Any
 
+# ── 计数单位 ──────────────────────────────────────────────────────────
+#
+# **不能一律用 len()。** 各平台数的东西不一样，用错单位的闸门会两头出错：
+#
+#   1. LINE / Facebook / Instagram / 邮件客户端都是 JS 栈，数的是
+#      **UTF-16 code unit**（JS 的 String.length）。一个 emoji 在 Python
+#      len() 里是 1，在平台那里是 2。用 len() 数会**偏松** —— 放过去的文案
+#      到了平台被截断，正是这个闸门要防的事。
+#   2. 短信的 160 是 **GSM-7 septet** 上限，不是「字符」。泰文没有一个字
+#      在 GSM-7 表里，整条强制转 UCS-2，单条上限掉到 **70**。一条 152 字的
+#      泰文短信用 len() 数「没超 160」，实际要发 3 段、**三倍话费**，
+#      而且没有任何东西报错。
+#
+# 所以每个渠道显式声明单位。宁可多写一行，不要让闸门看起来在把关、实际没有。
+
+UNIT_UTF16 = "utf16"      # JS 平台的 String.length
+UNIT_SMS = "sms"          # GSM-7 septet / UCS-2，见 sms_cost()
+
+# GSM-7 基本表。不在表里的字符会让整条短信转 UCS-2。
+_GSM7_BASIC = set(
+    "@\u00a3$\u00a5\u00e8\u00e9\u00f9\u00ec\u00f2\u00c7\n\u00d8\u00f8\r"
+    "\u00c5\u00e5\u0394_\u03a6\u0393\u039b\u03a9\u03a0\u03a8\u03a3\u0398\u039e"
+    "\u00c6\u00e6\u00df\u00c9"
+    " !\"#\u00a4%&'()*+,-./0123456789:;<=>?"
+    "\u00a1ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c4\u00d6\u00d1\u00dc\u00a7"
+    "\u00bfabcdefghijklmnopqrstuvwxyz\u00e4\u00f6\u00f1\u00fc\u00e0")
+# 扩展表：每个占 2 个 septet。
+_GSM7_EXT = set("^{}\\[~]|\u20ac")
+
+
+def utf16_units(text: str) -> int:
+    """平台（JS）看到的长度。emoji 等非 BMP 字符算 2。"""
+    return len(text.encode("utf-16-le")) // 2
+
+
+def gsm7_septets(text: str) -> int | None:
+    """GSM-7 所需 septet 数；有任一字符不在表里则返回 None（=必须走 UCS-2）。"""
+    n = 0
+    for ch in text:
+        if ch in _GSM7_BASIC:
+            n += 1
+        elif ch in _GSM7_EXT:
+            n += 2
+        else:
+            return None
+    return n
+
+
+def sms_cost(text: str) -> tuple[str, int, int]:
+    """返回 (编码, 计数值, 需要的短信段数)。
+
+    单段上限：GSM-7 160 / UCS-2 70；拼接后每段留 6 字节 UDH，
+    降到 153 / 67。泰文永远走 UCS-2。
+    """
+    sep = gsm7_septets(text)
+    if sep is not None:
+        enc, units, single, multi = "GSM-7", sep, 160, 153
+    else:
+        enc, units, single, multi = "UCS-2", utf16_units(text), 70, 67
+    segments = 1 if units <= single else -(-units // multi)
+    return enc, units, segments
+
+
 # 渠道字数上限。**[待核] 各平台的实际限制会变，这里的值需定期核。**
 # 核法：各平台官方开发者文档。谁核：Dev，季度复查。
 # 取值刻意保守 —— 宁可让人删两个字，不要让客户看到被截断的文案。
+# 第二个值是**计数单位**，见上面那段。
 CHANNEL_LIMITS: dict[str, int] = {
     "line_oa": 500,          # [待核] LINE OA 推送
     "facebook_post": 2000,   # [待核]
     "instagram_post": 2200,  # [待核] 超过会被折叠
     "email_subject": 60,     # 通用经验值
-    "sms": 160,
+    "sms": 160,              # GSM-7 septet；泰文走 UCS-2 时实际是 70，见 sms_cost()
 }
+
+CHANNEL_UNIT: dict[str, str] = {
+    "line_oa": UNIT_UTF16,
+    "facebook_post": UNIT_UTF16,
+    "instagram_post": UNIT_UTF16,
+    "email_subject": UNIT_UTF16,
+    "sms": UNIT_SMS,
+}
+
+# 允许的最高短信段数。1 段 = 1 条的价钱；放宽到 2 就是话费翻倍，
+# 那是客户该拍板的事，不是我们默认替他决定的。
+MAX_SMS_SEGMENTS = 1
+
+
+def count_for_channel(text: str, channel: str) -> int:
+    """按渠道自己的单位数长度。"""
+    if CHANNEL_UNIT[channel] == UNIT_SMS:
+        return sms_cost(text)[1]
+    return utf16_units(text)
+
+
+def effective_limit(text: str, channel: str) -> int:
+    """该渠道对**这段文本**的实际上限。
+
+    短信是唯一会随内容变的：同一个渠道，英文 160、泰文 70。
+    """
+    if CHANNEL_UNIT[channel] != UNIT_SMS:
+        return CHANNEL_LIMITS[channel]
+    return 160 if gsm7_septets(text) is not None else 70
 
 LANGS = ("th", "en", "zh")
 
@@ -117,7 +210,9 @@ class CopyVariant:
     length: int = 0
 
     def __post_init__(self) -> None:
-        self.length = len(self.text)
+        # 按渠道自己的单位数 —— 交付物上写的字数得和平台数的一致,
+        # 否则客户拿去核对会对不上。
+        self.length = count_for_channel(self.text, self.channel)
 
 
 @dataclass
@@ -143,9 +238,18 @@ def build_instruction(req: CopyRequest, channel: str, lang: str) -> str:
     lines = [
         "Write %d marketing copy variants in %s for: %s" % (req.variants, lang, req.subject),
         "Brand: %s" % req.brand.display_name,
-        "Hard limit: %d characters per variant. Going over is a rejection, not a warning."
-        % limit,
     ]
+    if CHANNEL_UNIT[channel] == UNIT_SMS:
+        # 短信的上限随语言变。告诉模型 160 再让泰文文案被拒,是我们的错不是它的。
+        sms_limit = 70 if lang == "th" else 160
+        lines.append(
+            "Hard limit: %d characters per variant (SMS in %s uses %s encoding). "
+            "Going over is a rejection, not a warning."
+            % (sms_limit, lang, "UCS-2" if lang == "th" else "GSM-7"))
+    else:
+        lines.append(
+            "Hard limit: %d UTF-16 code units per variant (an emoji counts as 2). "
+            "Going over is a rejection, not a warning." % limit)
     if tone:
         lines.append("Tone: %s" % tone)
     if req.brand.forbidden:
@@ -199,12 +303,26 @@ def assemble(req: CopyRequest,
             for i, t in enumerate(texts):
                 if not t.strip():
                     raise CopyRejected("%s/%s 第 %d 个变体是空的" % (ch, lang, i + 1))
-                # 硬要求 1：字数上限
-                if len(t) > limit:
-                    raise CopyRejected(
-                        "%s/%s 第 %d 个变体 %d 字，超过 %s 的上限 %d —— "
-                        "超限直接拒绝。发出去会被截断，客户看到的是残缺文案"
-                        % (ch, lang, i + 1, len(t), ch, limit))
+                # 硬要求 1：字数上限。**按渠道自己的单位数**，不是 len()。
+                if CHANNEL_UNIT[ch] == UNIT_SMS:
+                    enc, units, segments = sms_cost(t)
+                    if segments > MAX_SMS_SEGMENTS:
+                        raise CopyRejected(
+                            "%s/%s 第 %d 个变体要发 %d 段短信（%s 编码，%d 单位，"
+                            "单段上限 %d）—— 直接拒绝。多一段就是多一条的话费，"
+                            "而且不会有任何东西提醒你。泰文没有一个字在 GSM-7 表里，"
+                            "整条走 UCS-2，单段只有 70"
+                            % (ch, lang, i + 1, segments, enc, units,
+                               effective_limit(t, ch)))
+                else:
+                    n = count_for_channel(t, ch)
+                    if n > limit:
+                        raise CopyRejected(
+                            "%s/%s 第 %d 个变体 %d 个 UTF-16 单位，超过 %s 的上限 %d —— "
+                            "超限直接拒绝。发出去会被截断，客户看到的是残缺文案。"
+                            "（平台按 JS 的 String.length 数，一个 emoji 算 2，"
+                            "所以这个数可能比你肉眼数的多）"
+                            % (ch, lang, i + 1, n, ch, limit))
                 # 硬要求 2：禁止项
                 hits = check_forbidden(t, req.brand.forbidden)
                 if hits:
