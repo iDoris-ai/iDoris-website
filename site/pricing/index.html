@@ -7,7 +7,9 @@
   1. 表里只放各家**官方牌价**,不放我们的加价。省下来的钱来自「换模型」,不来自我们的
      利润空间 —— 这样这页站得住,也不必披露成本结构。
   2. 每个数字都要能指回官方来源,来源列逐行给链接。第三方聚合站的数字不进这张表。
-     取数日期写在页眉,报价前重新核。
+     取数日期写在页眉,报价前重新核。分区域或分上下文档位计价的模型,还必须在 model-sub
+     里写出「哪个区域、哪一档」(Gemini 与两行 Qwen 是范例)—— 否则这一行事后谁都复核
+     不了。2026-09 为此争过一轮:数字错不错另说,记不下出处才是根子。
   3. 故意把 Kimi K3(现在比 Claude Sonnet 5 还贵)留在表里:藏掉它才是砍掉可信度。
      技术型收件人一查就知道,主动说明「省钱来自选对模型,不是供应商的国籍」反而加分。
   4. 页尾计算器的 MODELS 数组必须和上面两张表逐行对得上。改了表就得改数组 ——
@@ -263,13 +265,13 @@
             <td><a href="https://docs.z.ai/guides/overview/pricing" target="_blank" rel="noopener">zhipu ↗</a></td>
           </tr>
           <tr>
-            <td><span class="model-name">Qwen3-Max</span><span class="model-sub" data-zh="阿里云 · 旗舰档" data-th="Alibaba Cloud · ระดับเรือธง">Alibaba Cloud · flagship tier</span></td>
-            <td>$2.00</td><td class="dash" data-zh="≈输入价的 10%" data-th="≈10% ของราคาอินพุต">≈10% of input</td><td>$6.00</td>
+            <td><span class="model-name">Qwen3-Max</span><span class="model-sub" data-zh="阿里云 · 新加坡/国际站 · ≤32k 上下文(32k-128k 为 $2.40 / $12.00,128k-256k 为 $3.00 / $15.00)" data-th="Alibaba Cloud · สิงคโปร์/สากล · บริบท ≤32k (32k-128k คือ $2.40 / $12.00, 128k-256k คือ $3.00 / $15.00)">Alibaba Cloud · Singapore/International · ≤32k context (32k-128k: $2.40 / $12.00; 128k-256k: $3.00 / $15.00)</span></td>
+            <td>$1.20</td><td class="dash" data-zh="≈输入价的 10%" data-th="≈10% ของราคาอินพุต">≈10% of input</td><td>$6.00</td>
             <td><a href="https://www.alibabacloud.com/help/en/model-studio/model-pricing" target="_blank" rel="noopener">alibaba ↗</a></td>
           </tr>
           <tr>
-            <td><span class="model-name">Qwen3-Plus</span><span class="model-sub" data-zh="阿里云 · ≤256k 上下文,限时 8 折" data-th="Alibaba Cloud · บริบท ≤256k ลด 20% ชั่วคราว">Alibaba Cloud · ≤256k context, limited-time 20% off</span></td>
-            <td>$0.32</td><td class="dash" data-zh="≈输入价的 10%" data-th="≈10% ของราคาอินพุต">≈10% of input</td><td>$1.60</td>
+            <td><span class="model-name">Qwen3-Plus</span><span class="model-sub" data-zh="阿里云 · 新加坡/国际站 · ≤256k 上下文 · 限时 8 折(标价 $0.40 / $1.60,输入与输出同折;256k-1M 标价 $1.20 / $4.80)" data-th="Alibaba Cloud · สิงคโปร์/สากล · บริบท ≤256k · ลด 20% ชั่วคราว (ราคาตั้ง $0.40 / $1.60 ลดทั้งอินพุตและเอาต์พุต; 256k-1M ราคาตั้ง $1.20 / $4.80)">Alibaba Cloud · Singapore/International · ≤256k context · limited-time 20% off (list $0.40 / $1.60, discounted on both input and output; 256k-1M lists at $1.20 / $4.80)</span></td>
+            <td>$0.32</td><td class="dash" data-zh="≈输入价的 10%" data-th="≈10% ของราคาอินพุต">≈10% of input</td><td>$1.28</td>
             <td><a href="https://www.alibabacloud.com/help/en/model-studio/model-pricing" target="_blank" rel="noopener">alibaba ↗</a></td>
           </tr>
         </tbody>
@@ -325,6 +327,10 @@
         <div class="big" id="hero">&mdash;</div>
         <div class="cap" id="herocap"></div>
       </div>
+      <!-- 这条免责可以用 data-zh:上面「计算器文案不能用 data-zh」那条规矩针对的是
+           由 JS 重绘的元素(#rows / #hero / #herocap / 预设按钮 / 那几个表头)。
+           i18n-v2.js 是 querySelectorAll('[data-zh],[data-th]') 逐元素换 innerHTML,
+           不是整块换;而计算器 JS 只碰上面那几个具名元素,不碰 .calc-caveat,两者不重叠。 -->
       <p class="calc-caveat" data-zh="这个数字是拿上表的公开牌价算出来的估算,<b>仅供参考,不是报价</b>。厂商随时调价,你的实际用量、上下文长度、缓存命中率都会改变结果 —— 以最终报价为准。" data-th="ตัวเลขนี้เป็นการประมาณจากราคาตามประกาศในตารางด้านบน <b>เพื่อการอ้างอิงเท่านั้น ไม่ใช่ใบเสนอราคา</b> ผู้ให้บริการปรับราคาได้ตลอดเวลา และปริมาณการใช้จริง ความยาวบริบท และอัตราการใช้แคชของท่านจะทำให้ผลต่างออกไป — ยึดใบเสนอราคาสุดท้ายเป็นหลัก">This figure is an estimate worked out from the published list prices in the table above. <b>It is for reference only and is not a quote.</b> Vendors change their rates at any time, and your real usage, context lengths and cache hit rate will all move the result &mdash; the final quote is what governs.</p>
     </div>
 
@@ -453,10 +459,10 @@
       { name: "Gemini 3.1 Pro",    side: "us", inp: 2.00,  out: 12.00 },
       { name: "Claude Haiku 4.5",  side: "us", inp: 1.00,  out: 5.00  },
       { name: "Kimi K3",           side: "cn", inp: 3.00,  out: 15.00 },
-      { name: "Qwen3-Max",         side: "cn", inp: 2.00,  out: 6.00  },
+      { name: "Qwen3-Max",         side: "cn", inp: 1.20,  out: 6.00  },
       { name: "GLM-5.2",           side: "cn", inp: 1.40,  out: 4.40  },
       { name: "GLM-4.7",           side: "cn", inp: 0.60,  out: 2.20  },
-      { name: "Qwen3-Plus",        side: "cn", inp: 0.32,  out: 1.60  },
+      { name: "Qwen3-Plus",        side: "cn", inp: 0.32,  out: 1.28  },
       { name: "DeepSeek V4 Pro",   side: "cn", inp: 0.435, out: 0.87  },
       { name: "DeepSeek V4 Flash", side: "cn", inp: 0.14,  out: 0.28  }
     ];
