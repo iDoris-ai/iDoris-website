@@ -108,6 +108,14 @@ ok "多语脚本引入完整"
 [ "$missing_lang" -eq 0 ] || die "发现 $missing_lang 个页面首帧样式会错，已中止发布"
 ok "首帧语言属性完整"
 
+# HTML 结构：标签平衡 + data-zh/data-th 属性值没被裸引号截断。
+# 上面所有检查都是文本级的（grep 断链、grep 脚本名、比文件大小），一行 HTML 都不解析，
+# 所以对「属性被截断、整页结构塌掉」这类错完全无感 —— 2026-09-05 真栽过一次，
+# /pricing 的横幅写成 data-zh="…<span class="sub">…"，页面结构从那行起全乱，
+# 而这个脚本当时全绿。浏览器也不喊：HTML 是容错的，它照样渲染一棵错的树。
+# 判据本身带正对照（会先自证「能变红」），细节见 check-html.py 的注释。
+python3 "$ROOT/scripts/check-html.py" "$DIST" || die "HTML 结构有问题，已中止发布"
+
 # 单文件不能超过 Cloudflare Pages 的 25MB 上限
 big=""
 while IFS= read -r -d '' f; do big="$f"; break; done < <(find "$DIST" -type f -size +20M -print0)

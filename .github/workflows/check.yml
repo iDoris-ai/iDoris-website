@@ -1,0 +1,42 @@
+# 本仓库此前没有任何 CI —— 不是「检查都通过」，是「一个检查都没跑过」。
+#
+# 后果不是理论上的：2026-09-05 合并 PR #21 时，git-guard 的合并闸门拒绝放行，
+# 理由正是 "has NO check runs at all — that is not 'nothing failed', it is
+# 'nothing ran'"，最后只能带 GIT_GUARD_IGNORE_CHECKS=1 手工放行。同一天还有
+# 一个会让整页结构塌掉的 HTML bug，是靠人在浏览器里翻出来的，没有任何自动闸拦住。
+#
+# 这个 workflow 就跑仓库自己那套自检（scripts/deploy.sh --check），不做别的：
+# 它已经是 .pilot.yml 里声明的 preflight，是这个仓库唯一的事实标准。CI 与本地
+# 跑的是同一条命令，不另起一套 —— 两套检查迟早会分叉，而分叉的那天没人会发现。
+#
+# 注意只跑 --check。deploy.sh 不带参数会真的发布到 Cloudflare Pages，
+# 那需要 secrets，也绝不该由 PR 触发。
+name: check
+
+on:
+  pull_request:
+  push:
+    branches: [main, preview]
+
+# 同一分支上连续推送时，取消上一次还在跑的，只保留最新的一次
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  selfcheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      # deploy.sh 里有针对 macOS 自带 bash 3.2 的写法，在 ubuntu 的 bash 5 上同样成立；
+      # 用到的 find / wc / du / grep 都是 runner 自带的。python3 也是自带的。
+      - name: 本地自检（页面齐全 · 断链 · 多语 · HTML 结构 · 体积）
+        run: ./scripts/deploy.sh --check
+
+      # 单独再跑一次 HTML 判据的正对照。上一步失败会掩盖这一步，而我们恰恰想知道
+      # 「判据本身还活着吗」—— 一条不会变红的检查，看起来和真检查一模一样。
+      - name: HTML 判据自证能变红（正对照）
+        if: always()
+        run: python3 scripts/check-html.py --self-test
