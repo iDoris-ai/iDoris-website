@@ -5,24 +5,25 @@ set -uo pipefail
 cd "$(dirname "$0")"
 PY="${PYTHON:-python3}"
 RED=$'\033[31m'; GRN=$'\033[32m'; OFF=$'\033[0m'
-cp docir.py .docir.bak
-trap 'mv -f .docir.bak docir.py' EXIT
+cp docir.py .docir.bak; cp extract.py .extract.bak; cp thai_dates.py .thai_dates.bak
+trap 'mv -f .docir.bak docir.py; mv -f .extract.bak extract.py; mv -f .thai_dates.bak thai_dates.py' EXIT
 fail=0
-mutate() {
-  sed -i.tmp "$2" docir.py && rm -f docir.py.tmp
+mutate() {   # $1=描述 $2=sed [$3=目标文件] [$4=测试文件]
+  local f="${3:-docir.py}" t="${4:-test_docir.py}" b
+  b=".${f%.py}.bak"
+  sed -i.tmp "$2" "$f" && rm -f "$f.tmp"
   # 变异必须真的改到文件。sed 匹配不上时会**静默无操作**,测试照常通过,
   # 于是一条过期变异会伪装成「测试漏洞」,把人引去改根本没问题的测试。
   # 重构挪走了被匹配的代码就会这样 —— 必须和真漏洞区分开。
-  if cmp -s docir.py .docir.bak; then
+  if cmp -s "$f" "$b"; then
     echo "  ${RED}✗${OFF} $1 —— 变异未生效(sed 没匹配上,多半是代码重构了),请更新这条变异"
     fail=1; return
   fi
-  if $PY test_docir.py >/dev/null 2>&1; then
-    echo "  ${RED}✗${OFF} $1 —— 破坏后测试仍然通过,这条属性没有被兜住"; fail=1
+  if $PY "$t" >/dev/null 2>&1; then    echo "  ${RED}✗${OFF} $1 —— 破坏后测试仍然通过,这条属性没有被兜住"; fail=1
   else
     echo "  ${GRN}✓${OFF} $1 —— 测试正确报警"
   fi
-  cp .docir.bak docir.py
+  cp "$b" "$f"
 }
 
 echo "== 变异测试:破坏关键属性,测试必须变红 =="
@@ -71,6 +72,51 @@ mutate "破坏 table 一致性校验" \
 
 mutate "破坏泰文识别(has_thai 永远为假)" \
   's/return bool(_THAI_RE.search(text))/return False/'
+
+# ── thai_dates.py:不确定就不猜 ──────────────────────────────────
+# 猜错 543 年,客户一眼看得出,然后不再相信这份文档里任何一个数字。
+
+mutate "破坏歧义判定(歧义区间直接当佛历)" \
+  's/    return YearResolution(\n/X/; s/^        raw_year, None, "ambiguous",$/        raw_year, y - BE_OFFSET, "BE",/' \
+  thai_dates.py test_extract.py
+
+mutate "破坏佛历换算(偏移量改错)" \
+  's/^BE_OFFSET = 543/BE_OFFSET = 542/' \
+  thai_dates.py test_extract.py
+
+mutate "破坏佛历上界判定" \
+  's/^_CERTAIN_BE_FROM = 2400/_CERTAIN_BE_FROM = 9999/' \
+  thai_dates.py test_extract.py
+
+mutate "破坏 resolve_or_raise(歧义时不再抛错)" \
+  's/        raise DateAmbiguous(r.evidence)/        return 0/' \
+  thai_dates.py test_extract.py
+
+# ── extract.py:schema 与 citation 强制 ─────────────────────────
+
+mutate "破坏多字段拒绝(schema 外的字段被忽略)" \
+  's/        if spec is None:/        if False:/' \
+  extract.py test_extract.py
+
+mutate "破坏必填校验(缺字段也交付)" \
+  's/^    if missing:/    if False:/' \
+  extract.py test_extract.py
+
+mutate "破坏 citation 强制(引用不存在的 block 也放行)" \
+  's/        if blk is None:/        if False:/' \
+  extract.py test_extract.py
+
+mutate "破坏币种强制(无标记时默认 THB)" \
+  's/    if currency is None:/    if False:/' \
+  extract.py test_extract.py
+
+mutate "破坏重复字段拒绝" \
+  's/        if name in seen:/        if False:/' \
+  extract.py test_extract.py
+
+mutate "破坏不确定上报(uncertain 不再记录)" \
+  's/                result.uncertain.append(name)/                pass/' \
+  extract.py test_extract.py
 
 # 反向对照
 sed -i.tmp 's/# 泰文字符范围/# 注释改动/' docir.py 2>/dev/null; rm -f docir.py.tmp

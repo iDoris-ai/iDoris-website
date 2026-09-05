@@ -1,7 +1,7 @@
 # iDoris Documents — DocIR 中间表示
 
 > 设计见 [`../../docs/business/starter-kit/documents.md`](../../docs/business/starter-kit/documents.md) §3.1
-> 状态：**隔离层已完成**。六个动作（summarize/extract/compare/translate/rewrite/search）尚未实现。
+> 状态：**隔离层 + `extract` 动作已完成**。其余五个动作尚未实现。
 
 ## 为什么这一层值得自己写
 
