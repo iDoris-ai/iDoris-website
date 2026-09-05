@@ -40,3 +40,16 @@ jobs:
       - name: HTML 判据自证能变红（正对照）
         if: always()
         run: python3 scripts/check-html.py --self-test
+
+      # Creative 的 copy 动作。三条硬要求:字数上限、禁止项、敬语一致。
+      # 它是 Creative 里唯一零 License 风险、可以先交付的动作。
+      - name: Creative copy 测试
+        if: always()
+        run: |
+          cd products/creative
+          python3 copywriting.py
+          python3 test_copywriting.py
+
+      - name: Creative 变异测试（证明测试能变红）
+        if: always()
+        run: products/creative/mutation_check.sh
