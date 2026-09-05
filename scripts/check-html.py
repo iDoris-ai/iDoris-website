@@ -91,9 +91,13 @@ def check_tag_balance(source):
     return p.finish()
 
 
-# 只抓双引号定界的 data-zh / data-th。值里不可能再合法出现 ",所以 [^"]* 就是
-# 「到下一个 " 为止」—— 截断发生时,捕获到的正是那截残骸,这正是我们要看的东西。
-_I18N_ATTR = re.compile(r'data-(zh|th)="([^"]*)"')
+# 双引号与单引号两种定界都要抓。反向引用 \2 保证首尾同种引号。
+# 值里不可能再合法出现同种引号,所以 [^"']* 就是「到下一个同种引号为止」——
+# 截断发生时,捕获到的正是那截残骸,这正是我们要看的东西。
+#
+# 单引号这一格是补上的盲区:本仓库目前全用双引号,但只扫双引号意味着哪天
+# 有人写了 data-zh='...' ,这条判据对它永远是绿的 —— 而它看起来和真检查一模一样。
+_I18N_ATTR = re.compile(r'''data-(zh|th)=("|')([^"']*)\2''')
 
 _TAG_IN_VALUE = re.compile(r'</?([a-zA-Z][a-zA-Z0-9]*)[^>]*>')
 
@@ -102,7 +106,7 @@ def check_i18n_attrs(source):
     """判据 2:data-zh / data-th 属性值内的尖括号必须配对。"""
     errors = []
     for m in _I18N_ATTR.finditer(source):
-        which, value = m.group(1), m.group(2)
+        which, value = m.group(1), m.group(3)
         line = source.count("\n", 0, m.start()) + 1
 
         lt, gt = value.count("<"), value.count(">")
@@ -145,6 +149,18 @@ CHECKS = (
 _CLEAN = (
     '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
     '<p data-zh="中文<b>重点</b>" data-th="ไทย">ok</p>\n'
+    # 正确形状:属性值里用 &quot; 转义嵌套引号 —— 这正是 2026-09-05 那个 bug 的修法。
+    # 少了这一格,正对照只证明「坏的会红」,不证明「修对了的会绿」。
+    '<p data-zh="仅供参考<span class=&quot;sub&quot;>副行</span>" data-th="ไทย">ref</p>\n'
+    # 单引号定界的正确形状,守住上面那个补掉的盲区
+    "<p data-zh='中文<b>重点</b>' data-th='ไทย'>ok</p>\n"
+    '</body>\n</html>\n'
+)
+
+# 单引号定界 + 值内标签没闭合。补盲区前这个样本是全绿的。
+_SINGLE_QUOTE_UNBALANCED = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    "<p data-zh='中文<b>重点没闭合' data-th='ไทย'>ok</p>\n"
     '</body>\n</html>\n'
 )
 
@@ -179,6 +195,10 @@ def self_test():
     # 普通失衡:判据 1 应该红
     if not check_tag_balance(_UNBALANCED):
         failures.append("[整篇标签平衡] 对普通开合不匹配没有反应 —— 这条判据是死的")
+
+    # 单引号定界的失衡:判据 2 应该红(这一格曾经是盲区)
+    if not check_i18n_attrs(_SINGLE_QUOTE_UNBALANCED):
+        failures.append("[data-zh/data-th 属性值尖括号配对] 对单引号定界的属性没有反应 —— 盲区回来了")
 
     if failures:
         print("%s✗ 正对照失败 —— 检查本身坏了,它的「绿」不能信%s" % (RED, OFF), file=sys.stderr)
