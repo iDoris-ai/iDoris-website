@@ -5,12 +5,16 @@ set -uo pipefail
 cd "$(dirname "$0")"
 PY="${PYTHON:-python3}"
 RED=$'\033[31m'; GRN=$'\033[32m'; OFF=$'\033[0m'
-cp docir.py .docir.bak; cp extract.py .extract.bak; cp thai_dates.py .thai_dates.bak; cp translate.py .translate.bak
-trap 'mv -f .docir.bak docir.py; mv -f .extract.bak extract.py; mv -f .thai_dates.bak thai_dates.py; mv -f .translate.bak translate.py' EXIT
+cp docir.py .docir.bak; cp extract.py .extract.bak; cp thai_dates.py .thai_dates.bak
+cp summarize.py .summarize.bak; cp translate.py .translate.bak
+trap 'mv -f .docir.bak docir.py; mv -f .extract.bak extract.py; mv -f .thai_dates.bak thai_dates.py; mv -f .translate.bak translate.py; mv -f .summarize.bak summarize.py' EXIT
 fail=0
+n_mut=0        # 自动计数 —— 写死数字会随着加变异而过期,
+               # 而一句过期的「各条属性都被兜住」比不说更糟。
 mutate() {   # $1=描述 $2=sed [$3=目标文件] [$4=测试文件]
   local f="${3:-docir.py}" t="${4:-test_docir.py}" b
   b=".${f%.py}.bak"
+  n_mut=$((n_mut + 1))
   sed -i.tmp "$2" "$f" && rm -f "$f.tmp"
   # 变异必须真的改到文件。sed 匹配不上时会**静默无操作**,测试照常通过,
   # 于是一条过期变异会伪装成「测试漏洞」,把人引去改根本没问题的测试。
@@ -148,6 +152,43 @@ mutate "破坏指示生成(不再列出不该翻的词)" \
   's/        lines.extend("  - %s" % t.source for t in terms)/        pass/' \
   translate.py test_translate.py
 
+# ── summarize:合并不丢决议 ─────────────────────────────────────────
+# 丢一条决议的表现是:输出完整、通顺、专业,没有任何东西报错,
+# 而客户是照着这份纪要去执行的。这几条守的就是这件事。
+
+mutate "破坏合并对账(丢了内容也不报)" \
+  's/^    if lost:/    if False:/' summarize.py test_summarize.py
+
+mutate "把决议列为可压缩(合并时允许丢)" \
+  's/^    "decisions", "action_items", "obligations", "dates_and_amounts",/    "obligations", "dates_and_amounts",/' \
+  summarize.py test_summarize.py
+
+mutate "破坏去重身份(不含 owner/due —— 不同责任人的活被吃掉)" \
+  's/^        return (_norm(self.text), self.block_id, _norm(self.owner), _norm(self.due))/        return (_norm(self.text), self.block_id, "", "")/' \
+  summarize.py test_summarize.py
+
+mutate "破坏空白归一(多个空格就算另一条 —— 对账形同虚设)" \
+  's/^    return _WS.sub(" ", s).strip()/    return s/' summarize.py test_summarize.py
+
+mutate "破坏出处校验(编造的 block_id 放行)" \
+  's/^            if bid not in known:/            if False:/' summarize.py test_summarize.py
+
+mutate "破坏骨架按类型分(一律用会议记录的骨架)" \
+  's/^    skeleton = SKELETONS\[doc_type\]$/    skeleton = SKELETONS["meeting_minutes"]/' \
+  summarize.py test_summarize.py
+
+mutate "破坏类型校验(不认识的类型也放行)" \
+  's/^    if doc_type not in DOC_TYPES:/    if False:/' summarize.py test_summarize.py
+
+mutate "破坏多余小节拒绝(模型自由发挥也收下)" \
+  's/^    if extra:/    if False:/' summarize.py test_summarize.py
+
+mutate "破坏类型分歧留痕(默默取多数)" \
+  's/^    if len(set(types)) > 1:/    if False:/' summarize.py test_summarize.py
+
+mutate "破坏跨文档拦截(两份文档的决议混在一起)" \
+  's/^    if len(doc_ids) != 1:/    if False:/' summarize.py test_summarize.py
+
 # 反向对照
 sed -i.tmp 's/# 泰文字符范围/# 注释改动/' docir.py 2>/dev/null; rm -f docir.py.tmp
 if $PY test_docir.py >/dev/null 2>&1; then
@@ -158,6 +199,6 @@ fi
 cp .docir.bak docir.py
 
 echo
-[ "$fail" -eq 0 ] && echo "${GRN}✓ 变异测试通过:各条属性都被测试真正兜住,且无假阳性${OFF}" \
+[ "$fail" -eq 0 ] && echo "${GRN}✓ 变异测试通过:${n_mut} 条属性都被测试真正兜住,且无假阳性${OFF}" \
                   || echo "${RED}✗ 变异测试失败${OFF}"
 exit $fail
