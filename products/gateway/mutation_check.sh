@@ -10,19 +10,21 @@ PY="${PYTHON:-python3}"
 RED=$'\033[31m'; GRN=$'\033[32m'; OFF=$'\033[0m'
 
 cp routing.py .routing.bak
-restore() { mv -f .routing.bak routing.py; }
+cp audit.py   .audit.bak
+restore() { mv -f .routing.bak routing.py; mv -f .audit.bak audit.py; }
 trap restore EXIT
 
 fail=0
-mutate() {   # $1=描述  $2=sed 表达式
-  sed -i.tmp "$2" routing.py && rm -f routing.py.tmp
-  if $PY test_routing.py >/dev/null 2>&1; then
+mutate() {   # $1=描述  $2=sed 表达式  [$3=目标文件,默认 routing.py] [$4=测试,默认 test_routing.py]
+  local f="${3:-routing.py}" t="${4:-test_routing.py}"
+  sed -i.tmp "$2" "$f" && rm -f "$f.tmp"
+  if $PY "$t" >/dev/null 2>&1; then
     echo "  ${RED}✗${OFF} $1 —— 破坏后测试仍然通过,这条规则没有被测试兜住"
     fail=1
   else
     echo "  ${GRN}✓${OFF} $1 —— 测试正确报警"
   fi
-  cp .routing.bak routing.py
+  cp ".${f%.py}.bak" "$f"
 }
 
 echo "== 变异测试:破坏规则,测试必须变红 =="
@@ -47,6 +49,25 @@ mutate "破坏配置校验(不再要求 local 档)" \
 mutate "破坏可解释性(reason 置空)" \
   's/reason = "task %r 命中规则 #%d" % (task, idx)/reason = ""/'
 
+# ── audit.py:那条不可破的边界 ──────────────────────────────
+# 「Gateway 只存元数据」如果没有被测试兜住,它就只是一句愿望。
+
+mutate "破坏内容边界(字段名不再比对禁用清单)" \
+  's/if k.lower() in _FORBIDDEN_FIELDS/if False/' \
+  audit.py test_audit.py
+
+mutate "破坏长文本拦截(取消 500 字符上限)" \
+  's/if isinstance(v, str) and len(v) > 500:/if False:/' \
+  audit.py test_audit.py
+
+mutate "破坏租户隔离(月度统计不按 tenant 过滤)" \
+  's/WHERE tenant=? AND ts>=? AND ts<?"/WHERE ts>=? AND ts<? AND ?=?"/' \
+  audit.py test_audit.py
+
+mutate "破坏隐私事后核查(不再筛 tier!=local)" \
+  "s/AND sensitivity='high' AND tier!='local'/AND sensitivity='high' AND 1=0/" \
+  audit.py test_audit.py
+
 # 反向对照:改一处**不影响规则**的东西,测试应当仍然通过
 sed -i.tmp 's/# 按名字取/# 注释改动/' routing.py 2>/dev/null; rm -f routing.py.tmp
 if $PY test_routing.py >/dev/null 2>&1; then
@@ -59,7 +80,7 @@ cp .routing.bak routing.py
 
 echo
 if [ "$fail" -eq 0 ]; then
-  echo "${GRN}✓ 变异测试通过:五条规则各自都被测试真正兜住,且无假阳性${OFF}"
+  echo "${GRN}✓ 变异测试通过:九条规则各自都被测试真正兜住,且无假阳性${OFF}"
 else
   echo "${RED}✗ 变异测试失败:上面标 ✗ 的规则形同虚设${OFF}"
 fi
