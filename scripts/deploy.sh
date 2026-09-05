@@ -32,6 +32,8 @@ PAGES=(
   "/buy"
   "/cards"
   "/card"
+  "/hello"
+  "/pricing"
 )
 
 # ─────────────────────────────────────────────
@@ -45,8 +47,10 @@ echo "${DIM}── 本地自检 ──${OFF}"
 for p in "${PAGES[@]}"; do
   f="$DIST${p}"
   [ "$p" = "/" ] && f="$DIST/index.html"
-  # Cloudflare Pages 的 clean URL：/join 由 join.html 提供，补 .html 再找一次
+  # Cloudflare Pages 的 clean URL 有两种落地方式：/join 由 join.html 提供（补 .html 再找一次），
+  # /hello 由 hello/index.html 提供（补 /index.html 再找一次）——都试过还没有才算缺失。
   [ -f "$f" ] || f="${f}.html"
+  [ -f "$f" ] || f="$DIST${p}/index.html"
   [ -f "$f" ] || die "页面缺失：${p}（PAGES 里声明了但文件不在）"
 done
 ok "${#PAGES[@]} 个页面文件齐全"
