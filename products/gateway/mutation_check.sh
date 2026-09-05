@@ -15,9 +15,20 @@ restore() { mv -f .routing.bak routing.py; mv -f .audit.bak audit.py; }
 trap restore EXIT
 
 fail=0
+n_mut=0        # 变异条数自动计数 —— 写死数字会随着加变异而过期,
+               # 而一句过期的「九条规则都被兜住」比不说更糟。
 mutate() {   # $1=描述  $2=sed 表达式  [$3=目标文件,默认 routing.py] [$4=测试,默认 test_routing.py]
-  local f="${3:-routing.py}" t="${4:-test_routing.py}"
+  local f="${3:-routing.py}" t="${4:-test_routing.py}" b
+  b=".${f%.py}.bak"
+  n_mut=$((n_mut + 1))
   sed -i.tmp "$2" "$f" && rm -f "$f.tmp"
+  # 变异必须真的改到文件。sed 匹配不上时会**静默无操作**,测试照常通过,
+  # 于是一条过期变异会伪装成「规则没被兜住」,把人引去改根本没问题的测试。
+  # 重构挪走了被匹配的代码就会这样 —— 必须和真漏洞区分开。
+  if cmp -s "$f" "$b"; then
+    echo "  ${RED}✗${OFF} $1 —— 变异未生效(sed 没匹配上,多半是代码重构了),请更新这条变异"
+    fail=1; return
+  fi
   if $PY "$t" >/dev/null 2>&1; then
     echo "  ${RED}✗${OFF} $1 —— 破坏后测试仍然通过,这条规则没有被测试兜住"
     fail=1
@@ -68,6 +79,10 @@ mutate "破坏隐私事后核查(不再筛 tier!=local)" \
   "s/AND sensitivity='high' AND tier!='local'/AND sensitivity='high' AND 1=0/" \
   audit.py test_audit.py
 
+mutate "破坏账单时区(月份边界改回服务器本地时区)" \
+  's|        start = datetime(y, m, 1, tzinfo=tz).timestamp()|        start = time.mktime((y, m, 1, 0, 0, 0, 0, 0, -1))|' \
+  audit.py test_audit.py
+
 # 反向对照:改一处**不影响规则**的东西,测试应当仍然通过
 sed -i.tmp 's/# 按名字取/# 注释改动/' routing.py 2>/dev/null; rm -f routing.py.tmp
 if $PY test_routing.py >/dev/null 2>&1; then
@@ -80,7 +95,7 @@ cp .routing.bak routing.py
 
 echo
 if [ "$fail" -eq 0 ]; then
-  echo "${GRN}✓ 变异测试通过:九条规则各自都被测试真正兜住,且无假阳性${OFF}"
+  echo "${GRN}✓ 变异测试通过:${n_mut} 条规则各自都被测试真正兜住,且无假阳性${OFF}"
 else
   echo "${RED}✗ 变异测试失败:上面标 ✗ 的规则形同虚设${OFF}"
 fi

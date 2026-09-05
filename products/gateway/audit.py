@@ -45,6 +45,7 @@ import sys
 import tempfile
 import time
 from dataclasses import dataclass, asdict
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 
@@ -112,6 +113,16 @@ def assert_no_content(payload: dict[str, Any]) -> None:
                 "这通常意味着有人把内容塞进了元数据字段" % (k, len(v)))
 
 
+# 账单时区。**绝不能用服务器本地时区** —— 那意味着同一笔调用会因为部署机器
+# 换了地方而落进不同的账单月份,而且不会有任何东西报错。客户在泰国,账期就该
+# 按曼谷算,与机器在哪无关。
+#
+# 用固定 +07:00 而不是 zoneinfo("Asia/Bangkok"):泰国自 1920 年起固定 UTC+7、
+# 从未实行夏令时,两者在任何可能的账期上完全等价;而精简容器里常常没装 tzdata,
+# zoneinfo 会直接抛 ZoneInfoNotFoundError。固定偏移少一个部署期依赖。
+BILLING_TZ = timezone(timedelta(hours=7), "Asia/Bangkok")
+
+
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS calls (
     id             INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -135,8 +146,9 @@ CREATE INDEX IF NOT EXISTS idx_calls_tenant_ts ON calls(tenant, ts);
 
 
 class AuditLog:
-    def __init__(self, path: str):
+    def __init__(self, path: str, billing_tz: timezone = BILLING_TZ):
         self.path = path
+        self.billing_tz = billing_tz
         self._conn = sqlite3.connect(path)
         self._conn.row_factory = sqlite3.Row
         self._conn.executescript(_SCHEMA)
@@ -178,9 +190,13 @@ class AuditLog:
         if not 1 <= m <= 12:
             raise ValueError("月份非法：%r" % month)
 
-        start = time.mktime((y, m, 1, 0, 0, 0, 0, 0, -1))
+        # 边界按账单时区算,不按服务器本地时区。早先用的是 time.mktime(),
+        # 那是本地时区解释 —— 实测同一笔曼谷时间 10-01 06:00 的调用,
+        # 服务器在 UTC 时被算进 9 月账单,在曼谷时算进 10 月。
+        tz = self.billing_tz
+        start = datetime(y, m, 1, tzinfo=tz).timestamp()
         ny, nm = (y + 1, 1) if m == 12 else (y, m + 1)
-        end = time.mktime((ny, nm, 1, 0, 0, 0, 0, 0, -1))
+        end = datetime(ny, nm, 1, tzinfo=tz).timestamp()
 
         row = self._conn.execute(
             "SELECT COUNT(*) n, COALESCE(SUM(cost_usd),0) cost,"
@@ -235,7 +251,7 @@ def self_test() -> int:
             tenant="h", user="u1", component="documents", task="extract",
             sensitivity="normal", tier="cheap", model="m",
             tokens_in=100, tokens_out=20, cost_usd=0.001,
-            latency_ms=900, status="ok", ts=time.mktime((2026, 9, 5, 10, 0, 0, 0, 0, -1))))
+            latency_ms=900, status="ok", ts=datetime(2026, 9, 5, 10, 0, tzinfo=BILLING_TZ).timestamp()))
         if rid <= 0:
             fails.append("record 没有返回 id")
 

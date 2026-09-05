@@ -12,16 +12,31 @@ import os
 import sys
 import tempfile
 import time
+from datetime import datetime
 
 from audit import (
     AuditLog,
     AuditRecord,
     ContentLeakError,
     assert_no_content,
+    BILLING_TZ,
 )
 
 FAILS: list[str] = []
-T0 = time.mktime((2026, 9, 5, 10, 0, 0, 0, 0, -1))
+
+
+def bkk(*args: int) -> float:
+    """按**账单时区**构造时间戳。
+
+    早先这里用的是 time.mktime()（服务器本地时区）。当时 monthly_usage 的
+    月份边界也用 mktime —— 两边一起随 TZ 漂移,于是测试在任何时区都自洽、
+    永远是绿的,而账单其实会因为部署机器换地方就算错月份。
+    一致性证明不了正确性:两边都得钉死在账单时区上才有意义。
+    """
+    return datetime(*args, tzinfo=BILLING_TZ).timestamp()          # type: ignore[arg-type]
+
+
+T0 = bkk(2026, 9, 5, 10, 0)
 
 
 def check(cond: bool, msg: str) -> None:
@@ -142,7 +157,7 @@ def test_monthly_usage() -> None:
         log.record(rec(cost_usd=0.01, tier="cheap", component="documents"))
     log.record(rec(cost_usd=0.50, tier="premium", component="assistant"))
     # 落在下个月的一条,不该被算进来
-    log.record(rec(cost_usd=99.0, ts=time.mktime((2026, 10, 1, 0, 0, 0, 0, 0, -1))))
+    log.record(rec(cost_usd=99.0, ts=bkk(2026, 10, 1, 0, 0)))
 
     u = log.monthly_usage("h", "2026-09")
     check(u["calls"] == 4, "月度调用数错：期望 4 得到 %r" % u["calls"])
@@ -165,6 +180,47 @@ def test_monthly_usage() -> None:
     expect_raises(ValueError, lambda: log.monthly_usage("h", "2026/09"), "非法月份格式没被拒")
     expect_raises(ValueError, lambda: log.monthly_usage("h", "2026-13"), "13 月没被拒")
     log.close()
+
+
+def test_monthly_usage_independent_of_server_tz() -> None:
+    """账单月份不能随服务器时区漂。
+
+    这是真实 bug 的回归测试:月份边界原先用 time.mktime()(本地时区)算,
+    而 ts 存的是 UTC epoch。实测同一笔「曼谷时间 2026-10-01 06:00」的调用,
+    服务器 TZ=UTC 时被算进 9 月账单,TZ=Asia/Bangkok 时算进 10 月 ——
+    换个部署机器,客户账单就变,且没有任何东西报错。
+
+    做法是**真的切换进程时区**再跑同一套断言。只在测试内部构造时间戳、
+    不动 TZ 的写法抓不到这个 bug —— 原测试正是那样,所以它一直是绿的。
+    """
+    if not hasattr(time, "tzset"):                    # Windows 没有,跳过
+        return
+    # 曼谷时间 10-01 06:00 —— 在 UTC 下是 09-30 23:00,正好跨月,最能暴露问题
+    ts = bkk(2026, 10, 1, 6, 0)
+    old_tz = os.environ.get("TZ")
+    results = {}
+    try:
+        for tz in ("UTC", "Asia/Bangkok", "Pacific/Midway", "Pacific/Kiritimati"):
+            os.environ["TZ"] = tz
+            time.tzset()
+            log = fresh()
+            log.record(rec(cost_usd=1.0, ts=ts))
+            results[tz] = (log.monthly_usage("h", "2026-09")["calls"],
+                           log.monthly_usage("h", "2026-10")["calls"])
+            log.close()
+    finally:
+        if old_tz is None:
+            os.environ.pop("TZ", None)
+        else:
+            os.environ["TZ"] = old_tz
+        time.tzset()
+
+    for tz, got in results.items():
+        check(got == (0, 1),
+              "服务器 TZ=%s 时账单月份算错：期望 9月0笔/10月1笔，得到 %r —— "
+              "账单不该随部署机器的时区变" % (tz, got))
+    check(len(set(results.values())) == 1,
+          "不同服务器时区给出了不同的账单：%r" % results)
 
 
 # ═══════════════════════════════════════════════ 隐私事后核查
