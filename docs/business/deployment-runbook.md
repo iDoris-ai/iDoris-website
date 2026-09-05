@@ -198,6 +198,50 @@ Creative 第一版**只上纯文案的 `copy`**，零 License 风险。
 客户问到图像生成时直说「还在核许可，这一版不含」——
 不要说「马上就有」，那是我们控制不了的时间。
 
+### 2.3.1 Voice：必须同时锁两个版本，并显式验 GPU 路径
+
+**[已核] 2026-09-06**（见
+[`verification-2026-09-06-voice-stack.md`](verification-2026-09-06-voice-stack.md)）：
+
+`faster-whisper` **维护者已停更 9.5 个月**（最后提交 2025-11-19，
+社区仍在提 PR 但无人合并），而它的推理后端 `CTranslate2` **六天前还在发版**
+（v4.8.2 · 2026-08-31）。
+
+CUDA 兼容问题从 2024-10-24 open 至今；有人提过 `pin ctranslate2<4.6.3`
+的修复，**PR 于 2026-04-13 被关掉、未合并**。
+
+**风险的形状不是「哪天它坏了」，是「它已经在坏，只是我们还没装」** ——
+后端每发一版，缺口就宽一点，而没有人在补。
+
+#### 所以这两件事都要做，缺一不可
+
+**① 同时锁两个包的版本。**
+
+```
+faster-whisper==1.2.1
+ctranslate2==<与上面实测配对通过的版本>
+```
+
+**只锁 `faster-whisper` 不够** —— 问题恰恰出在后端会自己往前走。
+`requirements.txt` 里两行都要有，都要是 `==` 不是 `>=`。
+
+**② 部署时显式验 GPU 路径，不能只验 import 成功。**
+
+```bash
+python3 - <<'EOF'
+from faster_whisper import WhisperModel
+# 必须真的加载到 GPU 并跑一段,不能只 import。
+# 那个报错(This CTranslate2 package was not compiled with CUDA)
+# **在 import 阶段不出现,跑起来才出现**。
+m = WhisperModel("large-v3", device="cuda", compute_type="float16")
+segs, info = m.transcribe("<一段 5 秒的测试音频>.wav", language="th")
+print("✓ GPU 路径可用，识别到语言:", info.language)
+EOF
+```
+
+**看到 `This CTranslate2 package was not compiled with CUDA` 就停下来** ——
+这不是配置问题，是版本配对不对。回到 ① 换 `ctranslate2` 版本重试。
+
 ### 2.4 审批队列
 
 `AutoReleasePolicy` **默认为空**，也就是**全部人审**。
@@ -297,6 +341,7 @@ Documents 的四个动作在 documents 分支上验证 —— 各分支合进 `p
 |:--|:---|:---|:---|
 | 1 | 图像模型权重许可 | Dev | 选定模型后读该模型的 LICENSE 与使用条款 |
 | 2 | Voice 组件现状 | Dev | 需读 iDoris 代码仓库（不在本仓库） |
+| 2b | faster-whisper × ctranslate2 的**可用版本配对** | Dev | 按 §2.3.1 ② 的脚本实测；配对确定后写死进 `requirements.txt` |
 | 3 | LiteLLM 升级后 `enterprise/` 变动 | 做升级的人 | `git log --stat -- enterprise/` |
 | 4 | 其他库的遥测开关 | Dev | 逐库读文档 |
 
