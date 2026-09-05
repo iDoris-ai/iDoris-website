@@ -1,4 +1,21 @@
 <!DOCTYPE html>
+<!--
+  /pricing —— 冷邮件里「回一个模型名,我把同样用量的花费算给你」那句承诺的兑现物。
+  发信时直接给这个链接;首页 nav 与 footer 各挂一条。
+
+  四条硬规矩:
+  1. 表里只放各家**官方牌价**,不放我们的加价。省下来的钱来自「换模型」,不来自我们的
+     利润空间 —— 这样这页站得住,也不必披露成本结构。
+  2. 每个数字都要能指回官方来源,来源列逐行给链接。第三方聚合站的数字不进这张表。
+     取数日期写在页眉,报价前重新核。
+  3. 故意把 Kimi K3(与 Claude Sonnet 5 齐平)留在表里:藏掉它才是砍掉可信度。
+     技术型收件人一查就知道,主动说明「省钱来自选对模型,不是供应商的国籍」反而加分。
+  4. 页尾计算器的 MODELS 数组必须和上面两张表逐行对得上。改了表就得改数组 ——
+     同一页给出两套价格,比价格过期更伤。
+
+  计算器的文案不能用 data-zh:i18n-v2.js 是整块换 innerHTML 的,而那块由 JS 重绘,
+  两边会互相盖掉。所以 JS 自己盯 <html data-lang> 取词典(见页尾),/hello 也是这么做的。
+-->
 <html lang="en" data-lang="en">
 <head>
 <meta charset="utf-8">
@@ -41,6 +58,52 @@
     .lead h1{font-size:28px}
     table.price{font-size:12.5px}
   }
+
+  /* 月度账单计算器。沿用上面表格的排版语言（等宽数字、右对齐、细分隔线），
+     不另起一套视觉 —— 它是同一张表的延伸，不是另一个组件。 */
+  .calc-head{max-width:900px;margin:76px auto 0;text-align:center}
+  .calc-head h2{font-family:var(--display),var(--han);font-weight:500;
+    font-size:clamp(22px,2.8vw,30px);line-height:1.2;margin-bottom:12px}
+  .calc-head p{font-size:14px;line-height:1.65;color:var(--paper-dim);max-width:58ch;margin:0 auto}
+  .calc{max-width:900px;margin:26px auto 0;padding:26px;border:1px solid var(--line);
+    border-radius:14px;background:var(--ink-2)}
+  .presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+  .presets button{font-family:var(--mono);font-size:12px;font-weight:300;letter-spacing:.02em;
+    padding:7px 14px;border-radius:6px;background:transparent;color:var(--paper-dim);
+    border:1px solid var(--line);cursor:pointer;transition:color .15s,border-color .15s,background .15s}
+  .presets button:hover{color:var(--paper);border-color:var(--paper-dim)}
+  .presets button[aria-pressed="true"]{background:var(--red-dim);border-color:var(--red);color:var(--red)}
+  .presets button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+  .fields{display:flex;flex-wrap:wrap;gap:18px 40px;align-items:flex-end;margin-bottom:26px}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field label{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--muted)}
+  .field input{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:19px;font-weight:300;
+    width:130px;padding:5px 0;color:var(--paper);background:transparent;border:0;
+    border-bottom:1px solid var(--line)}
+  .field input:focus{outline:none;border-bottom-color:var(--red)}
+  .field .unit{font-size:11px;color:var(--muted)}
+  .calc-sheet{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table.calc-table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:520px}
+  table.calc-table th{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);text-align:right;font-weight:500;padding:0 0 10px 18px;
+    border-bottom:1px solid var(--line);white-space:nowrap}
+  table.calc-table th:first-child{text-align:left;padding-left:0}
+  table.calc-table td{padding:11px 0 11px 18px;border-bottom:1px solid var(--line-soft);text-align:right;
+    font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--paper-dim)}
+  table.calc-table td:first-child{text-align:left;padding-left:0;font-family:inherit;color:var(--paper)}
+  table.calc-table .origin{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+    text-transform:uppercase;margin-top:3px}
+  table.calc-table td.save{color:var(--red)}
+  .figure{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 20px;margin-top:24px;padding-top:22px;
+    border-top:1px solid var(--line)}
+  .figure .big{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:40px;line-height:1;
+    font-weight:400;color:var(--red)}
+  .figure .cap{font-size:13.5px;line-height:1.6;color:var(--paper-dim);max-width:46ch}
+  @media(max-width:700px){
+    .calc{padding:18px}
+    .figure .big{font-size:30px}
+  }
 </style>
 </head>
 <body>
@@ -53,6 +116,7 @@
       <a class="link" href="/hello" data-zh="我们发出的信" data-th="จดหมายของเรา">The letter</a>
       <a class="link" href="/pricing" data-zh="模型定价" data-th="ราคาโมเดล" style="color:var(--red)">Model pricing</a>
       <a class="link" href="/friends" data-zh="我们的 IP" data-th="ตัวละคร">Doris &amp; Cherry</a>
+      <a class="link" href="/buy" data-zh="购买体验卡" data-th="ซื้อบัตร">Buy cards</a>
       <a class="link" href="/join" data-zh="招聘" data-th="ร่วมงาน">We're hiring</a>
       <a class="link" href="https://github.com/iDoris-ai">GitHub ↗</a>
     </div>
@@ -79,10 +143,12 @@
 
     <div class="aside-note price-note">
       <span class="tag" data-zh="提醒" data-th="ข้อควรทราบ">Note</span>
-      <p data-zh="模型定价一直在变——新模型发布、降价、汇率波动都会改。表里每一行都是发布方在<b>2026-08-10</b>公开的价格,不是我们发明的固定折扣。给客户报价前,请以厂商当天的定价页为准。" data-th="ราคาโมเดลเปลี่ยนตลอดเวลา ทั้งจากโมเดลใหม่ ราคาที่ปรับลด หรืออัตราแลกเปลี่ยน ตัวเลขแต่ละแถวคือราคาที่ผู้ให้บริการประกาศไว้ ณ วันที่ <b>2026-08-10</b> ไม่ใช่ส่วนลดคงที่ที่เราตั้งขึ้นเอง ก่อนเสนอราคาลูกค้า กรุณายึดหน้าราคาทางการของผู้ให้บริการวันนั้นเป็นหลัก">
+      <p data-zh="模型定价一直在变——新模型发布、降价、汇率波动都会改。表里每一行都是发布方在<b>2026-08-10</b>公开的价格,不是我们发明的固定折扣。给客户报价前,请以厂商当天的定价页为准。Claude Sonnet 5 那一行已按 Anthropic 自己标注的 2026-08-31 到期日更新为标准价,其余各行仍是 2026-08-10 的取数。" data-th="ราคาโมเดลเปลี่ยนตลอดเวลา ทั้งจากโมเดลใหม่ ราคาที่ปรับลด หรืออัตราแลกเปลี่ยน ตัวเลขแต่ละแถวคือราคาที่ผู้ให้บริการประกาศไว้ ณ วันที่ <b>2026-08-10</b> ไม่ใช่ส่วนลดคงที่ที่เราตั้งขึ้นเอง ก่อนเสนอราคาลูกค้า กรุณายึดหน้าราคาทางการของผู้ให้บริการวันนั้นเป็นหลัก แถว Claude Sonnet 5 ปรับเป็นราคามาตรฐานแล้วตามวันหมดอายุ 2026-08-31 ที่ Anthropic ระบุเอง ส่วนแถวอื่นยังเป็นตัวเลข ณ 2026-08-10">
         Model pricing keeps moving — new releases, price cuts, currency swings. Every row is the vendor's own rate
         as checked on <b>2026-08-10</b>, not a fixed discount we made up. Before quoting a
-        client, confirm against the vendor's live pricing page.
+        client, confirm against the vendor&rsquo;s live pricing page. The Claude Sonnet 5 row has since been
+        rolled to its standard rate, which Anthropic&rsquo;s own page had dated to 2026-08-31; every other row
+        still carries the 2026-08-10 figure.
       </p>
     </div>
 
@@ -92,9 +158,9 @@
         <thead>
           <tr>
             <th data-zh="型号" data-th="โมเดล">Model</th>
-            <th data-zh="输入" data-th="อินพุต">Input /1M</th>
-            <th data-zh="缓存输入" data-th="แคช">Cached /1M</th>
-            <th data-zh="输出" data-th="เอาต์พุต">Output /1M</th>
+            <th data-zh="输入 /1M" data-th="อินพุต /1M">Input /1M</th>
+            <th data-zh="缓存输入 /1M" data-th="แคช /1M">Cached /1M</th>
+            <th data-zh="输出 /1M" data-th="เอาต์พุต /1M">Output /1M</th>
             <th data-zh="来源" data-th="แหล่งที่มา">Source</th>
           </tr>
         </thead>
@@ -105,8 +171,8 @@
             <td><a href="https://platform.claude.com/docs/en/about-claude/pricing" target="_blank" rel="noopener">anthropic ↗</a></td>
           </tr>
           <tr>
-            <td><span class="model-name">Claude Sonnet 5</span><span class="model-sub" data-zh="Anthropic · 限时价至 2026-08-31,此后 $3.00 / $0.30 / $15.00" data-th="Anthropic · ราคาจำกัดเวลาถึง 2026-08-31 หลังจากนั้น $3.00 / $0.30 / $15.00">Anthropic · promo through 2026-08-31, then $3.00 / $0.30 / $15.00</span></td>
-            <td>$2.00</td><td>$0.20</td><td>$10.00</td>
+            <td><span class="model-name">Claude Sonnet 5</span><span class="model-sub" data-zh="Anthropic · 限时价已于 2026-08-31 结束,此为恢复后的标准价" data-th="Anthropic · ราคาจำกัดเวลาสิ้นสุดแล้วเมื่อ 2026-08-31 นี่คือราคามาตรฐาน">Anthropic · promo ended 2026-08-31; this is the standard rate</span></td>
+            <td>$3.00</td><td>$0.30</td><td>$15.00</td>
             <td><a href="https://platform.claude.com/docs/en/about-claude/pricing" target="_blank" rel="noopener">anthropic ↗</a></td>
           </tr>
           <tr>
@@ -137,9 +203,9 @@
         <thead>
           <tr>
             <th data-zh="型号" data-th="โมเดล">Model</th>
-            <th data-zh="输入" data-th="อินพุต">Input /1M</th>
-            <th data-zh="缓存输入" data-th="แคช">Cached /1M</th>
-            <th data-zh="输出" data-th="เอาต์พุต">Output /1M</th>
+            <th data-zh="输入 /1M" data-th="อินพุต /1M">Input /1M</th>
+            <th data-zh="缓存输入 /1M" data-th="แคช /1M">Cached /1M</th>
+            <th data-zh="输出 /1M" data-th="เอาต์พุต /1M">Output /1M</th>
             <th data-zh="来源" data-th="แหล่งที่มา">Source</th>
           </tr>
         </thead>
@@ -183,20 +249,87 @@
       </table>
     </div>
 
+    <div class="calc-head">
+      <h2 data-zh="换算成你的月度账单" data-th="แปลงเป็นบิลรายเดือนของคุณ">What that means for your monthly bill</h2>
+      <p data-zh="选一个跟你团队规模接近的,或者直接填自己的数字。一个开发者整天挂着 AI 编程 agent 是最重的真实用量——下面的预设就是按这个估的。算的是上表的牌价,缓存输入那一栏不混进来。" data-th="เลือกขนาดทีมที่ใกล้เคียงกับของคุณ หรือกรอกตัวเลขเอง นักพัฒนาหนึ่งคนที่ใช้ AI coding agent ทั้งวันคือกรณีที่หนักที่สุดตามจริง การคำนวณใช้ราคาตามตารางด้านบน ไม่รวมคอลัมน์อินพุตแคช">Pick the shape of your team, or type your own numbers. A developer running an AI coding agent through a working day is the heaviest realistic case &mdash; that is what these presets assume. The maths uses the list prices above; the cached-input column is a separate saving and is left out of it.</p>
+    </div>
+
+    <div class="calc">
+      <div class="presets" role="group" aria-label="Usage presets">
+        <button type="button" data-in="60" data-out="6" data-key="solo" aria-pressed="true">One heavy developer</button>
+        <button type="button" data-in="300" data-out="30" data-key="five" aria-pressed="false">A team of 5</button>
+        <button type="button" data-in="1200" data-out="120" data-key="twenty" aria-pressed="false">A team of 20</button>
+      </div>
+
+      <div class="fields">
+        <div class="field">
+          <label for="tin" id="lab-in">Input tokens / month</label>
+          <input id="tin" type="number" min="0" step="10" value="60" inputmode="decimal">
+          <span class="unit" id="unit-in">millions</span>
+        </div>
+        <div class="field">
+          <label for="tout" id="lab-out">Output tokens / month</label>
+          <input id="tout" type="number" min="0" step="1" value="6" inputmode="decimal">
+          <span class="unit" id="unit-out">millions</span>
+        </div>
+      </div>
+
+      <div class="calc-sheet">
+        <table class="calc-table">
+          <thead>
+            <tr>
+              <th scope="col" id="h-model">Run the same month on&hellip;</th>
+              <th scope="col" id="h-month">Per month</th>
+              <th scope="col" id="h-year">Per year</th>
+              <th scope="col" id="h-vs">vs. Claude Opus 5</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <noscript>
+        <p style="margin:14px 0 0;font-size:13px;color:var(--muted)">
+          The per-model figures are worked out in your browser, so this table stays empty with JavaScript
+          off. The list prices it is based on are in the two tables above.
+        </p>
+      </noscript>
+
+      <div class="figure">
+        <div class="big" id="hero">&mdash;</div>
+        <div class="cap" id="herocap"></div>
+      </div>
+    </div>
+
+    <div class="aside-note price-note" style="margin-top:26px">
+      <span class="tag" data-zh="想先试试" data-th="อยากลองก่อน">Trying it out</span>
+      <p data-zh="不用先谈合同,也没有起充门槛。<b>充 1 美元就能开始跑</b>——拿你自己的活去试,看输出、看账单,再决定要不要往里放更多。用不完的余额一直有效。" data-th="ไม่ต้องเซ็นสัญญาก่อน และไม่มีขั้นต่ำในการเติมเงิน <b>เติม 1 ดอลลาร์ก็เริ่มใช้ได้เลย</b> — ลองกับงานจริงของท่าน ดูผลลัพธ์ ดูบิล แล้วค่อยตัดสินใจ ยอดคงเหลือไม่มีวันหมดอายุ">There is no contract to sign first and no minimum top-up. <b>Put in $1 and start</b> &mdash; run your own work through it, look at the output and the bill, then decide whether to move more across. Unused balance does not expire.</p>
+    </div>
+
     <div class="aside-note price-note" style="margin-top:44px">
       <span class="tag" data-zh="这个对比在哪些地方会站不住" data-th="ข้อจำกัดของการเปรียบเทียบนี้">Where this breaks down</span>
-      <p data-zh="<b>不是所有中国模型都便宜</b>——Kimi K3 报价 $3.00 / $15.00,和 Claude Sonnet 5 涨价后的标准价持平。省下来的钱来自「挑对模型」,不是「挑中国」。" data-th="<b>ไม่ใช่ทุกโมเดลจากจีนจะถูก</b> — Kimi K3 ราคา $3.00 / $15.00 เท่ากับ Claude Sonnet 5 ราคามาตรฐาน เงินที่ประหยัดได้มาจากการ<b>เลือกโมเดลที่เหมาะกับงาน</b> ไม่ใช่การเลือกเพราะเป็นโมเดลจีน">
+      <p data-zh="<b>不是所有中国模型都便宜</b>——Kimi K3 报价 $3.00 / $15.00,和 Claude Sonnet 5 现在的标准价持平。省下来的钱来自「挑对模型」,不是「挑中国」。" data-th="<b>ไม่ใช่ทุกโมเดลจากจีนจะถูก</b> — Kimi K3 ราคา $3.00 / $15.00 เท่ากับ Claude Sonnet 5 ราคามาตรฐาน เงินที่ประหยัดได้มาจากการ<b>เลือกโมเดลที่เหมาะกับงาน</b> ไม่ใช่การเลือกเพราะเป็นโมเดลจีน">
         <b>Not every Chinese model is cheap</b> — Kimi K3 lists at $3.00 / $15.00, level with Claude Sonnet 5's
-        standard rate. The saving comes from picking the right model for the job, not from the vendor's flag.
+        standard rate now that its promo has lapsed. The saving comes from picking the right model for the job, not from the vendor's flag.
       </p>
       <p data-zh="<b>上下文越长,价格可能跳档</b>——Gemini 以 200k、Qwen 以 32k/256k/1M 为界分档计价,这里列的是最低档;Anthropic、OpenAI 是全上下文统一价。" data-th="<b>บริบทยิ่งยาว ราคายิ่งขยับขึ้นได้</b> — Gemini แบ่งช่วงที่ 200k, Qwen แบ่งที่ 32k/256k/1M ตารางนี้แสดงราคาช่วงต่ำสุด ส่วน Anthropic และ OpenAI คิดราคาเดียวตลอดทั้งบริบท">
         <b>Longer context can jump to a higher tier</b> — Gemini splits at 200k, Qwen at 32k/256k/1M; the rows
         above show the lowest tier. Anthropic and OpenAI charge one flat rate across the full context.
       </p>
-      <p data-zh="<b>促销价和预告涨价都有截止日</b>——Claude Sonnet 5 的低价 2026-08-31 到期,DeepSeek 官网写着近期会调价。核对日之后请以厂商当天的页面为准。" data-th="<b>ราคาโปรโมชันและการปรับราคามีกำหนดเวลา</b> — ราคาต่ำของ Claude Sonnet 5 หมดอายุ 2026-08-31 ส่วน DeepSeek ระบุว่าจะปรับราคาเร็ว ๆ นี้ หลังวันที่ตรวจสอบ กรุณายึดหน้าราคาทางการของผู้ให้บริการวันนั้นเป็นหลัก">
-        <b>Promo prices and flagged increases both have a clock</b> — Claude Sonnet 5's lower rate expires
-        2026-08-31, and DeepSeek's own page flags an upcoming increase. After the checked date, defer to the
+      <p data-zh="<b>促销价和预告涨价都有截止日</b>——Claude Sonnet 5 的低价已在 2026-08-31 到期(上表已按标准价更新),DeepSeek 官网写着近期会调价。核对日之后请以厂商当天的页面为准。" data-th="<b>ราคาโปรโมชันและการปรับราคามีกำหนดเวลา</b> — ราคาต่ำของ Claude Sonnet 5 หมดอายุแล้วเมื่อ 2026-08-31 (ตารางด้านบนปรับเป็นราคามาตรฐานแล้ว) ส่วน DeepSeek ระบุว่าจะปรับราคาเร็ว ๆ นี้ หลังวันที่ตรวจสอบ กรุณายึดหน้าราคาทางการของผู้ให้บริการวันนั้นเป็นหลัก">
+        <b>Promo prices and flagged increases both have a clock</b> — Claude Sonnet 5's lower rate expired on
+        2026-08-31 (the table above now carries the standard rate), and DeepSeek's own page flags an upcoming
+        increase. After the checked date, defer to the
         vendor's live page.
+      </p>
+      <p data-zh="<b>能力并不完全相同</b>——按任务类型(写代码、推理、图像、视频)大致相当于美国前沿模型的八到九成。对相当一部分真实工作这就是全部;对最难的那 10% 不够——到那一步我们会直说,而不是把不合适的东西卖给你。" data-th="<b>ความสามารถไม่เท่ากันทุกด้าน</b> — ขึ้นอยู่กับประเภทงาน (เขียนโค้ด วิเคราะห์ รูปภาพ วิดีโอ) ราว 80–90% ของโมเดลชั้นนำจากสหรัฐฯ ซึ่งเพียงพอสำหรับงานจริงจำนวนมาก แต่ไม่พอสำหรับงานที่ยากที่สุด 10% นั้น — และเราจะบอกตรง ๆ แทนที่จะขายของที่ไม่เหมาะ">
+        <b>Capability is not identical</b> — depending on the task (coding, reasoning, image, video) expect
+        roughly 80&ndash;90% of the frontier US models. For a great deal of real work that is the whole job; for
+        the hardest 10% it is not, and we will say so rather than sell you the wrong thing.
+      </p>
+      <p data-zh="<b>缓存对两边都便宜,但不对等</b>——Claude Opus 5 的缓存输入是 $0.50/百万,DeepSeek V4 Pro 是 $0.0036/百万。在缓存占比高的 agent 负载上,差距只会拉大,不会收窄。上面的计算器没把这一栏算进去,所以它给的是保守估计。" data-th="<b>แคชช่วยลดต้นทุนทั้งสองฝั่ง แต่ไม่เท่ากัน</b> — อินพุตแคชของ Claude Opus 5 อยู่ที่ $0.50 ต่อล้านโทเค็น ส่วน DeepSeek V4 Pro อยู่ที่ $0.0036 ในงาน agent ที่ใช้แคชหนัก ช่องว่างจะยิ่งกว้างขึ้น เครื่องคำนวณด้านบนไม่ได้รวมคอลัมน์นี้ ตัวเลขที่ได้จึงเป็นการประเมินแบบอนุรักษ์นิยม">
+        <b>Caching cuts both sides &mdash; unevenly</b> — a cached input token costs $0.50 on Claude Opus 5 and
+        $0.0036 on DeepSeek V4 Pro. On cache-heavy agent workloads the gap widens rather than narrows. The
+        calculator above leaves that column out, so what it shows is the conservative figure.
       </p>
     </div>
 
@@ -233,5 +366,170 @@
 </footer>
 
 <script src="/assets/i18n-v2.js"></script>
+<script>
+  // 计算器自带词典。不能走 data-zh:i18n-v2.js 换的是整块 innerHTML,而这块由 JS 重绘,
+  // 两套逻辑会互相盖掉。所以这里盯 <html data-lang> 的变化自己重画(/hello 也是这个做法)。
+  (function () {
+    'use strict';
+
+    var T = {
+      en: {
+        solo: "One heavy developer", five: "A team of 5", twenty: "A team of 20",
+        labIn: "Input tokens / month", labOut: "Output tokens / month", unit: "millions",
+        hModel: "Run the same month on…", hMonth: "Per month", hYear: "Per year",
+        hVs: "vs. Claude Opus 5",
+        us: "US frontier", cn: "Chinese", base: "baseline",
+        cheaper: "× cheaper", dearer: "× dearer",
+        cap: function (i, o) {
+          return "saved per year by moving the bulk of this workload from Claude Opus 5 to DeepSeek V4 Pro, at "
+            + i + "M input and " + o + "M output tokens a month.";
+        }
+      },
+      zh: {
+        solo: "一个重度开发者", five: "5 人小队", twenty: "20 人团队",
+        labIn: "每月输入 token", labOut: "每月输出 token", unit: "百万",
+        hModel: "同样这个月，跑在…", hMonth: "每月", hYear: "每年",
+        hVs: "对比 Claude Opus 5",
+        us: "美国旗舰", cn: "中国模型", base: "基准",
+        cheaper: " 倍便宜", dearer: " 倍贵",
+        cap: function (i, o) {
+          return "按每月 " + i + "M 输入 / " + o
+            + "M 输出计，把这部分工作从 Claude Opus 5 换到 DeepSeek V4 Pro，一年省下的钱。";
+        }
+      },
+      th: {
+        solo: "นักพัฒนาหนัก 1 คน", five: "ทีม 5 คน", twenty: "ทีม 20 คน",
+        labIn: "โทเค็นอินพุต / เดือน", labOut: "โทเค็นเอาต์พุต / เดือน", unit: "ล้าน",
+        hModel: "รันเดือนเดียวกันบน…", hMonth: "ต่อเดือน", hYear: "ต่อปี",
+        hVs: "เทียบ Claude Opus 5",
+        us: "สหรัฐฯ", cn: "จีน", base: "ฐานเปรียบเทียบ",
+        cheaper: "× ถูกกว่า", dearer: "× แพงกว่า",
+        cap: function (i, o) {
+          return "ประหยัดได้ต่อปี หากย้ายงานส่วนใหญ่จาก Claude Opus 5 ไป DeepSeek V4 Pro ที่ "
+            + i + "M อินพุต และ " + o + "M เอาต์พุตต่อเดือน";
+        }
+      }
+    };
+
+    // [输入 $/1M, 输出 $/1M] —— 必须与页面上面那两张表逐行一致。改表就改这里。
+    // 缓存输入不进计算:它在「边界」里单独讲,混进来会让数字不可核。
+    var MODELS = [
+      { name: "Claude Opus 5",     side: "us", inp: 5.00,  out: 25.00 },
+      { name: "GPT-5.6 Sol",       side: "us", inp: 5.00,  out: 30.00 },
+      { name: "Claude Sonnet 5",   side: "us", inp: 3.00,  out: 15.00 },
+      { name: "GPT-5.6 Terra",     side: "us", inp: 2.00,  out: 12.00 },
+      { name: "Gemini 3.1 Pro",    side: "us", inp: 2.00,  out: 12.00 },
+      { name: "Claude Haiku 4.5",  side: "us", inp: 1.00,  out: 5.00  },
+      { name: "Kimi K3",           side: "cn", inp: 3.00,  out: 15.00 },
+      { name: "Qwen3-Max",         side: "cn", inp: 2.00,  out: 6.00  },
+      { name: "GLM-5.2",           side: "cn", inp: 1.40,  out: 4.40  },
+      { name: "GLM-4.7",           side: "cn", inp: 0.60,  out: 2.20  },
+      { name: "Qwen3-Plus",        side: "cn", inp: 0.32,  out: 1.60  },
+      { name: "DeepSeek V4 Pro",   side: "cn", inp: 0.435, out: 0.87  },
+      { name: "DeepSeek V4 Flash", side: "cn", inp: 0.14,  out: 0.28  }
+    ];
+
+    // 按名字取,不按下标 —— 重排数组不该改变「谁是基准」。
+    function byName(n) {
+      for (var i = 0; i < MODELS.length; i++) { if (MODELS[i].name === n) { return MODELS[i]; } }
+      throw new Error("pricing calculator: model not in MODELS: " + n);
+    }
+    var BASELINE = byName("Claude Opus 5");
+    var HEADLINE = byName("DeepSeek V4 Pro");   // 大字省下的钱用它算
+
+    var $ = function (id) { return document.getElementById(id); };
+    var tin = $("tin"), tout = $("tout"), rows = $("rows");
+    var buttons = Array.prototype.slice.call(document.querySelectorAll(".presets button"));
+
+    function dict() { return T[document.documentElement.getAttribute("data-lang")] || T.en; }
+    function money(n) {
+      // 10 美元以下分位有意义,以上就是月账单里的噪音了
+      var d = n < 10 ? 2 : 0;
+      return "$" + n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+    }
+    function monthly(m, i, o) { return m.inp * i + m.out * o; }
+
+    function render() {
+      var t = dict();
+      var inM = Math.max(0, parseFloat(tin.value) || 0);
+      var outM = Math.max(0, parseFloat(tout.value) || 0);
+      var base = monthly(BASELINE, inM, outM);
+
+      buttons.forEach(function (b) { b.textContent = t[b.dataset.key]; });
+      $("lab-in").textContent = t.labIn;
+      $("lab-out").textContent = t.labOut;
+      $("unit-in").textContent = t.unit;
+      $("unit-out").textContent = t.unit;
+      $("h-model").textContent = t.hModel;
+      $("h-month").textContent = t.hMonth;
+      $("h-year").textContent = t.hYear;
+      $("h-vs").textContent = t.hVs;
+
+      rows.textContent = "";
+      MODELS.forEach(function (m) {
+        var cost = monthly(m, inM, outM);
+        var tr = document.createElement("tr");
+
+        var c1 = document.createElement("td");
+        var tag = document.createElement("span");
+        tag.className = "origin";
+        tag.textContent = t[m.side];
+        tag.style.color = m.side === "us" ? "var(--violet)" : "var(--red)";
+        c1.appendChild(document.createTextNode(m.name));
+        c1.appendChild(tag);
+
+        var c2 = document.createElement("td");
+        c2.textContent = money(cost);
+        var c3 = document.createElement("td");
+        c3.textContent = money(cost * 12);
+
+        var c4 = document.createElement("td");
+        if (m === BASELINE) {
+          c4.textContent = t.base;
+          c4.style.color = "var(--muted)";
+        } else if (base > 0 && cost > 0) {
+          var r = base / cost;
+          c4.textContent = r >= 1
+            ? r.toFixed(r < 10 ? 1 : 0) + t.cheaper
+            : (1 / r).toFixed(1) + t.dearer;
+          if (m.side === "cn" && r >= 1) { c4.className = "save"; }
+        } else {
+          c4.textContent = "—";
+        }
+
+        tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3); tr.appendChild(c4);
+        rows.appendChild(tr);
+      });
+
+      var saved = (base - monthly(HEADLINE, inM, outM)) * 12;
+      $("hero").textContent = money(saved > 0 ? saved : 0);
+      $("herocap").textContent = t.cap(inM.toLocaleString("en-US"), outM.toLocaleString("en-US"));
+    }
+
+    buttons.forEach(function (b) {
+      b.addEventListener("click", function () {
+        buttons.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+        tin.value = b.dataset.in;
+        tout.value = b.dataset.out;
+        render();
+      });
+    });
+    // 自己敲数字就不再是任何一个预设了,把按下态清掉
+    [tin, tout].forEach(function (el) {
+      el.addEventListener("input", function () {
+        buttons.forEach(function (o) { o.setAttribute("aria-pressed", "false"); });
+        render();
+      });
+    });
+
+    // 跟着官网的语言切换走:盯 <html data-lang>,而不是给语言按钮再绑一次事件 ——
+    // 那样两套逻辑迟早不同步。
+    new MutationObserver(render).observe(document.documentElement, {
+      attributes: true, attributeFilter: ["data-lang"]
+    });
+
+    render();
+  })();
+</script>
 </body>
 </html>
