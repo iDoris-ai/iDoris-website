@@ -35,11 +35,11 @@
 
 | 方案 | 能力 | 可借鉴 | License |
 |:---|:---|:---|:---|
-| Dify | 可视化 Agent/工作流编排、知识库、多模型接入 | 工作流编排模型、知识库分块策略 | Apache 2.0（含品牌与多租户附加条款，**商用前须逐条读**） |
+| Dify | 可视化 Agent/工作流编排、知识库、多模型接入 | 工作流编排模型、知识库分块策略 | 改版 Apache 2.0，**明文禁止多租户**（[已核] 2026-09-05）→ 排除 |
 | n8n | 通用自动化编排、400+ 连接器、可自托管 | 连接器抽象、触发器模型 | Sustainable Use License（**非 OSI 开源**，商用托管受限） |
-| LiteLLM | 统一多家模型 API、路由、成本追踪、虚拟 key | **AI Gateway 的直接基座** | MIT |
+| LiteLLM | 统一多家模型 API、路由、成本追踪、虚拟 key | **AI Gateway 的直接基座** | MIT，**但 `enterprise/` 目录另有许可**（[已核] 2026-09-05） |
 | LangGraph | 有状态 Agent 图、断点/人工审批 | Agent 状态机、human-in-the-loop | MIT |
-| Open WebUI | 自托管聊天前端、多模型、RAG、用户管理 | Workspace 的前端起点 | BSD-3（**近版本加了品牌保留条款，须核**） |
+| Open WebUI | 自托管聊天前端、多模型、RAG、用户管理 | Workspace 的前端起点 | BSD-3 + 品牌条款：**>50 用户不得去品牌**（[已核] 2026-09-05）|
 | Whisper / faster-whisper | 语音转文字，含泰语 | Voice 模块基座 | MIT / MIT |
 | Docling / Unstructured | 文档解析（PDF/表格/扫描件）转结构化 | Office 模块的解析层 | MIT / Apache 2.0 |
 | Qdrant / pgvector | 向量检索 | 知识库存储 | Apache 2.0 / PostgreSQL License |
@@ -69,6 +69,10 @@
 
 ### 4. 可复用 vs 要自建
 
+> **本节的 License 结论已由 [`../business/oss-due-diligence.md`](../business/oss-due-diligence.md)
+> 逐条核实（2026-09-05），并纠正了本文件此前的两处错误（LiteLLM、Dify）。
+> 上表中标 [已核] 的以尽调文档为准。**
+
 **站在巨人肩上（不自建）**
 - 模型路由与成本控制 → LiteLLM
 - Agent 状态机与人工审批 → LangGraph
@@ -91,7 +95,9 @@
   把其代码并入我们的发行物。越过这条线，整个 iDoris Core 会被传染成 GPL。
 - **n8n 是 Sustainable Use License，不是开源**。可以自用，**不可作为我们托管
   服务的核心卖点**转售。若需要通用连接器编排，优先自建轻量层或换 Apache 2.0 方案。
-- **Dify / Open WebUI 的附加品牌条款**在商用与再分发前必须逐条读过并留档。
+- **Dify 明文禁止多租户**（[已核]）——我们的托管模式按其定义就是多租户，**已排除**。
+- **Open WebUI** 在 30 天滚动周期内终端用户 >50 时不得移除其品牌标识（[已核]）。
+- **LiteLLM 的 `enterprise/` 目录另有许可**（[已核]）——只用核心，绝不引用该目录。
 - 我们自己的开源部分统一 **Apache 2.0**（与官网页脚已公示的一致）。
 
 **数据边界**
