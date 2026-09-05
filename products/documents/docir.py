@@ -226,8 +226,22 @@ class DocIR:
         )
 
 
+def _hard_split(s: str, max_chars: int, overlap: int) -> list[str]:
+    """按字符硬切。步长至少 1，避免 overlap 接近 max_chars 时死循环。"""
+    step = max(1, max_chars - overlap)
+    return [s[i:i + max_chars] for i in range(0, len(s), step)]
+
+
 def _split_text(text: str, max_chars: int, overlap: int) -> list[str]:
-    """按句子边界切，超长再按字符硬切。**不按空格。**"""
+    """按句子边界切，超长再按字符硬切。**不按空格。**
+
+    **不变式：返回的每一块长度都 ≤ max_chars。** 这一条由函数末尾的断言守住。
+
+    早先有个 bug：拼接 `cur = cur[-overlap:] + s` 之后没有再检查长度，
+    当 `overlap + len(s) > max_chars` 时会产出远超上限的块
+    （max_chars=50 切出过 86 字）。超长块喂进 embedding 会被模型端**静默截断**，
+    检索召回变差而没有任何东西报错。现在拼接后立刻兜底硬切。
+    """
     text = text.strip()
     if len(text) <= max_chars:
         return [text]
@@ -240,18 +254,31 @@ def _split_text(text: str, max_chars: int, overlap: int) -> list[str]:
             if cur:
                 out.append(cur)
                 cur = ""
-            step = max_chars - overlap
-            for i in range(0, len(s), step):
-                out.append(s[i:i + max_chars])
+            out.extend(_hard_split(s, max_chars, overlap))
             continue
         if len(cur) + len(s) <= max_chars:
             cur += s
         else:
             out.append(cur)
             cur = (cur[-overlap:] if overlap else "") + s
+            # 带上 overlap 之后可能已经超长 —— 立刻兜底，
+            # 不能等到下一轮直接 append 出去。
+            if len(cur) > max_chars:
+                pieces = _hard_split(cur, max_chars, overlap)
+                out.extend(pieces[:-1])
+                cur = pieces[-1]
     if cur.strip():
         out.append(cur)
-    return [c.strip() for c in out if c.strip()]
+
+    result = [c.strip() for c in out if c.strip()]
+    # 不变式兜底。走到这里还超长说明上面漏了一条路径 —— 与其把超长块发出去
+    # 让 embedding 静默截断，不如在这里炸。
+    over = [len(c) for c in result if len(c) > max_chars]
+    if over:
+        raise DocIRError(
+            "内部错误：切出了超过 max_chars=%d 的块 %s —— "
+            "超长块会被 embedding 静默截断，检索召回变差且不报错" % (max_chars, over))
+    return result
 
 
 def doc_id_for(content: bytes) -> str:

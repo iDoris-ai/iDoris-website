@@ -110,6 +110,37 @@ def test_splits_at_sentence_boundary_not_arbitrary() -> None:
           "说明边界规则失效，只剩超长硬切在兜底" % bad)
 
 
+def test_no_chunk_ever_exceeds_max_chars() -> None:
+    """回归：大 overlap 曾产出远超 max_chars 的块（max_chars=50 切出过 86 字）。
+
+    成因：拼接 `cur = cur[-overlap:] + s` 之后没有再检查长度。
+
+    **只测一组参数是抓不到的** —— 早先的测试用 max_chars=80, overlap=10，
+    小 overlap 恰好不触发。所以这条**参数化跑一组组合**。
+
+    超长块会被 embedding 端静默截断：检索召回变差，而没有任何东西报错。
+    """
+    # 每句 46 字，刻意接近各种 max_chars，用来逼出拼接路径
+    sents = "".join("A" * 45 + "。" for _ in range(6))
+    thai = THAI_LONG
+
+    combos = [(50, 40), (60, 50), (100, 90), (80, 8), (50, 45),
+              (50, 0), (200, 100), (800, 80), (51, 50)]
+    for text, label in ((sents, "句长接近上限"), (thai, "无空格泰文长段")):
+        d = ir([blk(text=text, lang=["th"])])
+        for mc, ov in combos:
+            chunks = d.chunk_for_embedding(max_chars=mc, overlap=ov)
+            over = [len(c["text"]) for c in chunks if len(c["text"]) > mc]
+            check(not over,
+                  "%s：max_chars=%d overlap=%d 切出超长块 %s" % (label, mc, ov, over))
+            check(bool(chunks), "%s：max_chars=%d overlap=%d 没切出块" % (label, mc, ov))
+
+    # 负对照:合法参数下必须真的切出多块（否则「返回空」也能让上面绿）
+    d = ir([blk(text=thai, lang=["th"])])
+    check(len(d.chunk_for_embedding(max_chars=80, overlap=10)) > 1,
+          "负对照失败：长文本没被切分")
+
+
 def test_chunks_keep_provenance() -> None:
     """切块之后仍然能回溯出处 —— 否则 search 答不出「在第几页」。"""
     d = ir([blk(id="b7", page=2, text=THAI_LONG, lang=["th"])])
