@@ -40,3 +40,15 @@ jobs:
       - name: HTML 判据自证能变红（正对照）
         if: always()
         run: python3 scripts/check-html.py --self-test
+
+      # Documents 的 DocIR 隔离层。两条最要紧:出处能回溯、泰文按字符不按空格切。
+      - name: Documents DocIR 测试
+        if: always()
+        run: |
+          cd products/documents
+          python3 docir.py
+          python3 test_docir.py
+
+      - name: Documents 变异测试（证明测试能变红）
+        if: always()
+        run: products/documents/mutation_check.sh
