@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<!--
+  /services —— 四阶段服务与价格区间。内容与 docs/business/services.md 和
+  pricing.md 保持一致;那两份是事实来源,这一页是它们的对外表达。改价格先改那边。
+
+  两条硬规矩,与 /pricing 同源:
+  1. 价格必须带「仅供参考」大字免责。这一页会让人拿着数字去做预算,
+     而区间的取值依赖范围、部门数、语言等九个因素 —— 免责必须比它免的那件事更显眼。
+  2. 每个服务档次都要写「什么情况下不该买」。我们卖的是判断力,
+     一个会说「你们现在还不该做这个」的供应商,下一次客户会先想到他。
+-->
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-zh="服务与价格 — iDoris" data-th="บริการและราคา — iDoris">Services &amp; pricing — iDoris</title>
+<meta name="description" content="Four stages: Discover, Enable, Implement, Operate. What each one delivers, what it costs, and when you should not buy it." data-zh="四个阶段:发现、赋能、实施、运维。每个阶段交付什么、多少钱,以及什么情况下不该买。" data-th="สี่ขั้นตอน: Discover, Enable, Implement, Operate แต่ละขั้นส่งมอบอะไร ราคาเท่าไหร่ และเมื่อไหร่ที่ไม่ควรซื้อ">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2309090C'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23FF3B30'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+  .lead{max-width:660px;margin:0 auto 20px;text-align:center}
+  .lead h1{font-family:var(--display),var(--han);font-weight:500;font-size:clamp(32px,4.4vw,48px);
+    line-height:1.14;letter-spacing:-.01em;margin-bottom:14px}
+  .lead p{font-size:15px;line-height:1.6;color:var(--paper-dim);max-width:56ch;margin:0 auto}
+
+  /* 与 /pricing 同款红框大字免责。价格页的免责必须比它免的那件事更显眼 */
+  .disclaimer{max-width:780px;margin:0 auto 44px;padding:22px 26px;text-align:center;
+    border:1px solid var(--red);border-radius:14px;background:var(--red-dim)}
+  .disclaimer p{margin:0;font-family:var(--display),var(--han);font-weight:500;
+    font-size:clamp(18px,2.4vw,23px);line-height:1.4;color:var(--paper)}
+  .disclaimer .sub{display:block;margin-top:10px;font-family:inherit;font-weight:300;
+    font-size:13.5px;line-height:1.6;color:var(--paper-dim)}
+  @media(max-width:700px){.disclaimer{padding:18px 18px}}
+
+  .stage{max-width:900px;margin:0 auto 46px;padding-bottom:40px;border-bottom:1px solid var(--line-soft)}
+  .stage:last-of-type{border-bottom:0}
+  .stage-no{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:8px}
+  .stage h2{font-family:var(--display),var(--han);font-weight:500;font-size:clamp(22px,2.8vw,30px);
+    line-height:1.2;margin-bottom:6px}
+  .stage .tag-days{font-family:var(--mono);font-size:12px;color:var(--red);margin-bottom:14px}
+  .stage > p{font-size:14.5px;line-height:1.7;color:var(--paper-dim);max-width:64ch}
+  .stage h3{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);margin:22px 0 10px;font-weight:500}
+  .stage ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:7px}
+  .stage li{font-size:14px;line-height:1.6;color:var(--paper-dim)}
+  .stage li b{color:var(--paper);font-weight:500}
+  .nope li{color:var(--paper-dim)}
+  .nope li::marker{color:var(--red)}
+
+  .price-wrap{max-width:900px;margin:0 auto;overflow-x:auto}
+  table.price{width:100%;border-collapse:collapse;font-size:13.5px;min-width:520px}
+  table.price th{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);text-align:right;font-weight:500;padding:0 0 10px 18px;
+    border-bottom:1px solid var(--line);white-space:nowrap}
+  table.price th:first-child{text-align:left;padding-left:0}
+  table.price td{padding:13px 0 13px 18px;border-bottom:1px solid var(--line-soft);text-align:right;
+    font-family:var(--mono);white-space:nowrap;color:var(--paper-dim)}
+  table.price td:first-child{text-align:left;padding-left:0;font-family:inherit;color:var(--paper)}
+  table.price .sub{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;font-family:inherit}
+
+  .foot-note{max-width:780px;margin:34px auto 0;font-size:12.5px;line-height:1.7;color:var(--muted)}
+  .cta{max-width:780px;margin:60px auto 0;text-align:center;padding:34px 30px;
+    border:1px solid var(--line);border-radius:14px;background:var(--ink-2)}
+  .cta p{margin-bottom:18px}
+  @media(max-width:700px){.lead h1{font-size:28px}}
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap">
+    <a class="brand" href="/"><span class="dot"></span>iDORIS</a>
+    <div class="nav-scroll">
+      <a class="link" href="/#directions" data-zh="三个方向" data-th="สามทิศทาง">Three Directions</a>
+      <a class="link" href="/services" data-zh="服务与价格" data-th="บริการและราคา" style="color:var(--red)">Services</a>
+      <a class="link" href="/hello" data-zh="我们发出的信" data-th="จดหมายของเรา">The letter</a>
+      <a class="link" href="/pricing" data-zh="模型定价" data-th="ราคาโมเดล">Model pricing</a>
+      <a class="link" href="/friends" data-zh="我们的 IP" data-th="ตัวละคร">Doris &amp; Cherry</a>
+      <a class="link" href="/buy" data-zh="购买体验卡" data-th="ซื้อบัตร">Buy cards</a>
+      <a class="link" href="/join" data-zh="招聘" data-th="ร่วมงาน">We're hiring</a>
+      <a class="link" href="https://github.com/iDoris-ai">GitHub ↗</a>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
+      <button class="lang-btn" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-btn" data-lang="zh" aria-pressed="false">中文</button>
+      <button class="lang-btn" data-lang="th" aria-pressed="false">ไทย</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+<section>
+  <div class="wrap">
+
+    <div class="lead">
+      <h1 data-zh="我们怎么合作" data-th="เราทำงานร่วมกับท่านอย่างไร">How we work with you</h1>
+      <p data-zh="四个阶段。您可以在任何一个阶段停下 —— 很多客户做完第一阶段就自己动手了,那也是一次成功的交付。" data-th="สี่ขั้นตอน ท่านหยุดที่ขั้นไหนก็ได้ ลูกค้าหลายรายทำแค่ขั้นแรกแล้วนำไปทำเองต่อ นั่นก็ถือว่าสำเร็จแล้ว">Four stages. You can stop after any of them &mdash; many clients do the first one and implement it themselves. That is a successful outcome.</p>
+    </div>
+
+    <div class="disclaimer">
+      <p data-zh="价格仅供参考 · 以最终报价为准<span class=&quot;sub&quot;>下面的区间取决于范围、部门数量、语言要求等因素,不是刊例价。这一页不构成报价,也不构成任何承诺 —— 一切以我们给您的正式报价单为准。</span>" data-th="ราคาเพื่อการอ้างอิงเท่านั้น · ยึดใบเสนอราคาสุดท้ายเป็นหลัก<span class=&quot;sub&quot;>ช่วงราคาด้านล่างขึ้นกับขอบเขตงาน จำนวนแผนก และข้อกำหนดด้านภาษา ไม่ใช่ราคาตายตัว หน้านี้ไม่ใช่ใบเสนอราคาและไม่ถือเป็นข้อผูกพัน — ยึดใบเสนอราคาอย่างเป็นทางการที่เราออกให้เป็นหลัก</span>">
+        Indicative pricing only &middot; your quote is what counts
+        <span class="sub">The ranges below depend on scope, number of departments and language requirements.
+        This is not a price list, not a quote, and not a commitment of any kind &mdash; the formal quote we
+        issue is what governs.</span>
+      </p>
+    </div>
+
+    <div class="stage">
+      <div class="stage-no">01</div>
+      <h2 data-zh="Discover — AI 发现冲刺" data-th="Discover — AI Discovery Sprint">Discover &mdash; AI Discovery Sprint</h2>
+      <div class="tag-days" data-zh="3 或 5 个工作日" data-th="3 หรือ 5 วันทำการ">3 or 5 working days</div>
+      <p data-zh="我们进您的公司,看您真实的工作怎么流转,把它量出来,找出最值得让 AI 干的那几件事。您大概不知道团队一年在重复工作上花了多少小时 —— 几乎没人知道。那个数字是我们给您的第一样东西。" data-th="เราเข้าไปดูการทำงานจริงของท่าน วัดผล และหาว่างานชิ้นไหนคุ้มที่จะให้ AI ทำ ท่านอาจยังไม่ทราบว่าทีมใช้เวลากับงานซ้ำ ๆ ปีละกี่ชั่วโมง แทบไม่มีใครทราบ ตัวเลขนั้นคือสิ่งแรกที่เราส่งมอบ">We come in, watch how your work actually flows, measure it, and find which tasks are worth handing to AI. You probably don't know how many hours a year your team spends on repetitive work &mdash; almost nobody does. That number is the first thing we give you.</p>
+      <h3 data-zh="交付物（九项,缺一项不算交付）" data-th="สิ่งที่ส่งมอบ (เก้าชิ้น ขาดชิ้นใดถือว่ายังไม่ครบ)">Deliverables (nine, all of them)</h3>
+      <ul>
+        <li data-zh="现状工作流地图（<b>含每一步的实测耗时</b>）" data-th="แผนผังกระบวนการปัจจุบัน (<b>พร้อมเวลาที่วัดจริงในแต่ละขั้น</b>)">Current workflow map, <b>with measured time per step</b></li>
+        <li data-zh="AI Readiness 五维评分" data-th="คะแนนความพร้อม AI ห้ามิติ">AI readiness score, five dimensions</li>
+        <li data-zh="痛点清单，<b>每一条折算成年化工时与成本</b>" data-th="รายการจุดเจ็บปวด <b>แปลงเป็นชั่วโมงและต้นทุนต่อปี</b>">Pain point inventory, <b>each converted to annualised hours and cost</b></li>
+        <li data-zh="Top 3 用例，含 Impact × Effort × Risk 矩阵" data-th="3 use case แรก พร้อมเมทริกซ์ Impact × Effort × Risk">Top 3 use cases, with an impact × effort × risk matrix</li>
+        <li data-zh="<b>一个当场能跑的原型</b>，用您自己的数据" data-th="<b>ต้นแบบที่รันได้จริงหน้างาน</b> ด้วยข้อมูลของท่านเอง"><b>A working prototype</b>, run on your own data</li>
+        <li data-zh="数据与隐私风险评估" data-th="การประเมินความเสี่ยงด้านข้อมูลและความเป็นส่วนตัว">Data and privacy risk assessment</li>
+        <li data-zh="90 天路线图（30/60/90 三段，<b>每段都有可验收的产出</b>）" data-th="แผน 90 วัน (แบ่ง 30/60/90 <b>แต่ละช่วงมีผลลัพธ์ที่ตรวจรับได้</b>)">A 90-day roadmap in three parts, <b>each with something you can sign off</b></li>
+        <li data-zh="实施建议与报价" data-th="ข้อเสนอการดำเนินการและใบเสนอราคา">Implementation recommendation and quote</li>
+      </ul>
+      <h3 data-zh="什么情况下您不该买这个" data-th="เมื่อไหร่ที่ท่านไม่ควรซื้อขั้นนี้">When you should not buy this</h3>
+      <ul class="nope">
+        <li data-zh="您已经清楚知道要做什么、只想找人实现 —— <b>直接谈实施，不要为了流程完整多付一笔</b>" data-th="ท่านรู้ชัดแล้วว่าต้องการอะไร เพียงหาคนมาทำ — <b>คุยเรื่องการดำเนินการโดยตรง ไม่ต้องจ่ายเพิ่มเพื่อความครบขั้นตอน</b>">You already know exactly what you want built &mdash; <b>go straight to implementation, don't pay for a stage you don't need</b></li>
+        <li data-zh="公司正在重组、换负责人或大幅调整 —— <b>流程本身在变，测出来的东西下个月就过期</b>" data-th="องค์กรกำลังปรับโครงสร้างหรือเปลี่ยนผู้บริหาร — <b>กระบวนการกำลังเปลี่ยน สิ่งที่วัดได้จะหมดอายุในเดือนถัดไป</b>">Your organisation is mid-restructure &mdash; <b>the processes themselves are moving, anything we measure expires next month</b></li>
+        <li data-zh="没有一位决策层能抽出时间受访 —— <b>我们会请您推迟，而不是硬做</b>" data-th="ไม่มีผู้บริหารท่านใดสละเวลาให้สัมภาษณ์ได้ — <b>เราจะขอเลื่อน แทนที่จะฝืนทำ</b>">No decision maker can sit down with us &mdash; <b>we will ask you to postpone rather than proceed</b></li>
+      </ul>
+    </div>
+
+    <div class="stage">
+      <div class="stage-no">02</div>
+      <h2 data-zh="Enable — 按角色的 AI 赋能" data-th="Enable — การเสริมศักยภาพ AI ตามบทบาท">Enable &mdash; role-based AI enablement</h2>
+      <div class="tag-days" data-zh="1–3 天" data-th="1–3 วัน">1&ndash;3 days</div>
+      <p data-zh="我们不教「ChatGPT 怎么用」。我们教您的员工怎么把 AI 放进他每天已经在做的那件工作里。培训结束时，他手上是一个配好的 Skill 包，不是一叠 PPT。" data-th="เราไม่ได้สอน «วิธีใช้ ChatGPT» เราสอนพนักงานของท่านว่าจะเอา AI ไปใส่ในงานที่เขาทำอยู่ทุกวันอย่างไร จบการอบรม เขาจะได้ชุด Skill ที่ตั้งค่าไว้แล้ว ไม่ใช่กองสไลด์">We don't teach "how to use ChatGPT". We teach your staff to put AI inside the work they already do every day. They finish with a configured Skill pack, not a stack of slides.</p>
+      <h3 data-zh="什么情况下您不该买这个" data-th="เมื่อไหร่ที่ท่านไม่ควรซื้อขั้นนี้">When you should not buy this</h3>
+      <ul class="nope">
+        <li data-zh="还没做过 Discovery —— 会退化成通用 AI 培训，而<b>政府、大学和大厂现在都在免费教这个。我们竞争不过免费，也不该跟免费竞争。</b>" data-th="ยังไม่ได้ทำ Discovery — จะกลายเป็นการอบรม AI ทั่วไป ซึ่ง<b>ภาครัฐ มหาวิทยาลัย และบริษัทใหญ่กำลังสอนให้ฟรีอยู่แล้ว</b>">You haven't done a Discovery yet &mdash; it degrades into generic AI training, and <b>government, universities and large vendors are teaching that for free. We cannot compete with free, and we shouldn't try.</b></li>
+        <li data-zh="团队对 AI 有明确抵触 —— <b>培训解决不了抵触，那是管理沟通的问题</b>" data-th="ทีมงานต่อต้าน AI อย่างชัดเจน — <b>การอบรมแก้ความต่อต้านไม่ได้ นั่นเป็นเรื่องการสื่อสารของฝ่ายบริหาร</b>">Your team is actively resistant &mdash; <b>training doesn't fix resistance; that's a management conversation</b></li>
+      </ul>
+    </div>
+
+    <div class="stage">
+      <div class="stage-no">03</div>
+      <h2 data-zh="Implement — Skill、Agent 与集成" data-th="Implement — Skill, Agent และการเชื่อมระบบ">Implement &mdash; skills, agents, integration</h2>
+      <div class="tag-days" data-zh="1 周 – 数月，按档次" data-th="1 สัปดาห์ – หลายเดือน ตามระดับ">1 week to several months, by level</div>
+      <p data-zh="三档：可复用的 Skill 包、接进一条业务流程的 Agent、或与现有系统集成。<b>我们按您真实的准备度选档，不按预算选。</b>" data-th="สามระดับ: ชุด Skill ที่นำกลับมาใช้ได้ · Agent ที่เชื่อมเข้ากับกระบวนการธุรกิจ · หรือการเชื่อมกับระบบเดิม <b>เราเลือกระดับตามความพร้อมจริง ไม่ใช่ตามงบประมาณ</b>">Three levels: a reusable Skill pack, an agent wired into one business process, or integration with your existing systems. <b>We pick the level from your actual readiness, not from your budget.</b></p>
+      <h3 data-zh="两件我们默认这样做的事" data-th="สองสิ่งที่เราทำเป็นค่าตั้งต้น">Two things we do by default</h3>
+      <ul>
+        <li data-zh="<b>所有会送到您客户面前的 AI 输出，默认都要人工确认。</b>全自动是您书面选择开启的，不是我们默认给的 —— 一条错误的自动回复，伤害远大于省下的那点人工。" data-th="<b>ผลลัพธ์ AI ทุกชิ้นที่จะถึงมือลูกค้าของท่าน ต้องผ่านการยืนยันจากคนก่อนเป็นค่าตั้งต้น</b> ระบบอัตโนมัติเต็มรูปแบบเป็นสิ่งที่ท่านเลือกเปิดเองเป็นลายลักษณ์อักษร"><b>Every AI output that reaches your customers is reviewed by a person first.</b> Full automation is something you switch on in writing &mdash; one wrong automated reply costs far more than the minutes it saves.</li>
+        <li data-zh="<b>实施前先测基线。</b>没有开工前的数字，交付时就无法证明我们真的帮到了您。" data-th="<b>วัดค่าฐานก่อนเริ่มงาน</b> ถ้าไม่มีตัวเลขก่อนเริ่ม ตอนส่งมอบก็พิสูจน์ไม่ได้ว่าเราช่วยได้จริง"><b>We measure the baseline before we start.</b> Without a before-number, neither of us can prove afterwards that it worked.</li>
+      </ul>
+      <h3 data-zh="什么情况下您不该买这个" data-th="เมื่อไหร่ที่ท่านไม่ควรซื้อขั้นนี้">When you should not buy this</h3>
+      <ul class="nope">
+        <li data-zh="Discovery 评出来的准备度太低 —— <b>我们会写下来说「你们现在还不该做这个」</b>" data-th="คะแนนความพร้อมจาก Discovery ต่ำเกินไป — <b>เราจะเขียนบอกตรง ๆ ว่า «ตอนนี้ท่านยังไม่ควรทำ»</b>">Your readiness score came back too low &mdash; <b>we will put it in writing that you shouldn't do this yet</b></li>
+      </ul>
+    </div>
+
+    <div class="stage">
+      <div class="stage-no">04</div>
+      <h2 data-zh="Operate — AI 托管运维" data-th="Operate — บริการดูแล AI">Operate &mdash; managed AI</h2>
+      <div class="tag-days" data-zh="按月" data-th="รายเดือน">monthly</div>
+      <p data-zh="上线不是结束。模型会变、价格会变、API 会变、流程会变、员工会离职。<b>没有这一步，第一次实施的价值会在半年内衰减掉。</b>" data-th="การขึ้นระบบไม่ใช่จุดจบ โมเดลเปลี่ยน ราคาเปลี่ยน API เปลี่ยน กระบวนการเปลี่ยน พนักงานลาออก <b>หากไม่มีขั้นนี้ คุณค่าจากการติดตั้งครั้งแรกจะจางลงภายในครึ่งปี</b>">Going live is not the end. Models change, prices change, APIs change, processes change, staff leave. <b>Without this stage, the value of the first implementation decays within six months.</b></p>
+      <h3 data-zh="什么情况下您不该买这个" data-th="เมื่อไหร่ที่ท่านไม่ควรซื้อขั้นนี้">When you should not buy this</h3>
+      <ul class="nope">
+        <li data-zh="您有自己的 IT 团队且只做了最轻的一档 —— <b>他们自己能维护，我们卖季度复查就够了</b>" data-th="ท่านมีทีม IT ของตัวเองและทำเพียงระดับเบาที่สุด — <b>ทีมของท่านดูแลเองได้ เราขายแค่การตรวจสอบรายไตรมาสก็พอ</b>">You have your own IT team and only took the lightest level &mdash; <b>they can maintain it; a quarterly review is enough</b></li>
+      </ul>
+    </div>
+
+    <div class="price-wrap">
+      <table class="price">
+        <thead>
+          <tr>
+            <th data-zh="服务" data-th="บริการ">Service</th>
+            <th data-zh="价格区间（泰铢）" data-th="ช่วงราคา (บาท)">Range (THB)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td data-zh="AI Readiness 通话<span class=&quot;sub&quot;>30–60 分钟</span>" data-th="AI Readiness Call<span class=&quot;sub&quot;>30–60 นาที</span>">AI Readiness Call<span class="sub">30&ndash;60 minutes</span></td><td data-zh="免费" data-th="ฟรี">Free</td></tr>
+          <tr><td data-zh="Discovery Sprint<span class=&quot;sub&quot;>3 天</span>" data-th="Discovery Sprint<span class=&quot;sub&quot;>3 วัน</span>">Discovery Sprint<span class="sub">3 days</span></td><td>25,000 &ndash; 45,000</td></tr>
+          <tr><td data-zh="Discovery Sprint<span class=&quot;sub&quot;>5 天</span>" data-th="Discovery Sprint<span class=&quot;sub&quot;>5 วัน</span>">Discovery Sprint<span class="sub">5 days</span></td><td>45,000 &ndash; 80,000</td></tr>
+          <tr><td data-zh="AI Enablement" data-th="AI Enablement">AI Enablement</td><td>20,000 &ndash; 60,000</td></tr>
+          <tr><td data-zh="实施 · Skill 包" data-th="การดำเนินการ · ชุด Skill">Implementation &middot; Skill pack</td><td>20,000 &ndash; 60,000</td></tr>
+          <tr><td data-zh="实施 · Agent / 工作流" data-th="การดำเนินการ · Agent / Workflow">Implementation &middot; Agent / workflow</td><td>60,000 &ndash; 150,000</td></tr>
+          <tr><td data-zh="实施 · 系统集成" data-th="การดำเนินการ · เชื่อมระบบ">Implementation &middot; integration</td><td>150,000 &ndash; 400,000+</td></tr>
+          <tr><td data-zh="AI 托管运维<span class=&quot;sub&quot;>每月</span>" data-th="บริการดูแล AI<span class=&quot;sub&quot;>ต่อเดือน</span>">Managed AI<span class="sub">per month</span></td><td>3,000 &ndash; 30,000+</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="foot-note" data-zh="模型调用费用单独计，通过我们的 Gateway 透明呈现 —— <b>我们不在服务费里赚 token 差价</b>。差旅按实际发生另计。首批标杆客户可以谈折扣，对价是可公开的案例与推荐语。" data-th="ค่าเรียกใช้โมเดลคิดแยกต่างหาก แสดงอย่างโปร่งใสผ่าน Gateway ของเรา — <b>เราไม่บวกส่วนต่างค่า token ในค่าบริการ</b> ค่าเดินทางคิดตามจริง ลูกค้ากลุ่มแรกสามารถเจรจาส่วนลดได้ โดยแลกกับกรณีศึกษาที่เผยแพร่ได้">
+      Model usage is billed separately and shown transparently through our gateway &mdash;
+      <b>we do not mark up tokens inside the service fee</b>. Travel is charged at cost.
+      Early reference clients can negotiate a discount in exchange for a publishable case study.
+    </p>
+
+    <div class="cta">
+      <p data-zh="不确定值不值得？先花 40 分钟聊聊。我们问您哪些活最重复，您决定要不要继续 —— <b>如果我们觉得您现在还不该上 AI，我们会直说。</b>" data-th="ไม่แน่ใจว่าคุ้มไหม? คุยกัน 40 นาทีก่อน เราถามว่างานไหนซ้ำที่สุด ท่านตัดสินใจเองว่าจะไปต่อไหม — <b>ถ้าเราเห็นว่าท่านยังไม่ควรใช้ AI ตอนนี้ เราจะบอกตรง ๆ</b>">
+        Not sure it's worth it? Start with a 40-minute call. We ask which work repeats most; you decide whether
+        to go further &mdash; <b>and if we think you shouldn't adopt AI yet, we'll say so.</b>
+      </p>
+      <a class="btn primary" href="/hello" data-zh="看我们发出的信 →" data-th="อ่านจดหมายของเรา →">See the letter we send &rarr;</a>
+    </div>
+
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div style="color:var(--paper);font-weight:500;margin-bottom:6px">iDoris.ai</div>
+      <div data-zh="iDoris · 应用 AI 伙伴 · 组织大脑 · 数字公共物品 · Apache 2.0" data-th="iDoris · พาร์ทเนอร์ AI ที่ใช้ได้จริง · สมององค์กร · สาธารณประโยชน์ดิจิทัล · Apache 2.0">iDoris · Applied AI Partner · The Organizational Brain · Digital Public Goods · Apache 2.0</div>
+    </div>
+    <div class="links">
+      <a href="/" data-zh="返回首页" data-th="กลับหน้าแรก">Home</a>
+      <a href="/pricing" data-zh="模型定价" data-th="ราคาโมเดล">Model pricing</a>
+      <a href="/hello" data-zh="我们发出的信" data-th="จดหมายของเรา">The letter</a>
+      <a href="https://github.com/iDoris-ai">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/i18n-v2.js"></script>
+</body>
+</html>
