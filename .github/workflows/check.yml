@@ -40,3 +40,19 @@ jobs:
       - name: HTML 判据自证能变红（正对照）
         if: always()
         run: python3 scripts/check-html.py --self-test
+
+      # Gateway 路由引擎。三条不可破规则(隐私 override / 预算硬停 / 可解释)
+      # 全靠测试兜住,不跑就等于没有。
+      - name: Gateway 路由引擎测试
+        if: always()
+        run: |
+          cd products/gateway
+          python3 routing.py --self-test
+          python3 test_routing.py
+
+      # 变异测试:逐条破坏规则,断言测试确实会变红。
+      # 没有这一步,上面那个绿灯证明不了任何事 —— 一个永远绿的测试套件,
+      # 看起来和真测试一模一样。
+      - name: Gateway 变异测试（证明测试能变红）
+        if: always()
+        run: products/gateway/mutation_check.sh
