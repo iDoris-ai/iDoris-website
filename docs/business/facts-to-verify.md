@@ -27,17 +27,33 @@
 
 ---
 
-## 2. P0 · 阻塞级（5 条）
+## 2. P0 · 阻塞级（5 条 → **已解决 3 条，剩 2 条**）
+
+> **2026-09-05 验证报告**：[`verification-2026-09-05.md`](verification-2026-09-05.md)
+> 证据脚本：[`../../tools/verify/`](../../tools/verify/)（可重跑）
 
 | # | 断言 | 来源 | 阻塞什么 | 怎么核 | 谁 |
 |:--|:---|:---|:---|:---|:---|
-| 1 | **LangGraph 完全离线时零出网** | 已核其传递依赖 `langsmith`，但未验证运行时行为 | **Assistant 不得进任何客户环境** | 断网容器跑最小流程，`tcpdump` 或 `HTTPS_PROXY` 抓包确认零出网 | Dev |
+| ~~1~~ | **LangGraph 完全离线时零出网** | — | ~~阻塞~~ **已解除** | **[已核 2026-09-05]** socket 层拦截 + 正对照。不设变量时 **0 次外部连接**；但设 `LANGSMITH_TRACING=true` 时**确实会连** `api.smith.langchain.com`。**风险不在库，在部署配置** —— 见下方「新增控制手段」 | ✅ |
 | 2 | **图像生成模型权重可商用** | 未核 | **Creative 图像部分不对外交付** | 找到权重发布页/model card，读 license 段的 commercial use 条款 | Dev |
 | 3 | **Voice 组件现状**（哪个 whisper 实现、泰语调过没、有无 demo、部署形态） | 源文档一句「你已经有 Thai/English/Chinese Voice Input」 | **整个 Starter Kit 演示计划** | 读 iDoris 代码仓库 | Dev |
-| 4 | **Whisper 模型权重许可** | 未核 | Voice 商业交付 | 权重发布页 | Dev |
-| 5 | **Docling 的 OCR/版面模型权重许可** | 未核 | Documents 商业交付 | 首次运行看它下载什么，逐个查 | Dev |
+| ~~4~~ | **Whisper 模型权重许可** | — | ~~阻塞~~ **已解除** | **[已核 2026-09-05]** `Systran/faster-whisper-large-v3` = **MIT**；`openai/whisper-large-v3` = Apache-2.0。**可商用** | ✅ |
+| ~~5~~ | **Docling 的 OCR/版面模型权重许可** | — | ~~阻塞~~ **已解除**（有条件）| **[已核 2026-09-05]** `ds4sd/docling-models` = CDLA-Permissive-2.0 + Apache-2.0；`DocumentFigureClassifier` = MIT。**可商用**。条件：**第一版只用 Docling 自带模型，不启用外部 OCR 引擎**（EasyOCR/Tesseract 许可需另核）| ✅ |
 
-> **第 1 条与第 3 条是 Dev 入职第一周的前两件事**（见 `onboarding-day1.md` §4）。
+> **第 3 条仍是 Dev 入职第一周的第一件事**（见 `onboarding-day1.md` §4）。
+> 第 1 条已在 2026-09-05 验证解除。
+
+### 新增控制手段（由 P0 #1 的验证结果推出）
+
+LangGraph 本身不主动出网，**但环境变量存在时会上报**。所以这不是「可以放心用」，
+而是「**必须机械保证那些变量不存在**」：
+
+1. 部署清单显式 `unset LANGSMITH_TRACING LANGSMITH_API_KEY LANGCHAIN_TRACING_V2 LANGCHAIN_API_KEY`
+2. **服务启动时加断言**：检测到任何 `LANGSMITH_*` / `LANGCHAIN_*` 变量就**拒绝启动** ——
+   打警告没人看
+3. 客户环境部署前跑一次 `tools/verify/langgraph-egress-probe.py`
+
+**原定的降级路径（自建状态机 2–3 天）可以取消。**
 
 ---
 

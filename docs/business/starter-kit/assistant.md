@@ -184,5 +184,5 @@ Documents ────┘                    │
 | 泰语会议转写质量不足 | 纪要不可用 | 演示前用真实场景预跑；Voice 组件的评测方法见 [`voice.md`](voice.md) |
 | 审批队列没人看 | 流程卡死，客户觉得没用 | 超时升级提醒；上线时把队列接进客户已有的 LINE/邮件 |
 | 客户要求全自动 | 事故风险 | 白名单机制 + 需书面确认 + ≥50 条历史数据 |
-| LangGraph 强依赖 LangSmith | 数据外流 + 成本 | **[待核]** 必须确认可完全离线运行，否则换方案 |
+| LangGraph 上报 LangSmith | 数据外流 | **[已核 2026-09-05]** 不设变量时零出网（socket 层验证 + 正对照）；但设了 `LANGSMITH_TRACING` **会连** api.smith.langchain.com。**对策**：部署清单显式 unset + **启动时断言检测到就拒绝启动**（打警告没人看）+ 部署前跑 `tools/verify/langgraph-egress-probe.py` |
 | 五个流程各自演化成独立代码 | 维护成本爆炸 | 通用骨架 + 配置，代码评审时守住 |
