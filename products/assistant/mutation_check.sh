@@ -10,19 +10,36 @@ PY="${PYTHON:-python3}"
 RED=$'\033[31m'; GRN=$'\033[32m'; OFF=$'\033[0m'
 
 cp approval.py .approval.bak
-restore() { mv -f .approval.bak approval.py; }
+cp egress_guard.py .egress_guard.bak
+cp ../demo_meeting_to_tasks.py .demo.bak
+restore() {
+  mv -f .approval.bak approval.py
+  mv -f .egress_guard.bak egress_guard.py
+  mv -f .demo.bak ../demo_meeting_to_tasks.py
+}
 trap restore EXIT
 
 fail=0
-mutate() {
-  sed -i.tmp "$2" approval.py && rm -f approval.py.tmp
-  if $PY test_approval.py >/dev/null 2>&1; then
+n_mut=0        # 自动计数 —— 写死数字会随着加变异而过期,
+               # 而一句过期的「各条属性都被兜住」比不说更糟。
+mutate() {   # $1=描述 $2=sed [$3=目标文件] [$4=测试文件] [$5=备份文件]
+  local f="${3:-approval.py}" t="${4:-test_approval.py}" b="${5:-}"
+  [ -n "$b" ] || b=".$(basename "${f%.py}").bak"
+  n_mut=$((n_mut + 1))
+  sed -i.tmp "$2" "$f" && rm -f "$f.tmp"
+  # 变异必须真的改到文件。sed 匹配不上时会**静默无操作**,测试照常通过,
+  # 于是一条过期变异会伪装成「属性没被兜住」,把人引去改根本没问题的测试。
+  if cmp -s "$f" "$b"; then
+    echo "  ${RED}✗${OFF} $1 —— 变异未生效(sed 没匹配上,多半是代码重构了),请更新这条变异"
+    fail=1; return
+  fi
+  if $PY "$t" >/dev/null 2>&1; then
     echo "  ${RED}✗${OFF} $1 —— 破坏后测试仍然通过,这条属性没有被兜住"
     fail=1
   else
     echo "  ${GRN}✓${OFF} $1 —— 测试正确报警"
   fi
-  cp .approval.bak approval.py
+  cp "$b" "$f"
 }
 
 echo "== 变异测试:破坏安全属性,测试必须变红 =="
@@ -60,6 +77,33 @@ mutate "破坏租户隔离(pending 不按 tenant 过滤)" \
 mutate "破坏驳回理由强制(空理由也能驳回)" \
   's/if not reason.strip():/if False:/'
 
+# ── 出网闸门 ───────────────────────────────────────────────────────
+# 这几条守的是「客户的会议转写稿不会被发到 api.smith.langchain.com」。
+# 坏掉的方向不对称:永远拒绝会被运维立刻发现,**永远放行不会有任何人发现**。
+
+mutate "破坏出网闸门(环境脏也放行)" \
+  's/^    if hits:/    if False:/' egress_guard.py test_egress_guard.py
+
+mutate "破坏失败关闭(认不出来的带前缀变量放过)" \
+  's|^        hits.append((name, "带追踪前缀且非空（值长度 %d）" % len(value)))|        pass|' \
+  egress_guard.py test_egress_guard.py
+
+mutate "破坏前缀扫描(只认写死的那几个开关)" \
+  's/^        if not name.startswith(WATCHED_PREFIXES):/        if name not in _TOGGLES:/' \
+  egress_guard.py test_egress_guard.py
+
+mutate "破坏真值判定(false 也当成开着 —— 会被运维整条注释掉)" \
+  's/^    return value.strip().lower() in _TRUTHY/    return True/' \
+  egress_guard.py test_egress_guard.py
+
+mutate "报错信息里打印变量值(可能是 API key)" \
+  's|^        hits.append((name, "带追踪前缀且非空（值长度 %d）" % len(value)))|        hits.append((name, "值 %s" % value))|' \
+  egress_guard.py test_egress_guard.py
+
+mutate "闸门从入口摘掉(模块还在,只是没人调用)" \
+  's/^assert_no_tracing_env()/pass  # /' \
+  ../demo_meeting_to_tasks.py test_egress_guard.py .demo.bak
+
 # 反向对照:无害改动,测试应仍通过
 sed -i.tmp 's/# 状态机。刻意不做/# 注释改动。刻意不做/' approval.py 2>/dev/null; rm -f approval.py.tmp
 if $PY test_approval.py >/dev/null 2>&1; then
@@ -72,7 +116,7 @@ cp .approval.bak approval.py
 
 echo
 if [ "$fail" -eq 0 ]; then
-  echo "${GRN}✓ 变异测试通过:各条安全属性都被测试真正兜住,且无假阳性${OFF}"
+  echo "${GRN}✓ 变异测试通过:${n_mut} 条安全属性都被测试真正兜住,且无假阳性${OFF}"
 else
   echo "${RED}✗ 变异测试失败:上面标 ✗ 的属性形同虚设${OFF}"
 fi

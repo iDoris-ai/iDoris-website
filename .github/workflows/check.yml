@@ -68,6 +68,35 @@ jobs:
           python3 approval.py
           python3 test_approval.py
 
+      # 出网闸门。P0 #1 的结论是「风险不在库、在部署配置」——
+      # 设了 LANGSMITH_TRACING=true,客户的会议转写稿就会被发到
+      # api.smith.langchain.com,而日志照常、功能照常、测试照常绿。
+      # 这一步保证那道闸门本身不会悄悄失效,**也保证它真的被接在入口上**。
+      - name: Assistant 出网闸门测试
+        if: always()
+        run: |
+          cd products/assistant
+          python3 egress_guard.py --self-test
+          python3 test_egress_guard.py
+
+      # CI 环境本身也得干净 —— 这里跑的是真实的 --check,不是模拟。
+      - name: CI 环境没有追踪配置
+        if: always()
+        run: python3 products/assistant/egress_guard.py --check
+
+      # 正对照:闸门必须在**脏环境**下真的挡住启动。
+      # 只测「干净环境能跑」的话,一个永远放行的闸门也是绿的。
+      - name: 脏环境下必须拒绝启动（正对照）
+        if: always()
+        env:
+          LANGSMITH_TRACING: "true"
+        run: |
+          if python3 products/demo_meeting_to_tasks.py --self-test >/dev/null 2>&1; then
+            echo "::error::LANGSMITH_TRACING=true 时演示竟然正常启动了 —— 出网闸门形同虚设"
+            exit 1
+          fi
+          echo "✓ 脏环境下拒绝启动"
+
       - name: Assistant 变异测试（证明测试能变红）
         if: always()
         run: products/assistant/mutation_check.sh

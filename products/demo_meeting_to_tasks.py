@@ -43,7 +43,18 @@ from approval import (          # noqa: E402
     APPROVED, PENDING, ApprovalQueue, AutoReleasePolicy, Draft, Source,
 )
 from audit import AuditLog, AuditRecord   # noqa: E402
+from egress_guard import assert_no_tracing_env   # noqa: E402
 from routing import Budget, Policy, RoutingEngine   # noqa: E402
+
+# **在做任何事之前先查环境。**
+#
+# P0 #1 的结论:LangGraph 出网的风险不在库、在部署配置 ——
+# 设了 LANGSMITH_TRACING=true,转写稿就会被发到 api.smith.langchain.com,
+# 而且日志照常、功能照常、测试照常绿,没有任何东西提醒你。
+#
+# 这个 demo 处理的正是会议转写稿 —— 我们碰得到的最敏感的数据。
+# 所以宁可起不来,也不能一边跑一边往外发。
+assert_no_tracing_env()
 
 
 # ── 桩:一段虚构的泰英混杂会议转写 ────────────────────────────────────
