@@ -42,7 +42,7 @@ jobs:
         run: python3 scripts/check-html.py --self-test
 
       # Documents 的 DocIR 隔离层。两条最要紧:出处能回溯、泰文按字符不按空格切。
-      - name: Documents 测试（DocIR · 泰历 · extract · translate · summarize · compare）
+      - name: Documents 测试（DocIR · 泰历 · extract · translate · summarize · compare · rewrite）
         if: always()
         run: |
           cd products/documents
@@ -57,6 +57,8 @@ jobs:
           python3 test_summarize.py
           python3 compare.py --self-test
           python3 test_compare.py
+          python3 rewrite.py --self-test
+          python3 test_rewrite.py
 
       - name: Documents 变异测试（证明测试能变红）
         if: always()

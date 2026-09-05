@@ -7,8 +7,9 @@ PY="${PYTHON:-python3}"
 RED=$'\033[31m'; GRN=$'\033[32m'; OFF=$'\033[0m'
 cp docir.py .docir.bak; cp extract.py .extract.bak; cp thai_dates.py .thai_dates.bak
 cp summarize.py .summarize.bak
-cp compare.py .compare.bak; cp translate.py .translate.bak
-trap 'mv -f .docir.bak docir.py; mv -f .extract.bak extract.py; mv -f .thai_dates.bak thai_dates.py; mv -f .translate.bak translate.py; mv -f .summarize.bak summarize.py; mv -f .compare.bak compare.py' EXIT
+cp compare.py .compare.bak
+cp rewrite.py .rewrite.bak; cp translate.py .translate.bak
+trap 'mv -f .docir.bak docir.py; mv -f .extract.bak extract.py; mv -f .thai_dates.bak thai_dates.py; mv -f .translate.bak translate.py; mv -f .summarize.bak summarize.py; mv -f .compare.bak compare.py; mv -f .rewrite.bak rewrite.py' EXIT
 fail=0
 n_mut=0        # 自动计数 —— 写死数字会随着加变异而过期,
                # 而一句过期的「各条属性都被兜住」比不说更糟。
@@ -229,6 +230,49 @@ mutate "破坏出处校验(编造的 block_id 放行)" \
 
 mutate "破坏同文档拦截(跟自己比也放行)" \
   's/^    if old.doc_id == new.doc_id:/    if False:/' compare.py test_compare.py
+
+# ── rewrite:输出本来就该和原文不一样,所以编造最难被发现 ────────────
+# 模型多写一句「保证当天回复」,读起来通顺、专业、符合语气要求,
+# 没有任何东西会觉得不对劲 —— 然后它被发给客户,成了我们没打算做的承诺。
+
+mutate "破坏编造数字拦截(原文没有的数字也放行)" \
+  's/^        if fake_nums:/        if False:/' rewrite.py test_rewrite.py
+
+mutate "破坏泰文数字识别(泰数字编造的金额静默漏过)" \
+  's/^    return {n.replace(",", "") for n in _NUM.findall(text.translate(_THAI_DIGITS))}/    return {n.replace(",", "") for n in _NUM.findall(text)}/' \
+  rewrite.py test_rewrite.py
+
+mutate "破坏千分位归一(45,000 与 45000 被当成两个数)" \
+  's/^    return {n.replace(",", "") for n in _NUM.findall(text.translate(_THAI_DIGITS))}/    return set(_NUM.findall(text.translate(_THAI_DIGITS)))/' \
+  rewrite.py test_rewrite.py
+
+mutate "破坏凭空承诺拦截" \
+  's/^        if new_promises:/        if False:/' rewrite.py test_rewrite.py
+
+mutate "破坏承诺检查的大小写不敏感(改个大小写就绕过)" \
+  's/^    low = text.lower()/    low = text/' rewrite.py test_rewrite.py
+
+mutate "承诺清单只留中文(英泰的承诺静默漏过)" \
+  's/^    "guarantee", "guaranteed", "we promise", "commit to", "full refund",/    #/' \
+  rewrite.py test_rewrite.py
+
+mutate "破坏受众必填(没有判据也照改)" \
+  's/^        if not self.target_audience.strip():/        if False:/' rewrite.py test_rewrite.py
+
+mutate "破坏语气必填" \
+  's/^        if not self.tone.strip():/        if False:/' rewrite.py test_rewrite.py
+
+mutate "破坏长度上限(模型扩写多少都收下)" \
+  's/^        if ratio > req.max_length_ratio:/        if False:/' rewrite.py test_rewrite.py
+
+mutate "破坏长度的空白归一(空白多少影响判定)" \
+  's/^    b = len(_norm(before))/    b = len(before)/' rewrite.py test_rewrite.py
+
+mutate "破坏缺块拦截(少一块也交付)" \
+  's/^    if missing:/    if False:/' rewrite.py test_rewrite.py
+
+mutate "破坏丢数字留痕(漏掉的金额一声不吭)" \
+  's/^        if lost:/        if False:/' rewrite.py test_rewrite.py
 
 # 反向对照
 sed -i.tmp 's/# 泰文字符范围/# 注释改动/' docir.py 2>/dev/null; rm -f docir.py.tmp
