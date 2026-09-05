@@ -30,6 +30,20 @@
     line-height:1.14;letter-spacing:-.01em;margin-bottom:14px}
   .lead p{font-size:15px;line-height:1.6;color:var(--paper-dim);max-width:56ch;margin:0 auto}
 
+  /* 「仅供参考」横幅。刻意做大、做红:这一页会把表里的数字乘成一个美元总额递给客户,
+     而各家随时调价、还分区域与上下文档位。免责必须比它免的那件事更显眼,否则等于没写。
+     页首一处、计算器头条数字旁一处 —— 后者才是真正会被截图带走的数字。 */
+  .disclaimer{max-width:780px;margin:0 auto 34px;padding:22px 26px;text-align:center;
+    border:1px solid var(--red);border-radius:14px;background:var(--red-dim)}
+  .disclaimer p{margin:0;font-family:var(--display),var(--han);font-weight:500;
+    font-size:clamp(18px,2.4vw,23px);line-height:1.4;color:var(--paper)}
+  .disclaimer .sub{display:block;margin-top:10px;font-family:inherit;font-weight:300;
+    font-size:13.5px;line-height:1.6;color:var(--paper-dim)}
+  @media(max-width:700px){.disclaimer{padding:18px 18px}}
+
+  .calc-caveat{max-width:900px;margin:16px auto 0;font-size:13px;line-height:1.65;color:var(--paper-dim)}
+  .calc-caveat b{color:var(--paper);font-weight:500}
+
   .price-note{max-width:780px;margin:0 auto 52px}
 
   .price-wrap{max-width:900px;margin:0 auto;overflow-x:auto}
@@ -140,6 +154,16 @@
         Every number below is the vendor's own published rate, per million tokens, in US dollars. The same job can
         cost several times less on a different model — that is not a discount we invented, it is the same work run
         on a different engine.
+      </p>
+    </div>
+
+    <div class="disclaimer">
+      <p data-zh="仅供参考 · 价格随时变动 · 以最终报价为准<span class=&quot;sub&quot;>下面每个数字都取自厂商自己的官方定价页(链接见每一行),但各家随时可能调价,并按区域与上下文档位分别计价。这张表不是报价单,也不构成任何承诺 —— 一切以我们给你的最终报价为准。</span>" data-th="เพื่อการอ้างอิงเท่านั้น · ราคาเปลี่ยนแปลงได้ตลอดเวลา · ยึดใบเสนอราคาสุดท้ายเป็นหลัก<span class=&quot;sub&quot;>ทุกตัวเลขด้านล่างมาจากหน้าราคาทางการของผู้ให้บริการเอง (ลิงก์อยู่ในแต่ละแถว) แต่ผู้ให้บริการปรับราคาได้ตลอดเวลา และคิดราคาต่างกันตามภูมิภาคและช่วงความยาวบริบท ตารางนี้ไม่ใช่ใบเสนอราคาและไม่ถือเป็นข้อผูกพันใด ๆ — ยึดใบเสนอราคาสุดท้ายที่เราให้ท่านเป็นหลัก</span>">
+        For reference only &middot; prices change without notice &middot; your quote is what counts
+        <span class="sub">Every figure below is taken from the vendor&rsquo;s own official pricing page (linked per
+        row), but vendors change their rates at any time and price differently by region and by context tier.
+        This table is not a quote and is not a commitment of any kind &mdash; the final quote we give you is what
+        governs.</span>
       </p>
     </div>
 
@@ -301,6 +325,7 @@
         <div class="big" id="hero">&mdash;</div>
         <div class="cap" id="herocap"></div>
       </div>
+      <p class="calc-caveat" data-zh="这个数字是拿上表的公开牌价算出来的估算,<b>仅供参考,不是报价</b>。厂商随时调价,你的实际用量、上下文长度、缓存命中率都会改变结果 —— 以最终报价为准。" data-th="ตัวเลขนี้เป็นการประมาณจากราคาตามประกาศในตารางด้านบน <b>เพื่อการอ้างอิงเท่านั้น ไม่ใช่ใบเสนอราคา</b> ผู้ให้บริการปรับราคาได้ตลอดเวลา และปริมาณการใช้จริง ความยาวบริบท และอัตราการใช้แคชของท่านจะทำให้ผลต่างออกไป — ยึดใบเสนอราคาสุดท้ายเป็นหลัก">This figure is an estimate worked out from the published list prices in the table above. <b>It is for reference only and is not a quote.</b> Vendors change their rates at any time, and your real usage, context lengths and cache hit rate will all move the result &mdash; the final quote is what governs.</p>
     </div>
 
     <div class="aside-note price-note" style="margin-top:26px">
