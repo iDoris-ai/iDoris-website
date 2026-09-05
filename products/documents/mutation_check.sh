@@ -5,8 +5,8 @@ set -uo pipefail
 cd "$(dirname "$0")"
 PY="${PYTHON:-python3}"
 RED=$'\033[31m'; GRN=$'\033[32m'; OFF=$'\033[0m'
-cp docir.py .docir.bak; cp extract.py .extract.bak; cp thai_dates.py .thai_dates.bak
-trap 'mv -f .docir.bak docir.py; mv -f .extract.bak extract.py; mv -f .thai_dates.bak thai_dates.py' EXIT
+cp docir.py .docir.bak; cp extract.py .extract.bak; cp thai_dates.py .thai_dates.bak; cp translate.py .translate.bak
+trap 'mv -f .docir.bak docir.py; mv -f .extract.bak extract.py; mv -f .thai_dates.bak thai_dates.py; mv -f .translate.bak translate.py' EXIT
 fail=0
 mutate() {   # $1=描述 $2=sed [$3=目标文件] [$4=测试文件]
   local f="${3:-docir.py}" t="${4:-test_docir.py}" b
@@ -117,6 +117,36 @@ mutate "破坏重复字段拒绝" \
 mutate "破坏不确定上报(uncertain 不再记录)" \
   's/                result.uncertain.append(name)/                pass/' \
   extract.py test_extract.py
+
+# ── translate.py:两个坑 ─────────────────────────────────────────
+
+mutate "破坏专有名词校验(被译掉也放行)" \
+  's/        if lost:/        if False:/' \
+  translate.py test_translate.py
+
+mutate "破坏漏译拒绝(缺一段也交付)" \
+  's/        if b.id not in model_output:/        if False and b.id not in model_output:/' \
+  translate.py test_translate.py
+
+mutate "破坏空译文拒绝" \
+  's/        if not txt.strip():/        if False:/' \
+  translate.py test_translate.py
+
+mutate "破坏敬语一致检查(ครับ/ค่ะ 混用放行)" \
+  's/    if _PARTICLE_MALE.search(text) and _PARTICLE_FEMALE.search(text):/    if False:/' \
+  translate.py test_translate.py
+
+mutate "破坏 formality 校验(任意值都收)" \
+  's/    if formality not in FORMALITY:/    if False:/' \
+  translate.py test_translate.py
+
+mutate "破坏多余 block 拒绝" \
+  's/    if extra:/    if False:/' \
+  translate.py test_translate.py
+
+mutate "破坏指示生成(不再列出不该翻的词)" \
+  's/        lines.extend("  - %s" % t.source for t in terms)/        pass/' \
+  translate.py test_translate.py
 
 # 反向对照
 sed -i.tmp 's/# 泰文字符范围/# 注释改动/' docir.py 2>/dev/null; rm -f docir.py.tmp
