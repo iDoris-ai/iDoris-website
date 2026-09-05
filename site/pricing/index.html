@@ -81,7 +81,9 @@
   .field input{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:19px;font-weight:300;
     width:130px;padding:5px 0;color:var(--paper);background:transparent;border:0;
     border-bottom:1px solid var(--line)}
-  .field input:focus{outline:none;border-bottom-color:var(--red)}
+  /* 焦点指示与上面预设按钮的 2px outline 对齐 —— 130px 输入框底下一根 1px 细线太容易错过 */
+  .field input:focus{border-bottom-color:var(--red)}
+  .field input:focus-visible{outline:2px solid var(--red);outline-offset:2px}
   .field .unit{font-size:11px;color:var(--muted)}
   .calc-sheet{overflow-x:auto;-webkit-overflow-scrolling:touch}
   table.calc-table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:520px}
@@ -294,7 +296,7 @@
         </p>
       </noscript>
 
-      <div class="figure">
+      <div class="figure" aria-live="polite" aria-atomic="true">
         <div class="big" id="hero">&mdash;</div>
         <div class="cap" id="herocap"></div>
       </div>
@@ -321,10 +323,12 @@
         increase. After the checked date, defer to the
         vendor's live page.
       </p>
-      <p data-zh="<b>能力并不完全相同</b>——按任务类型(写代码、推理、图像、视频)大致相当于美国前沿模型的八到九成。对相当一部分真实工作这就是全部;对最难的那 10% 不够——到那一步我们会直说,而不是把不合适的东西卖给你。" data-th="<b>ความสามารถไม่เท่ากันทุกด้าน</b> — ขึ้นอยู่กับประเภทงาน (เขียนโค้ด วิเคราะห์ รูปภาพ วิดีโอ) ราว 80–90% ของโมเดลชั้นนำจากสหรัฐฯ ซึ่งเพียงพอสำหรับงานจริงจำนวนมาก แต่ไม่พอสำหรับงานที่ยากที่สุด 10% นั้น — และเราจะบอกตรง ๆ แทนที่จะขายของที่ไม่เหมาะ">
+      <p data-zh="<b>能力并不完全相同</b>——按任务类型(写代码、推理、图像、视频)大致相当于美国前沿模型的八到九成。对相当一部分真实工作这就是全部;对最难的那 10% 不够——到那一步我们会直说,而不是把不合适的东西卖给你。这个八到九成是我们自己的估计,不是公开跑分——它不像上面每一个价格那样有厂商页面可以指回去。" data-th="<b>ความสามารถไม่เท่ากันทุกด้าน</b> — ขึ้นอยู่กับประเภทงาน (เขียนโค้ด วิเคราะห์ รูปภาพ วิดีโอ) ราว 80–90% ของโมเดลชั้นนำจากสหรัฐฯ ซึ่งเพียงพอสำหรับงานจริงจำนวนมาก แต่ไม่พอสำหรับงานที่ยากที่สุด 10% นั้น — และเราจะบอกตรง ๆ แทนที่จะขายของที่ไม่เหมาะ ตัวเลข 80–90% นี้เป็นการประเมินของเราเอง ไม่ใช่ผลเบนช์มาร์กที่เผยแพร่ และไม่มีหน้าของผู้ให้บริการให้อ้างอิงแบบเดียวกับราคาทุกตัวด้านบน">
         <b>Capability is not identical</b> — depending on the task (coding, reasoning, image, video) expect
         roughly 80&ndash;90% of the frontier US models. For a great deal of real work that is the whole job; for
-        the hardest 10% it is not, and we will say so rather than sell you the wrong thing.
+        the hardest 10% it is not, and we will say so rather than sell you the wrong thing. That 80&ndash;90% is
+        our own estimate, not a published benchmark &mdash; unlike every price above, there is no vendor page to
+        link for it.
       </p>
       <p data-zh="<b>缓存对两边都便宜,但不对等</b>——Claude Opus 5 的缓存输入是 $0.50/百万,DeepSeek V4 Pro 是 $0.0036/百万。在缓存占比高的 agent 负载上,差距只会拉大,不会收窄。上面的计算器没把这一栏算进去,所以它给的是保守估计。" data-th="<b>แคชช่วยลดต้นทุนทั้งสองฝั่ง แต่ไม่เท่ากัน</b> — อินพุตแคชของ Claude Opus 5 อยู่ที่ $0.50 ต่อล้านโทเค็น ส่วน DeepSeek V4 Pro อยู่ที่ $0.0036 ในงาน agent ที่ใช้แคชหนัก ช่องว่างจะยิ่งกว้างขึ้น เครื่องคำนวณด้านบนไม่ได้รวมคอลัมน์นี้ ตัวเลขที่ได้จึงเป็นการประเมินแบบอนุรักษ์นิยม">
         <b>Caching cuts both sides &mdash; unevenly</b> — a cached input token costs $0.50 on Claude Opus 5 and
@@ -333,8 +337,9 @@
       </p>
     </div>
 
-    <p class="price-foot" data-zh="以上均为各厂商官方定价页公开数字,查证于 2026-08-10,链接见每一行。汇率、地区定价差异、企业合同价可能与这里不同——这些是公开的标准 API 价格,不代表我们向客户的实际报价。" data-th="ตัวเลขทั้งหมดมาจากหน้าราคาทางการของแต่ละผู้ให้บริการ ตรวจสอบเมื่อ 2026-08-10 ลิงก์อยู่ในแต่ละแถว อัตราแลกเปลี่ยน ราคาตามภูมิภาค หรือสัญญาระดับองค์กรอาจต่างจากนี้ — นี่คือราคา API มาตรฐานที่เปิดเผยต่อสาธารณะ ไม่ใช่ราคาที่เราเสนอให้ลูกค้าจริง">
-      All figures are each vendor's own published rate, checked 2026-08-10, linked per row. Currency, regional
+    <p class="price-foot" data-zh="以上均为各厂商官方定价页公开数字,查证于 2026-08-10(Claude Sonnet 5 那一行按其到期日 2026-08-31 更新为标准价,见页首提醒),链接见每一行。汇率、地区定价差异、企业合同价可能与这里不同——这些是公开的标准 API 价格,不代表我们向客户的实际报价。" data-th="ตัวเลขทั้งหมดมาจากหน้าราคาทางการของแต่ละผู้ให้บริการ ตรวจสอบเมื่อ 2026-08-10 (ยกเว้นแถว Claude Sonnet 5 ที่ปรับเป็นราคามาตรฐานตามวันหมดอายุ 2026-08-31 ดูหมายเหตุด้านบน) ลิงก์อยู่ในแต่ละแถว อัตราแลกเปลี่ยน ราคาตามภูมิภาค หรือสัญญาระดับองค์กรอาจต่างจากนี้ — นี่คือราคา API มาตรฐานที่เปิดเผยต่อสาธารณะ ไม่ใช่ราคาที่เราเสนอให้ลูกค้าจริง">
+      All figures are each vendor's own published rate, checked 2026-08-10 — except the Claude Sonnet 5 row,
+      rolled to its standard rate on its 2026-08-31 expiry as noted above — linked per row. Currency, regional
       pricing, and enterprise contracts can differ from these — this is the public standard API rate, not what
       we quote clients.
     </p>
