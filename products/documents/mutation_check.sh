@@ -8,8 +8,9 @@ RED=$'\033[31m'; GRN=$'\033[32m'; OFF=$'\033[0m'
 cp docir.py .docir.bak; cp extract.py .extract.bak; cp thai_dates.py .thai_dates.bak
 cp summarize.py .summarize.bak
 cp compare.py .compare.bak
-cp rewrite.py .rewrite.bak; cp translate.py .translate.bak
-trap 'mv -f .docir.bak docir.py; mv -f .extract.bak extract.py; mv -f .thai_dates.bak thai_dates.py; mv -f .translate.bak translate.py; mv -f .summarize.bak summarize.py; mv -f .compare.bak compare.py; mv -f .rewrite.bak rewrite.py' EXIT
+cp rewrite.py .rewrite.bak
+cp search.py .search.bak; cp translate.py .translate.bak
+trap 'mv -f .docir.bak docir.py; mv -f .extract.bak extract.py; mv -f .thai_dates.bak thai_dates.py; mv -f .translate.bak translate.py; mv -f .summarize.bak summarize.py; mv -f .compare.bak compare.py; mv -f .rewrite.bak rewrite.py; mv -f .search.bak search.py' EXIT
 fail=0
 n_mut=0        # 自动计数 —— 写死数字会随着加变异而过期,
                # 而一句过期的「各条属性都被兜住」比不说更糟。
@@ -273,6 +274,44 @@ mutate "破坏缺块拦截(少一块也交付)" \
 
 mutate "破坏丢数字留痕(漏掉的金额一声不吭)" \
   's/^        if lost:/        if False:/' rewrite.py test_rewrite.py
+
+# ── search:一个自信地答错的检索系统,比没有检索系统更糟 ─────────────
+# 坏法不对称:「什么都答没有」客户第一天就投诉;
+# 「没命中也编一个」表现为回答率 100%,看起来像做得好,而它是编的。
+
+mutate "破坏没命中就说没有(没检索到也让模型答)" \
+  's/^    if not has_hit(retrieved, min_score):/    if False:/' search.py test_search.py
+
+mutate "破坏命中阈值(返回了东西就算命中 —— 于是永远不会说没有)" \
+  's/^    return bool(retrieved) and max(c.score for c in retrieved) >= min_score/    return bool(retrieved)/' \
+  search.py test_search.py
+
+mutate "破坏阈值可配(写死忽略传入值)" \
+  's/^def has_hit(retrieved: list\[RetrievedChunk\], min_score: float = MIN_SCORE) -> bool:/def has_hit(retrieved, min_score=MIN_SCORE):\n    min_score = 0.0/' \
+  search.py test_search.py
+
+mutate "破坏「没有」的标准措辞(让模型自由发挥那句话)" \
+  's/^        if text and text not in NOT_FOUND_TEXTS:/        if False:/' search.py test_search.py
+
+mutate "破坏出处强制(声称找到却不给出处也放行)" \
+  's/^    if not cited_ids:/    if False:/' search.py test_search.py
+
+mutate "破坏出处真实性(引用没被检索到的块也放行)" \
+  's/^    if unknown:/    if False:/' search.py test_search.py
+
+mutate "破坏答案数字校验(编造的金额直接发给客户)" \
+  's/^    if fabricated:/    if False:/' search.py test_search.py
+
+mutate "破坏泰文数字识别(泰数字编造的金额静默漏过)" \
+  's/^    return {n.replace(",", "") for n in _NUM.findall(text.translate(_THAI_DIGITS))}/    return {n.replace(",", "") for n in _NUM.findall(text)}/' \
+  search.py test_search.py
+
+mutate "破坏多语言「没有」(三种语言退化成同一句)" \
+  's/^    text = {"th": NOT_FOUND_TH, "en": NOT_FOUND_EN}.get(lang, NOT_FOUND_ZH)/    text = NOT_FOUND_ZH/' \
+  search.py test_search.py
+
+mutate "破坏命中却答不了的留痕(标定阈值的依据没了)" \
+  's/^        a.notes.append(/        _ = (/' search.py test_search.py
 
 # 反向对照
 sed -i.tmp 's/# 泰文字符范围/# 注释改动/' docir.py 2>/dev/null; rm -f docir.py.tmp
