@@ -77,6 +77,60 @@
 
 ---
 
+## 🔵 有条件才启动的
+
+### T-4 · `Commerce` 作为第五个 Starter Kit 组件
+
+| | |
+|:---|:---|
+| **状态** | ⏸ 待触发 —— **签下第一个有商品/订单概念的客户时才启动** |
+| **负责人** | Dev 设计 · BD 判断触发 |
+| **蓝本** | [`anthropics/commerce-agents`](https://github.com/anthropics/commerce-agents)（Apache-2.0，[已核]）|
+
+现有四个组件（Voice / Documents / Creative / Assistant）**没有一个碰订单、库存、价目**，
+而清迈的酒店、餐厅、零售店正是我们的 ICP。
+
+**从 `merchant-agent`（面向店员的后台）切入，不从 `shopping-agent`（面向顾客）切入** ——
+后台是内部使用，出错的爆炸半径小得多；而面向顾客那半边在泰国有硬问题：
+它假设有网页/App 商城，而我们客户的生意发生在 LINE 里。
+
+**为什么等触发而不是现在做**：没卖出去的产品不知道该做成什么样。
+现在做，做出来的会是那个虚构公司 ACME 的形状，不是清迈某家酒店的形状。
+
+完整评估见 [`eval-anthropic-commerce-agents.md`](eval-anthropic-commerce-agents.md)。
+
+### T-5 · 零售/酒店客户的系统盘点提纲
+
+| | |
+|:---|:---|
+| **状态** | 🟢 **零代码，明天就能做** |
+| **负责人** | PM |
+
+把 `commerce-agents` 的 `Backend Interface` 方法清单（约 20 个：`search_products` /
+`get_product` / `add_to_cart` / `get_orders` / `get_policy` …）整理成 Discovery
+Day 2「现有系统与数据边界盘点」用的提纲 —— 逐条问「这个你们有吗？在哪个系统里？谁能给接口？」
+
+**只对有商品/订单概念的客户有用**，服务型、内容型客户不适用。
+
+### T-6 · 把「安全写在代码里」写进销售话术
+
+| | |
+|:---|:---|
+| **状态** | 🟢 可做 |
+| **负责人** | BD + Dev |
+
+客户最常问的是「你们怎么保证 AI 不乱来」。**现在没人说得清。**
+
+Anthropic 那套参考架构的原话可以直接用（公开表述，非我们杜撰）：
+> prompts work only when models comply; **code always works.**
+
+配上我们自己的证据：四个产品 **113 条变异测试**，每一条都验证过
+「破坏这条规则，测试真的会变红」。
+
+**这是我们最强的差异化** —— 别家说「我们很重视安全」，我们能给出可验证的东西。
+
+---
+
 ## 已完成（保留一轮，下次清理时删）
 
 | | 事 | 完成 |

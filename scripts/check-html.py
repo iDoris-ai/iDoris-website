@@ -180,9 +180,17 @@ _TH_ALLOW_EXACT = frozenset({
     "Issues", "GitHub", "Blog", "Meetup",
     "✍️ Blog / WeChat",
     "Hyphae · Memory · Context · Skill",
+    # 纯外链,三语一样 —— 原先靠子串白名单豁免,子串白名单删掉后并到这里。
+    '<a href=&quot;https://blog.mushroom.cv&quot;>blog.mushroom.cv ↗</a>',
 })
-# 值里只要出现这些片段就放行(域名、纯链接这类)
-_TH_ALLOW_CONTAINS = ("blog.mushroom.cv", "github.com", "idoris.ai")
+# 曾经这里还有一个 `_TH_ALLOW_CONTAINS` 子串白名单(域名那几条)。**已删。**
+#
+# 理由:它用 `any(k in value)`,于是 `data-th="idoris.ai is completely untranslated"`
+# 直接放行 —— 一个子串白名单就是一个逃生舱。而实测它几乎什么都没豁免:
+# 24 页全部 data-th 值里,`blog.mushroom.cv` 命中 1、`github.com` 0、`idoris.ai` 0。
+# **风险最大的两条承载为零。** 那一条真命中的已并入下面的完全相等白名单。
+#
+# **一个白名单,一种语义。** 两套判定规则并存,人只会记住松的那套。
 
 
 def check_thai_actually_thai(source):
@@ -205,9 +213,13 @@ def check_thai_actually_thai(source):
         value = m.group(3).strip()
         if not value or _THAI_CP.search(value):
             continue
-        if value in _TH_ALLOW_EXACT:
+        # 纯符号/纯数字的值不算漏译 —— "2026"、"→"、"01 / Products" 这类
+        # 本来就没有可译的东西。**必须放在白名单判断之前** ——
+        # 否则第一个写数字或箭头的人会被直接推向白名单,
+        # 而白名单是个无声的逃生舱:往里加一条真漏译,检查会转绿。
+        if not re.search(r"[A-Za-z]", value):
             continue
-        if any(k in value for k in _TH_ALLOW_CONTAINS):
+        if value in _TH_ALLOW_EXACT:
             continue
         line = source.count("\n", 0, m.start()) + 1
         errors.append(
@@ -242,7 +254,7 @@ CHECKS = (
     ("整篇标签平衡", check_tag_balance),
     ("data-zh/data-th 属性值尖括号配对", check_i18n_attrs),
     ("三语齐全(有 zh 必有 th)", check_trilingual),
-    ("data-th 里真的有泰文", check_thai_actually_thai),
+    ("data-th 不是未翻译的英文", check_thai_actually_thai),
 )
 
 
@@ -318,6 +330,23 @@ _TH_PROPER_NOUN_IN_SENTENCE = (
     '</body>\n</html>\n'
 )
 
+_TH_SYMBOLS_ONLY = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="→" data-th="→">→</p>\n'
+    '</body>\n</html>\n'
+)
+_TH_DIGITS_ONLY = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="2026" data-th="2026">2026</p>\n'
+    '</body>\n</html>\n'
+)
+# 含域名的整句英文 —— 曾经被子串白名单放行,现在必须红
+_TH_DOMAIN_IN_SENTENCE = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="完全没翻译" data-th="idoris.ai is completely untranslated">x</p>\n'
+    '</body>\n</html>\n'
+)
+
 # 普通的开合不匹配
 _UNBALANCED = (
     '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
@@ -348,24 +377,37 @@ def self_test():
 
     # 判据 4 的负对照:英文原样抄进 data-th → 必须红
     if not check_thai_actually_thai(_TH_IS_ENGLISH):
-        failures.append("[data-th 里真的有泰文] 对「英文抄进 data-th」没有反应 —— "
+        failures.append("[data-th 不是未翻译的英文] 对「英文抄进 data-th」没有反应 —— "
                         "泰国读者看到的还是英文,而检查是绿的")
 
     # 判据 4 的正对照 1:真泰文 → 必须绿
     if check_thai_actually_thai(_TH_REAL):
-        failures.append("[data-th 里真的有泰文] 对真正的泰文误报了 —— 假阳性")
+        failures.append("[data-th 不是未翻译的英文] 对真正的泰文误报了 —— 假阳性")
 
     # 判据 4 的正对照 2:白名单里的专名 → 必须绿。
     # 少了这一格,Doris/Cherry 这类三语本来就一样的专名会天天报错,
     # 然后这条判据会被人整条注释掉。
     if check_thai_actually_thai(_TH_PROPER_NOUN):
-        failures.append("[data-th 里真的有泰文] 把白名单里的专名报错了 —— "
+        failures.append("[data-th 不是未翻译的英文] 把白名单里的专名报错了 —— "
                         "天天误报的判据会被人整条注释掉")
+
+    # 判据 4 的正对照 3:纯符号/纯数字 → 必须绿。
+    # 少了这一格,第一个写 "2026" 或 "→" 的人会被推向白名单 ——
+    # 而白名单是逃生舱,越多人被推进去,这条判据越没用。
+    for sample in (_TH_SYMBOLS_ONLY, _TH_DIGITS_ONLY):
+        if check_thai_actually_thai(sample):
+            failures.append("[data-th 不是未翻译的英文] 把纯符号/纯数字报成漏译了 —— "
+                            "会把人推向白名单逃生舱")
+
+    # 判据 4 的负对照 3:**曾经的子串白名单**已删,这一格钉住它别回来。
+    if not check_thai_actually_thai(_TH_DOMAIN_IN_SENTENCE):
+        failures.append("[data-th 不是未翻译的英文] 含域名的整句英文被放行了 —— "
+                        "子串白名单又回来了")
 
     # 判据 4 的负对照 2:专名**混在句子里**必须仍然红 ——
     # 白名单用「完全相等」而不是子串,就是为了守住这一格。
     if not check_thai_actually_thai(_TH_PROPER_NOUN_IN_SENTENCE):
-        failures.append("[data-th 里真的有泰文] 白名单退化成了子串匹配 —— "
+        failures.append("[data-th 不是未翻译的英文] 白名单退化成了子串匹配 —— "
                         "「Doris is our mascot」这种真漏译会被放过去")
 
     # 普通失衡:判据 1 应该红
