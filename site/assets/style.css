@@ -407,6 +407,8 @@ section { padding: 96px 0; border-top: 1px solid var(--line); }
 
 /* ---------- cards ---------- */
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+/* 四阶段服务卡片。窄屏先降到 2 列再降 1 列 —— 四张卡直接掉成单列会太长。 */
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
 
 .card {
   border: 1px solid var(--line);
@@ -625,9 +627,16 @@ footer .links { display: flex; gap: 22px; flex-wrap: wrap; }
   .io { opacity: 1; transform: none; }
 }
 
+/* 四阶段卡片:1000px 先降 2 列,再由下面的 860px 降到 1 列。
+   这一条必须排在 860px **之前** —— CSS 后来者胜,反过来写的话
+   600px 宽时两条都命中,2 列会盖掉 1 列。 */
+@media (max-width: 1000px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+
 @media (max-width: 860px) {
   .grid-3 { grid-template-columns: 1fr; }
+  .grid-4 { grid-template-columns: 1fr; }
   .hero { padding: 60px 0 60px; }
   section { padding: 68px 0; }
   .wrap { padding: 0 20px; }
 }
+
