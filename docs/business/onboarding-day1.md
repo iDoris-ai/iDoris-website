@@ -78,6 +78,26 @@ Implement（真的做出来）→ Operate（保证它继续能用）。
 4. [`playbook-customer-journey.md`](playbook-customer-journey.md) — 全流程谁做什么
 5. [`stage-gates.md`](stage-gates.md) — 门 1、门 2、门 3 是你的
 
+### 你手上永远有的两样东西
+
+**1. 那封信** —— [idoris.ai/hello](https://idoris.ai/hello)，中英泰三版内容一致，
+发哪一版看对方习惯。
+
+**没有追踪像素、没有 slide、没有要签的东西 —— 这是刻意的。**
+
+> 「内容一致」这句由 `scripts/check-letters.py` 守着（段落 / 折叠块 / 图片 / 链接
+> 逐维比对，**外加正文语言**：整封被换成别的语言也会红）。
+> **它担保的是「没漏改」，不是「翻译是对的」** —— 后者要人看。
+>
+> ⚠️ 泰文版**尚未经母语校对**，发泰文版之前先让泰国同事过一眼。
+
+**2. 填实的 Discovery 样例** —— [`sample-discovery-hotel/`](sample-discovery-hotel/)，
+一家虚构的清迈酒店，九项交付物**全部写满，没有一个「待填」**。
+
+客户问「你们凭什么」「做出来到底长什么样」的时候，**把它打开给他看**。
+**签合同之前就能看见他将拿到什么** —— 这比任何说辞都管用，
+也是我们和「先签了再说」的乙方最直接的区别。
+
 ### 你的第一个产出物
 
 **一份填好的资格判定记录**，含：组织情况、联系人图谱（谁拍板/谁用/**谁会反对**）、
@@ -176,6 +196,11 @@ Implement（真的做出来）→ Operate（保证它继续能用）。
 4. [`starter-kit/README.md`](starter-kit/README.md) — 四组件与共用契约
 5. [`gateway-design.md`](gateway-design.md) — 所有组件的底座
 
+> **第一次给客户部署之前，另外必读一份**：
+> [`deployment-runbook.md`](deployment-runbook.md) —— 三条不能破的边界
+> （许可 / 出网 / 敏感任务强制本地）、部署后四步验证、出问题时怎么办。
+> **不放进上面五份是因为你第一天不会去部署** —— 但部署前没读它，出的就是不可逆的事故。
+
 ### 三条 License 红线（**背下来**）
 
 1. **ComfyUI 是 GPL-3.0，只能独立进程 HTTP 调用。**
@@ -183,8 +208,9 @@ Implement（真的做出来）→ Operate（保证它继续能用）。
    **任何 PR 引入 `import comfy` 一律拒绝合并。**
    越线后果：整个 iDoris Core 被传染成 GPL，**不可逆**。
 2. **LiteLLM 的 `enterprise/` 目录另有许可**，绝不引用。
-3. **模型权重的许可独立于代码。** 代码 MIT 不代表权重可商用。
-   图像模型权重 [待核] 核清前 Creative 图像部分不对外交付。
+3. **模型权重的许可独立于代码。** 代码 MIT 不代表权重可商用 —— 这一条吃过亏。
+   Voice 的三层已核（全部 MIT，可商用）；**图像模型权重仍 [待核]**
+   （尚未选定具体模型，无从核起），**核清前 Creative 图像部分不对外交付**。
 
 ### 你的第一个产出物
 
@@ -195,12 +221,27 @@ Implement（真的做出来）→ Operate（保证它继续能用）。
 **为什么是这个**：整个 Starter Kit 的演示计划建立在「Voice 已有基础」这个假设上，
 而这个假设**从没被核实过**。不能在假设上继续叠设计。
 
+**这两件已经核过了，别重复劳动**（见 [`verification-2026-09-06-voice-stack.md`](verification-2026-09-06-voice-stack.md)）：
+
+- **许可** [已核] `faster-whisper` / `CTranslate2` / `large-v3` 权重**三层全部 MIT，可商用**
+- **维护状况** [已核] `faster-whisper` **维护者停更 9 个多月**（最后提交 2025-11-19），
+  而推理后端 `CTranslate2` 仍在活跃发版。CUDA 兼容问题从 2024-10-24 open 至今，
+  修复 PR **被关掉未合并**
+
+**所以你的报告要多回答一件事**：现有部署用的是哪一对
+`faster-whisper` × `ctranslate2` 版本组合，GPU 路径实测能不能跑。
+那个报错（`This CTranslate2 package was not compiled with CUDA`）
+**在 import 阶段不出现，跑起来才出现** —— 只验 import 成功等于没验。
+
 ### 遇到这些情况停下来问人
 
 - 要引入一个新的开源依赖 → **先核 License**，写进 `oss-due-diligence.md`
 - 客户/PM 要求「去掉人工审批，做成全自动」→ 见 `architecture.md` 边界五，
   **默认全审是设计不是懒**
-- LangGraph 离线验证不通过 → **不要将就**，降级路径是自建状态机（2–3 天）
+- 客户环境里出现任何 `LANGSMITH_*` / `LANGCHAIN_*` 变量 → **服务会拒绝启动，这是设计**。
+  不要为了把服务起起来去改 `KNOWN_HARMLESS` —— 那个清单默认为空是有意的。
+  正确做法：找到变量是哪来的（shell / compose / 镜像 ENV / CI secrets / `.env` / systemd），删掉它。
+  详见 [`deployment-runbook.md`](deployment-runbook.md) §1.2
 - 客户直接找你提需求 → 转给 PM，**不要直接接**
 
 ---
