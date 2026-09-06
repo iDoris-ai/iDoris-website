@@ -31,27 +31,49 @@ RED = "\033[31m"; GRN = "\033[32m"; OFF = "\033[0m"
 _LINK = re.compile(r'\[[^\]]*\]\((?!https?://|#)([^)\s]+)\)')
 
 
-def check_file(path: str) -> list[str]:
-    """返回该文件里的死链说明。"""
+def check_file(path: str, root: str = ".") -> list[str]:
+    """返回该文件里的死链说明。
+
+    **跑出仓库的相对链接一律算错,哪怕它在本机能打开。**
+
+    这一条是被 CI 教会的:`docs/ROADMAP.md` 里有一条 `../../ai-atlas/BACKLOG.md`,
+    在我本机是绿的 —— 因为旁边正好 checkout 了那个兄弟仓库。
+    CI 上、以及任何一个读者那里,它都是死链。
+    **一个结果取决于「你旁边还放了什么」的检查,是不可信的。**
+    """
     errors = []
     base = os.path.dirname(path)
+    root_abs = os.path.abspath(root)
     with open(path, encoding="utf-8") as fh:
         source = fh.read()
     for m in _LINK.finditer(source):
         target = m.group(1).split("#")[0]        # 砍掉锚点
         if not target:                           # 纯锚点,上面已排除,兜底
             continue
+        line = source.count("\n", 0, m.start()) + 1
         resolved = os.path.normpath(os.path.join(base, target))
+        abs_resolved = os.path.abspath(resolved)
+        if os.path.commonpath([abs_resolved, root_abs]) != root_abs:
+            errors.append(
+                "第 %d 行:%s → **跑出仓库了**。别人 clone 下来打不开 —— "
+                "跨仓库要用完整 URL,不是相对路径" % (line, target))
+            continue
         if not os.path.exists(resolved):
-            line = source.count("\n", 0, m.start()) + 1
             errors.append("第 %d 行:%s → 不存在" % (line, target))
     return errors
 
 
-def walk(root: str = "docs") -> tuple[int, int, list[str]]:
+def walk(scan_dir: str = "docs", repo_root: str = ".") -> tuple[int, int, list[str]]:
+    """扫 `scan_dir` 下的 .md,链接的合法范围是 `repo_root`。
+
+    **这两个不是一回事。** 第一版把它们当成了同一个参数,于是
+    `docs/business/../../tools/verify/`(指向仓库内的 tools/)被判成「跑出仓库」——
+    而它完全合法。这个 bug 是跑变异测试时才现形的:
+    我改回一条真死链去验判据会不会红,结果多报了两条无辜的。
+    """
     files = links = 0
     problems: list[str] = []
-    for dirpath, _dirs, names in os.walk(root):
+    for dirpath, _dirs, names in os.walk(scan_dir):
         for n in sorted(names):
             if not n.endswith(".md"):
                 continue
@@ -59,7 +81,7 @@ def walk(root: str = "docs") -> tuple[int, int, list[str]]:
             files += 1
             with open(p, encoding="utf-8") as fh:
                 links += len(_LINK.findall(fh.read()))
-            for e in check_file(p):
+            for e in check_file(p, repo_root):
                 problems.append("%s %s" % (p, e))
     return files, links, problems
 
@@ -80,28 +102,42 @@ def self_test() -> int:
         bad = os.path.join(d, "bad.md")
         with open(bad, "w", encoding="utf-8") as fh:
             fh.write("见 [那份文档](sub/missing.md)\n")
-        if not check_file(bad):
+        if not check_file(bad, root=d):
             failures.append("对「指向不存在的文件」没有反应 —— 这条判据是死的")
 
         # 正对照 1:指向真实文件 → 必须绿
         good = os.path.join(d, "good.md")
         with open(good, "w", encoding="utf-8") as fh:
             fh.write("见 [那份文档](sub/real.md)\n")
-        if check_file(good):
+        if check_file(good, root=d):
             failures.append("对真实存在的相对链接误报了 —— 假阳性")
 
         # 正对照 2:带锚点的真实文件 → 必须绿(锚点要被砍掉)
         anchored = os.path.join(d, "anchored.md")
         with open(anchored, "w", encoding="utf-8") as fh:
             fh.write("见 [某一节](sub/real.md#some-section)\n")
-        if check_file(anchored):
+        if check_file(anchored, root=d):
             failures.append("带 #锚点 的真实链接被误报 —— 锚点没有被砍掉")
+
+        # 负对照 2:跑出仓库根的相对链接 → 必须红,**哪怕那个文件真的存在**。
+        # 这一格是 CI 教的:本机旁边 checkout 了兄弟仓库时,它是绿的。
+        outside = os.path.join(d, "escape.md")
+        os.makedirs(os.path.join(d, "repo"), exist_ok=True)
+        with open(os.path.join(d, "sibling.md"), "w", encoding="utf-8") as fh:
+            fh.write("# 仓库外真实存在的文件\n")
+        inside = os.path.join(d, "repo", "doc.md")
+        with open(inside, "w", encoding="utf-8") as fh:
+            fh.write("见 [兄弟仓库](../sibling.md)\n")
+        if not check_file(inside, root=os.path.join(d, "repo")):
+            failures.append("对「跑出仓库根」没有反应 —— "
+                            "本机旁边有 checkout 时会假绿,CI 上才发现")
+        del outside
 
         # 正对照 3:外链与纯锚点 → 不该被检查
         external = os.path.join(d, "ext.md")
         with open(external, "w", encoding="utf-8") as fh:
             fh.write("[站点](https://idoris.ai/nope) 与 [本页某节](#anchor)\n")
-        if check_file(external):
+        if check_file(external, root=d):
             failures.append("外链或纯锚点被当成站内链接检查了 —— "
                             "会因为对方站点抽风而变红,然后被人加 || true")
 
