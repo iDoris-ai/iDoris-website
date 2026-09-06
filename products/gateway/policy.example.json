@@ -1,0 +1,23 @@
+{
+  "tenant": "example-hotel",
+  "default_tier": "cheap",
+
+  "_comment_rules": "顺序匹配，先命中的赢。sensitivity=high 由引擎强制走 local，不需要在这里写。",
+  "rules": [
+    {"task": "translate",      "tier": "cheap",   "_why": "翻译对模型能力要求最低，量最大"},
+    {"task": "extract",        "tier": "cheap",   "_why": "结构化输出，schema 约束比模型智商重要"},
+    {"task": "summarize",      "tier": "mid",     "_why": "需要判断什么是要点"},
+    {"task": "rewrite",        "tier": "mid",     "_why": "语气把握"},
+    {"task": "compare",        "tier": "premium", "_why": "漏掉一条合同差异的代价很高"},
+    {"task": "search.answer",  "tier": "mid",     "_why": "检索靠向量，作答才用模型"},
+    {"task": "line.reply",     "tier": "local",   "_why": "含客人信息，即使脱敏也留在本地"}
+  ],
+
+  "_comment_tiers": "放的是模型列表不是单个模型。模型会下线、涨价、被更好的取代 —— 这里是唯一需要改的地方，业务代码永远只说 tier 名。具体型号按部署时的实际情况填，参考 /pricing 页的牌价表。",
+  "tiers": {
+    "local":   {"models": ["<本地部署的模型>"]},
+    "cheap":   {"models": ["<低价档>"]},
+    "mid":     {"models": ["<中档>"]},
+    "premium": {"models": ["<高档>"]}
+  }
+}
