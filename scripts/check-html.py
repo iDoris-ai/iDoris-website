@@ -169,6 +169,54 @@ def _iter_tags(source):
         i = j + 1
 
 
+# 泰文 Unicode 区段 U+0E00–U+0E7F。
+_THAI_CP = re.compile(r"[\u0e00-\u0e7f]")
+
+# 允许**不含泰文**的 data-th 值:专名、品牌、域名、纯符号。
+# 判定用「归一化后完全相等」,不是子串 —— 子串会把
+# "Doris 是我们的吉祥物" 这种真漏译也放过去。
+_TH_ALLOW_EXACT = frozenset({
+    "Doris", "Cherry", "Doris &amp; Cherry", "— iDoris", "iDoris",
+    "Issues", "GitHub", "Blog", "Meetup",
+    "✍️ Blog / WeChat",
+    "Hyphae · Memory · Context · Skill",
+})
+# 值里只要出现这些片段就放行(域名、纯链接这类)
+_TH_ALLOW_CONTAINS = ("blog.mushroom.cv", "github.com", "idoris.ai")
+
+
+def check_thai_actually_thai(source):
+    """判据 4:data-th 的值必须真的含泰文,除非在白名单里。
+
+    **判据 3 只保证属性在,不保证里面是泰文。**
+    把英文原样抄进 data-th,页面在泰文下看起来"有翻译"、检查也是绿的 ——
+    但泰国读者看到的还是英文。这是 PR-Daemon 在 review 里指出的:
+    `site/services/index.html` 有一格 `data-th="Discover — AI Discovery Sprint"`,
+    一个泰文字符都没有,而当时全绿。
+
+    白名单收的是**专名与品牌**(Doris / Cherry / iDoris / 域名),
+    它们在三种语言里本来就该长一样。用「完全相等」判定而不是子串,
+    否则 "Doris 是我们的吉祥物" 这种真漏译会被放过去。
+    """
+    errors = []
+    for m in _I18N_ATTR.finditer(source):
+        if m.group(1) != "th":
+            continue
+        value = m.group(3).strip()
+        if not value or _THAI_CP.search(value):
+            continue
+        if value in _TH_ALLOW_EXACT:
+            continue
+        if any(k in value for k in _TH_ALLOW_CONTAINS):
+            continue
+        line = source.count("\n", 0, m.start()) + 1
+        errors.append(
+            "第 %d 行 data-th 里没有一个泰文字符:%r —— "
+            "泰国读者看到的还是英文。真是专名就加进 _TH_ALLOW_EXACT"
+            % (line, value[:60]))
+    return errors
+
+
 def check_trilingual(source):
     """判据 3:带 data-zh 的元素必须同时带 data-th，反之亦然。
 
@@ -194,6 +242,7 @@ CHECKS = (
     ("整篇标签平衡", check_tag_balance),
     ("data-zh/data-th 属性值尖括号配对", check_i18n_attrs),
     ("三语齐全(有 zh 必有 th)", check_trilingual),
+    ("data-th 里真的有泰文", check_thai_actually_thai),
 )
 
 
@@ -246,6 +295,29 @@ _TAGS_INSIDE_VALUE = (
     '</body>\n</html>\n'
 )
 
+# 判据 4 的样本
+_TH_IS_ENGLISH = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="发现冲刺" data-th="Discovery Sprint">Discovery Sprint</p>\n'
+    '</body>\n</html>\n'
+)
+_TH_REAL = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="发现冲刺" data-th="สปรินต์ค้นพบ">Discovery Sprint</p>\n'
+    '</body>\n</html>\n'
+)
+_TH_PROPER_NOUN = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="Doris" data-th="Doris">Doris</p>\n'
+    '</body>\n</html>\n'
+)
+# 专名混在句子里 —— 必须仍然红
+_TH_PROPER_NOUN_IN_SENTENCE = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="Doris 是我们的吉祥物" data-th="Doris is our mascot">Doris is our mascot</p>\n'
+    '</body>\n</html>\n'
+)
+
 # 普通的开合不匹配
 _UNBALANCED = (
     '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
@@ -262,10 +334,39 @@ def self_test():
         if fn(_CLEAN):
             failures.append("[%s] 在干净样本上误报了 —— 假阳性" % name)
 
-    # 裸引号那一车:两条判据都应该红。这正是 2026-09-05 的真实形状。
+    # 裸引号那一车:**结构类**判据都应该红。这正是 2026-09-05 的真实形状。
+    #
+    # 判据 4(data-th 里真的有泰文)不在此列 —— 它管的是**内容**不是结构,
+    # 对裸引号没有反应是正确的。把它硬塞进这个循环,只会逼人写一条
+    # 「为了让自检过」的假逻辑。**每条判据配自己的对照,不套别人的。**
+    _STRUCTURAL = ("整篇标签平衡", "data-zh/data-th 属性值尖括号配对", "三语齐全(有 zh 必有 th)")
     for name, fn in CHECKS:
+        if name not in _STRUCTURAL:
+            continue
         if not fn(_BARE_QUOTE):
             failures.append("[%s] 对「属性值裸双引号」没有反应 —— 这条判据是死的" % name)
+
+    # 判据 4 的负对照:英文原样抄进 data-th → 必须红
+    if not check_thai_actually_thai(_TH_IS_ENGLISH):
+        failures.append("[data-th 里真的有泰文] 对「英文抄进 data-th」没有反应 —— "
+                        "泰国读者看到的还是英文,而检查是绿的")
+
+    # 判据 4 的正对照 1:真泰文 → 必须绿
+    if check_thai_actually_thai(_TH_REAL):
+        failures.append("[data-th 里真的有泰文] 对真正的泰文误报了 —— 假阳性")
+
+    # 判据 4 的正对照 2:白名单里的专名 → 必须绿。
+    # 少了这一格,Doris/Cherry 这类三语本来就一样的专名会天天报错,
+    # 然后这条判据会被人整条注释掉。
+    if check_thai_actually_thai(_TH_PROPER_NOUN):
+        failures.append("[data-th 里真的有泰文] 把白名单里的专名报错了 —— "
+                        "天天误报的判据会被人整条注释掉")
+
+    # 判据 4 的负对照 2:专名**混在句子里**必须仍然红 ——
+    # 白名单用「完全相等」而不是子串,就是为了守住这一格。
+    if not check_thai_actually_thai(_TH_PROPER_NOUN_IN_SENTENCE):
+        failures.append("[data-th 里真的有泰文] 白名单退化成了子串匹配 —— "
+                        "「Doris is our mascot」这种真漏译会被放过去")
 
     # 普通失衡:判据 1 应该红
     if not check_tag_balance(_UNBALANCED):
@@ -304,9 +405,15 @@ def main(argv):
     if "--self-test" in argv:
         return self_test()
 
-    root = argv[1] if len(argv) > 1 else "site"
-    if not os.path.isdir(root):
-        print("%s✗ 目录不存在:%s%s" % (RED, root, OFF), file=sys.stderr)
+    # 默认扫 site **与 subsites**。
+    # 只扫 site 的话,子站(agent./model.)不在判据里 —— 而它们同样是"网站"的一部分,
+    # 同样用 data-zh/data-th。PR-Daemon 在 review 里指出子站漏了一条活的外链,
+    # 而我当时报的是「零残留」—— 因为我只扫了 site/。**范围没覆盖到的地方,绿灯不代表干净。**
+    roots = [argv[1]] if len(argv) > 1 and not argv[1].startswith("-") else \
+            [d for d in ("site", "subsites") if os.path.isdir(d)]
+    root = roots[0]
+    if not roots:
+        print("%s✗ 没有可扫的目录%s" % (RED, OFF), file=sys.stderr)
         return 1
 
     # 先跑正对照。判据本身坏了的话,后面所有「绿」都不作数 —— 与其给出
@@ -315,22 +422,23 @@ def main(argv):
         return 1
 
     files, bad = 0, 0
-    for dirpath, _dirnames, filenames in os.walk(root):
-        for fn in sorted(filenames):
-            if not fn.endswith(".html"):
-                continue
-            path = os.path.join(dirpath, fn)
-            with open(path, encoding="utf-8") as fh:
-                source = fh.read()
-            files += 1
-            problems = []
-            for _name, check in CHECKS:
-                problems.extend(check(source))
-            if problems:
-                bad += 1
-                print("  %s%s%s" % (RED, path, OFF), file=sys.stderr)
-                for p in problems:
-                    print("      %s" % p, file=sys.stderr)
+    for r in roots:
+      for dirpath, _dirnames, filenames in os.walk(r):
+          for fn in sorted(filenames):
+              if not fn.endswith(".html"):
+                  continue
+              path = os.path.join(dirpath, fn)
+              with open(path, encoding="utf-8") as fh:
+                  source = fh.read()
+              files += 1
+              problems = []
+              for _name, check in CHECKS:
+                  problems.extend(check(source))
+              if problems:
+                  bad += 1
+                  print("  %s%s%s" % (RED, path, OFF), file=sys.stderr)
+                  for p in problems:
+                      print("      %s" % p, file=sys.stderr)
 
     if bad:
         print("%s✗ %d 个页面结构有问题%s" % (RED, bad, OFF), file=sys.stderr)

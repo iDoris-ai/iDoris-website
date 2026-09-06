@@ -40,9 +40,15 @@ jobs:
       # 文档里的死链会让照着做的新人当场卡住,而**没有任何东西会自动发现它** ——
       # Markdown 不校验链接,CI 不渲染文档,写的人自己不会去点。
       # 改文件名、挪目录、删草稿,都会悄悄留下死链。
-      - name: 文档链接完好（63 份文档的相对链接）
+      - name: 文档链接完好（工具会打印真实数量，步骤名不写死）
         if: always()
         run: python3 scripts/check-doc-links.py
+
+      # 三封信是三个独立 iframe srcdoc,**不用 data-zh/data-th** —— 三语判据够不着。
+      # 而两处文档向新人担保「三语版本内容一致」。这一步让那句担保真的被守住。
+      - name: /hello 三封信结构平行
+        if: always()
+        run: python3 scripts/check-letters.py
 
       - name: HTML 判据自证能变红（正对照）
         if: always()
