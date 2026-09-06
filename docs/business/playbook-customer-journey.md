@@ -72,6 +72,38 @@ stateDiagram-v2
 
 ---
 
+## 2.5 每一步用哪份东西（**不要现编**）
+
+状态机说的是「走到哪」，这张表说的是「**手上该拿什么**」。
+每一格都是仓库里已经存在的文件 —— **现编一份出来，是这份 playbook 最不想看到的事**。
+
+| 状态 | 拿这份 | 它是什么 |
+|:---|:---|:---|
+| **Lead → 首次接触** | [`/hello`](https://idoris.ai/hello) 那封信 | 三语版本内容一致，发哪一版看对方习惯。**没有追踪像素、没有 slide、没有要签的东西** |
+| **Lead → Qualified** | [`discovery-skill/templates/scoping-checklist.md`](discovery-skill/templates/scoping-checklist.md) | 四条资格判据，30–60 分钟通话里问完。**这通话免费，进场之后一分钟都不免费** |
+| **Qualified → 报价** | [`quote-template.md`](quote-template.md) · [`pricing.md`](pricing.md) | 价格区间的性质写在 `pricing.md` §0：**不是市场价，不构成承诺** |
+| **DiscoveryScoped → 进场前** | [`discovery-skill/templates/pre-engagement-email.md`](discovery-skill/templates/pre-engagement-email.md) | 进场前 48 小时索取的五样材料 |
+| **DiscoveryRunning** | [`discovery-sop.md`](discovery-sop.md) | **逐小时**的执行手册。哪一小时见谁、问哪几个问题的原话、产出哪个文件 |
+| ┗ 老板访谈 | [`discovery-skill/interview/owner.md`](discovery-skill/interview/owner.md) | 12 题，标着「照念」。**顺序不可改** —— 从未来问到现在，反过来问老板会掉进汇报模式 |
+| ┗ 中层访谈 | [`discovery-skill/interview/manager.md`](discovery-skill/interview/manager.md) | — |
+| ┗ 一线访谈 | [`discovery-skill/interview/user.md`](discovery-skill/interview/user.md) | — |
+| ┗ Readiness 评分 | [`discovery-skill/scripts/score.py`](discovery-skill/scripts/score.py) | 带自检。**别手算** |
+| **DiscoveryDelivered** | [`sample-discovery-hotel/`](sample-discovery-hotel/) | 九项交付物的**填实样例**。交付前拿它对一遍格式与深度 |
+| **Proposed → Implementation** | [`starter-kit/`](starter-kit/) 四组件设计 | Voice / Documents / Creative / Assistant。**大多数需求落在这四类里，不从零发明** |
+| **Implementation → 上线** | [`deployment-runbook.md`](deployment-runbook.md) | 三条不能破的边界（许可 / 出网 / 敏感任务强制本地）+ 部署后四步验证 |
+| **Operating** | [`measurement.md`](measurement.md) | Before/After 度量。**没有开工前的基线，交付时证明不了任何事** |
+| 任何阶段的门 | [`stage-gates.md`](stage-gates.md) | 63 项检查，可打印 |
+
+### 客户问「你们凭什么」的时候，给他看样例
+
+`sample-discovery-hotel/` 是一整套**九项全填实、零占位符**的交付物
+（一家虚构的清迈酒店）。
+
+**签合同之前就能看见他将拿到什么** —— 这比任何说辞都管用，
+也是我们和「先签了再说」的乙方最直接的区别。
+
+---
+
 ## 3. RACI
 
 R=执行 · **A=最终负责（每行有且仅有一个）** · C=需被咨询 · I=需被告知

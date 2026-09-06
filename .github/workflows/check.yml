@@ -37,6 +37,13 @@ jobs:
 
       # 单独再跑一次 HTML 判据的正对照。上一步失败会掩盖这一步，而我们恰恰想知道
       # 「判据本身还活着吗」—— 一条不会变红的检查，看起来和真检查一模一样。
+      # 文档里的死链会让照着做的新人当场卡住,而**没有任何东西会自动发现它** ——
+      # Markdown 不校验链接,CI 不渲染文档,写的人自己不会去点。
+      # 改文件名、挪目录、删草稿,都会悄悄留下死链。
+      - name: 文档链接完好（63 份文档的相对链接）
+        if: always()
+        run: python3 scripts/check-doc-links.py
+
       - name: HTML 判据自证能变红（正对照）
         if: always()
         run: python3 scripts/check-html.py --self-test
