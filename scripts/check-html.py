@@ -138,9 +138,62 @@ def check_i18n_attrs(source):
     return errors
 
 
+def _iter_tags(source):
+    """扫标签,**属性值里的 > 不算标签结束**。
+
+    这一条是这个函数存在的全部理由。用 `<[^>]*>` 去扫,会在属性值里第一个
+    `<b>`、`<br>`、`<span>` 处被截断 —— 于是「这个标签有没有 data-th」永远
+    看不到后半截,判据变成**几乎每一行都报错**。
+    写这条判据时第一版就是那样,74 条全是误报。
+    """
+    i, n = 0, len(source)
+    while i < n:
+        if source[i] != "<":
+            i += 1
+            continue
+        if i + 1 < n and not (source[i + 1].isalpha() or source[i + 1] == "/"):
+            i += 1
+            continue
+        j, quote = i + 1, None
+        while j < n:
+            c = source[j]
+            if quote:
+                if c == quote:
+                    quote = None
+            elif c in "\"'":
+                quote = c
+            elif c == ">":
+                break
+            j += 1
+        yield i, source[i:j + 1]
+        i = j + 1
+
+
+def check_trilingual(source):
+    """判据 3:带 data-zh 的元素必须同时带 data-th，反之亦然。
+
+    **站点是中英泰三语,英文是 inline 默认,中泰靠这两个属性换。**
+    只写一个的元素,在缺的那个语种下会**静默保持英文** ——
+    页面不会报错、不会塌,看起来一切正常,只是那一句没被翻译。
+    这类漏译靠肉眼在三个语种间来回切是抓不完的。
+    """
+    errors = []
+    for pos, tag in _iter_tags(source):
+        has_zh, has_th = "data-zh=" in tag, "data-th=" in tag
+        if has_zh == has_th:
+            continue
+        line = source.count("\n", 0, pos) + 1
+        missing = "data-th" if has_zh else "data-zh"
+        errors.append(
+            "第 %d 行:有 %s 却没有 %s —— 该语种下这一句会静默留在英文"
+            % (line, "data-zh" if has_zh else "data-th", missing))
+    return errors
+
+
 CHECKS = (
     ("整篇标签平衡", check_tag_balance),
     ("data-zh/data-th 属性值尖括号配对", check_i18n_attrs),
+    ("三语齐全(有 zh 必有 th)", check_trilingual),
 )
 
 
@@ -171,6 +224,28 @@ _BARE_QUOTE = (
     '</body>\n</html>\n'
 )
 
+# 判据 3 的负对照:只写了 data-zh,泰文那一版会静默留在英文
+_MISSING_TH = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="只有中文">English</p>\n'
+    '</body>\n</html>\n'
+)
+
+# 判据 3 的**另一个方向**:只写了 data-th
+_MISSING_ZH = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-th="ไทยอย่างเดียว">English</p>\n'
+    '</body>\n</html>\n'
+)
+
+# 判据 3 最容易写错的地方:属性值里有 <b>/<br>,扫描不能被它截断。
+# 这个样本**三语齐全,必须绿**。第一版用 `<[^>]*>` 扫,它是红的 —— 74 条误报。
+_TAGS_INSIDE_VALUE = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="中文<b>重点</b>与<br>换行" data-th="ไทย<b>เน้น</b>และ<br>ขึ้นบรรทัด">en<b>x</b></p>\n'
+    '</body>\n</html>\n'
+)
+
 # 普通的开合不匹配
 _UNBALANCED = (
     '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
@@ -195,6 +270,19 @@ def self_test():
     # 普通失衡:判据 1 应该红
     if not check_tag_balance(_UNBALANCED):
         failures.append("[整篇标签平衡] 对普通开合不匹配没有反应 —— 这条判据是死的")
+
+    # 判据 3:两个方向都要红
+    if not check_trilingual(_MISSING_TH):
+        failures.append("[三语齐全] 对「只有 data-zh」没有反应 —— 泰文会静默留在英文")
+    if not check_trilingual(_MISSING_ZH):
+        failures.append("[三语齐全] 对「只有 data-th」没有反应 —— 中文会静默留在英文")
+
+    # 判据 3 的正对照:属性值里带 <b>/<br> 的三语元素**必须绿**。
+    # 少了这一格,一个把每行都报错的判据也是「能变红」的 —— 而它毫无用处。
+    if check_trilingual(_TAGS_INSIDE_VALUE):
+        failures.append(
+            "[三语齐全] 对属性值里带 <b>/<br> 的正常三语元素误报了 —— "
+            "扫描被属性值里的尖括号截断了(第一版就是这么错的,74 条全假)")
 
     # 单引号定界的失衡:判据 2 应该红(这一格曾经是盲区)
     if not check_i18n_attrs(_SINGLE_QUOTE_UNBALANCED):
@@ -248,8 +336,10 @@ def main(argv):
         print("%s✗ %d 个页面结构有问题%s" % (RED, bad, OFF), file=sys.stderr)
         return 1
 
-    print("%s✓%s HTML 结构完好（%d 个页面：标签平衡 + i18n 属性未被截断）"
-          % (GRN, OFF, files))
+    # 判据名由 CHECKS 自己列出,不写死 —— 加了第三条判据而这句还停在两条,
+    # 那就是一句过期的断言,比不说更糟。
+    print("%s✓%s HTML 结构完好（%d 个页面：%s）"
+          % (GRN, OFF, files, " · ".join(name for name, _ in CHECKS)))
     return 0
 
 
