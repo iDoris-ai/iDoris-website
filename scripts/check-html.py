@@ -175,14 +175,29 @@ _THAI_CP = re.compile(r"[\u0e00-\u0e7f]")
 # 允许**不含泰文**的 data-th 值:专名、品牌、域名、纯符号。
 # 判定用「归一化后完全相等」,不是子串 —— 子串会把
 # "Doris 是我们的吉祥物" 这种真漏译也放过去。
-_TH_ALLOW_EXACT = frozenset({
-    "Doris", "Cherry", "Doris &amp; Cherry", "— iDoris", "iDoris",
-    "Issues", "GitHub", "Blog", "Meetup",
-    "✍️ Blog / WeChat",
-    "Hyphae · Memory · Context · Skill",
-    # 纯外链,三语一样 —— 原先靠子串白名单豁免,子串白名单删掉后并到这里。
-    '<a href=&quot;https://blog.mushroom.cv&quot;>blog.mushroom.cv ↗</a>',
-})
+# 结构是 {值: 为什么豁免},**理由必填**,由自检断言非空。
+#
+# 白名单是这条判据唯一的逃生舱:往里加一句真漏译,检查就会转绿,而且没有声音。
+# 堵法不是「钉住条目数」—— 那等于新增一个会随修改而过期的断言,
+# 和本仓库把写死的「63 份文档」「九条规则」改成自动计数的方向正好相反。
+#
+# 堵法是**让加一条豁免必须写下为什么**:理由写不出来的多半不该豁免,
+# 而写下的理由会出现在 diff 里,让下一个 reviewer 看得见。
+_TH_ALLOW_EXACT = {
+    "Doris": "角色名,三语一致",
+    "Cherry": "角色名,三语一致",
+    "Doris &amp; Cherry": "两个角色名,三语一致",
+    "iDoris": "公司名",
+    "— iDoris": "公司名带破折号前缀",
+    "Issues": "GitHub 界面术语,泰国开发者也用英文原词",
+    "GitHub": "产品名",
+    "Blog": "导航词,三语站点均保留英文",
+    "Meetup": "产品名",
+    "✍️ Blog / WeChat": "两个产品名 + emoji,无可译成分",
+    "Hyphae · Memory · Context · Skill": "产品名 + 四个技术术语,泰文技术文档同样用英文原词",
+    '<a href=&quot;https://blog.mushroom.cv&quot;>blog.mushroom.cv ↗</a>':
+        "纯外链,域名不译",
+}
 # 曾经这里还有一个 `_TH_ALLOW_CONTAINS` 子串白名单(域名那几条)。**已删。**
 #
 # 理由:它用 `any(k in value)`,于是 `data-th="idoris.ai is completely untranslated"`
@@ -390,6 +405,15 @@ def self_test():
     if check_thai_actually_thai(_TH_PROPER_NOUN):
         failures.append("[data-th 不是未翻译的英文] 把白名单里的专名报错了 —— "
                         "天天误报的判据会被人整条注释掉")
+
+    # 白名单每一条都必须写下**为什么** —— 这是它唯一的约束。
+    # 不钉条目数(那是会过期的断言),而是让加一条必须写理由,
+    # 理由写不出来的多半不该豁免,写下的理由会出现在 diff 里。
+    for value, why in _TH_ALLOW_EXACT.items():
+        if not why or not why.strip():
+            failures.append(
+                "[data-th 不是未翻译的英文] 白名单条目 %r 没写豁免理由 —— "
+                "白名单是这条判据唯一的逃生舱,进来的每一条都要说清为什么" % value[:40])
 
     # 判据 4 的正对照 3:纯符号/纯数字 → 必须绿。
     # 少了这一格,第一个写 "2026" 或 "→" 的人会被推向白名单 ——

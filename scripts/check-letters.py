@@ -56,6 +56,21 @@ _COMMENT = re.compile(r"<!--.*?-->", re.S)
 # 不是"翻译得够不够地道"。定得紧只会在正常改稿时误报,然后被人关掉。
 MIN_CODEPOINTS = {"th": 300, "zh": 300}
 
+# 正文语言**上限**:某封信里不该有别的语言。
+#
+# 这一条补的是两个洞,都是 PR-Daemon 实测出来的:
+#
+# 1. **「剥注释」那一步原本不承重。** 把 `_COMMENT.sub("", body)` 换成
+#    `return body`,整套自检**仍然全绿** —— 因为三条下限都是「至少」,
+#    而不剥注释只会让计数**变大**。一个「至少」型的判据,永远测不出
+#    「你多算了」这类错误。**量纲不对,对照就是假的。**
+#
+# 2. 现在三条全是「至少有本语言」,**没有一条说「不该有别的语言」**。
+#    「英文信里混进整段中文」是同一族的另一半,此前完全不设防。
+#
+# 取 50 很宽松:英文信剥注释后实测 **0** 个 CJK,不剥是 **381**。
+MAX_FOREIGN = {"en": ("zh", 50)}
+
 
 def strip_comments(body: str) -> str:
     return _COMMENT.sub("", body)
@@ -102,6 +117,15 @@ def check(source: str) -> list[str]:
     # 四维完全一致 —— 实测两条检查都 exit 0,而泰文码点从 3447 掉到 0。
     # 「泰文版静默留在英文」正是这个仓库反复要抓的那件事,
     # 而信恰恰是两处文档叫新人拿去发给客户的成品。
+    for lang, (foreign, ceiling) in MAX_FOREIGN.items():
+        n = count_lang(bodies[lang], foreign)
+        if n > ceiling:
+            errors.append(
+                "%s 那封信里有 %d 个%s码点(上限 %d)—— **混进了别的语言**。"
+                "注意这个数是**剥掉 HTML 注释之后**的:srcdoc 里嵌着中文源码注释,"
+                "不剥的话英文信本身就有 381 个 CJK"
+                % (lang, n, "中文" if foreign == "zh" else "泰文", ceiling))
+
     for lang, floor in MIN_CODEPOINTS.items():
         n = count_lang(bodies[lang], lang)
         if n < floor:
@@ -175,11 +199,22 @@ def self_test() -> int:
         failures.append("[正文语言] 中文信整段换成英文却没反应")
 
     # 正对照:英文信里嵌**中文源码注释** → 必须绿。
-    # 少了这一格,「剥注释」这一步就没有被证明过 ——
-    # 而真实的三封信里恰好都嵌着中文注释(英文信实测 381 个 CJK 全来自注释)。
+    #
+    # ⚠️ **这一格单独存在时并不承重。** PR-Daemon 实测:把 `_COMMENT.sub` 换成
+    # `return body`,整套自检仍然全绿 —— 因为当时三条判据全是「至少有 N 个」,
+    # 而不剥注释只会让计数变大。**「至少」型的判据测不出「你多算了」。**
+    # 真正让这一步承重的是下面那格**上限**对照,两格必须同时在。
     if check(_page(en_comment="这是中文源码注释，不该被当成正文语言" * 30)):
         failures.append("[正文语言] 英文信里的中文**注释**被当成了正文 —— "
                         "没有剥 <!-- --> 就数,真实页面会误判")
+
+    # 负对照:英文信正文里混进整段中文 → 必须红。
+    # **这一格才是让「剥注释」承重的那个** ——
+    # 去掉剥注释,英文信的 381 个注释 CJK 会撞破上限,这格立刻变红。
+    if not check(_page(en_p=7, zh_p=7, th_p=7).replace(
+            "English body ", "整段中文混进了英文信里的正文" * 4)):
+        failures.append("[正文语言] 英文信里混进整段中文却没反应 —— "
+                        "三条下限都是「至少」,没有一条说「不该有别的语言」")
 
     if failures:
         print("%s✗ 自检失败%s" % (RED, OFF), file=sys.stderr)

@@ -42,6 +42,30 @@
 
 ---
 
+## 🔴 卡着三个产品的那一个
+
+### T-0 · Gateway 接上 LiteLLM，跑通真实模型调用
+
+| | |
+|:---|:---|
+| **状态** | 🔴 **建议的下一步就是它** |
+| **负责人** | Dev |
+| **卡着** | Documents D7 · Creative C2 · Assistant A4 之后的一切 |
+
+**Documents 六个动作里的五个、Creative 的 `copy`，全都还在收 `model_output` 参数
+—— 没有一条真的调过模型。** 规则写好了、测好了（113 条变异），
+但另一半是真实调用里才会暴露的东西：超时、限流、输出格式漂移、成本。
+
+**这不是「快完成了」，是「完成了一半」。**
+
+为什么建议先做它：其余瓶颈要么在别的仓库（Voice V0 要读 iDoris 代码库）、
+要么需要人去读条款（LINE #14）—— **只有这一个是坐下来就能做的**。
+
+里程碑与依赖图见
+[`starter-kit/PRODUCT-FORM-AND-ROADMAP.md`](starter-kit/PRODUCT-FORM-AND-ROADMAP.md) §4。
+
+---
+
 ## 🟡 等外部反馈的
 
 ### T-2 · 泰语材料的 native 校对
