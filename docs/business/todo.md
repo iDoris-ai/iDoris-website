@@ -48,7 +48,7 @@
 
 | | |
 |:---|:---|
-| **状态** | 🔴 **建议的下一步就是它** |
+| **状态** | 🔴 **等 iDoris 侧答 R0** —— 见下 |
 | **负责人** | Dev |
 | **卡着** | Documents D7 · Creative C2 · Assistant A4 之后的一切 |
 
@@ -63,6 +63,16 @@
 
 里程碑与依赖图见
 [`starter-kit/PRODUCT-FORM-AND-ROADMAP.md`](starter-kit/PRODUCT-FORM-AND-ROADMAP.md) §4。
+
+> ⚠️ **2026-09-07 更新：先别急着接 LiteLLM。**
+>
+> `iDoris` 仓库的 `iDoris Router` 和我们的 Gateway **是同一层**，我们各写了一遍。
+> 已向 iDoris 提需求 R0–R6，**R0 是结构性错配需先拍板**：
+> iDoris 现定位「个人 AI 网关」（loopback + 单用户），而泰国业务是**托管多客户**。
+>
+> 答案决定 T-0 怎么做：属于 iDoris → 我们把 Gateway 移交并改为消费者；
+> 不属于 → 我们自己接 LiteLLM，并写明两套的边界。
+> **在答案出来之前动手，有一半概率白做。**
 
 ---
 

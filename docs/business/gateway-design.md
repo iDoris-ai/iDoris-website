@@ -3,6 +3,33 @@
 > 基座 LiteLLM，我们加的是**路由策略、成本闸、审计留痕**。
 > 版本：v0.1 · 2026-09-05 · License 结论见 [`oss-due-diligence.md`](oss-due-diligence.md) §1.1
 
+## ⚠️ 这一层和 iDoris Router 是同一层 —— 已提需求，等拍板
+
+`iDoris-ai/iDoris` 仓库的
+[`01-统一模型服务-架构设计.md`](https://github.com/iDoris-ai/iDoris/blob/main/docs/01-%E7%BB%9F%E4%B8%80%E6%A8%A1%E5%9E%8B%E6%9C%8D%E5%8A%A1-%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1.md)
+§3 定义的 **iDoris Router** —— 意图路由、隐私标签、降级链、用量审计 ——
+**和本文档描述的 Gateway 是同一层**。我们各写了一遍。
+
+**已向 iDoris 提出需求**（R0–R6，见该仓库
+[`11-来自Starter-Kit的需求.md`](https://github.com/iDoris-ai/iDoris/blob/main/docs/11-%E6%9D%A5%E8%87%AASterter-Kit%E7%9A%84%E9%9C%80%E6%B1%82.md)），
+其中 **R0 是结构性错配，需要先拍板**：
+
+> iDoris 现定位是「**个人** AI 网关」（能力① 硬编码 loopback + 单用户），
+> 而泰国业务是**托管多个客户**（多租户）。
+
+### 拍板之后两条路
+
+| R0 的答案 | 我们怎么做 |
+|:---|:---|
+| **多租户属于 iDoris** | `products/gateway/` **降级为 iDoris Router 的消费者**，`routing.py` / `audit.py` / `egress_guard.py` 及其变异测试整体移交 |
+| **不属于** | Gateway 保留为泰国业务的独立组件，**并在这里写明两套的适用边界** |
+
+**两种答案都能走，但现在的状态（两套并行且没写明关系）是最坏的一种** ——
+下一个人会以为它们自动一致。
+
+---
+
+
 ## 0. 一条硬约束
 
 **绝不引用、复制、依赖 LiteLLM 的 `enterprise/` 目录下任何代码。**
