@@ -48,7 +48,7 @@
 
 | | |
 |:---|:---|
-| **状态** | 🟡 **R0 已拍板（2026-09-07）：多租户属于 iDoris。等接口契约** |
+| **状态** | 🟢 **契约已到（v1，2026-09-07）—— 可开工** |
 | **负责人** | Dev（等 iDoris 侧给契约）|
 | **卡着** | Documents D7 · Creative C2 · Assistant A4 之后的一切 |
 
@@ -65,8 +65,46 @@
 > （这是我们给客户看月度用量、也是计费依据）· `deploy_mode: tenant` 下
 > 能力①（订阅中转）是否直接不可用。
 >
-> **契约到手之前不动这三个模块** —— 改完又要跟着契约再改一遍。
-> 移交时我们保留一份直到 iDoris 侧跑通，避免出现「两边都没有」的窗口。
+> ✅ **契约 v1 已交付**（iDoris `docs/agent/contract-tenancy.md`，PR #5 `ce423ed`），
+> 四问逐条写死了：
+>
+> | 问 | 答 |
+> |:---|:---|
+> | tenant 怎么传 | `X-iDoris-Tenant: <id>`，`deploy_mode=tenant` 时必填，缺失 **400 且不回落默认租户** |
+> | 预算怎么配/查 | `TenantContext.budget{limit_minor, spent_minor, scope}`，**整数最小货币单位不用浮点**；`GET /idoris/tenants/{id}/budget` |
+> | 审计怎么按 tenant 查 | `GET .../usage?period=2026-09`（月度用量，**我们的计费依据**）· `.../audit?from=&to=`（明细）|
+> | `tenant` 下能力① | **启动时拒绝注册该 provider，进程退出非 0** —— 比运行时拒绝更硬 |
+>
+> 响应头回传 `X-iDoris-Reason` / `-Provider` / `-Cost-Minor`，单次调用不用再查一次就能解释。
+
+### ✅ 已决：`budget.scope = paid_only`（不是 `all`）
+
+契约 §4 对我们原本那条「预算用尽必须拒绝」做了细化，**并把选择留给我们**：
+
+- `paid_only`：只闸 `cost > 0` 的候选，**零成本的本地模型照常可用**
+- `all`：一律拒绝（我们原本的行为）
+
+**选 `paid_only`，理由是具体的**：`policy.example.json` 里
+`line.reply`（面向客人的 LINE 回复）**本来就走 `local`**，因为含客人信息。
+
+| | 老板的月度预算烧完之后 |
+|:---|:---|
+| `paid_only` | LINE 回复**照常工作**；停的是文档翻译/对比这类内部批处理 |
+| `all` | **连客人发消息都没人回** |
+
+对清迈的小生意，第二种是不可接受的 —— 而第一种停掉的东西**看得见、可以等到下次充值**。
+
+> ⚠️ **前提：402 必须传到人。** 内部功能悄悄停掉而没人知道为什么，
+> 和悄悄花钱是同一类错误的两面。迁移时这一条要有测试。
+
+### 迁移步骤（契约已到，可以开工）
+
+1. `products/gateway/routing.py` → 改成**薄客户端**：构造 `X-iDoris-*` header，读响应头的 `Reason`/`Provider`/`Cost-Minor`
+2. `audit.py` → 改为调 `.../usage` 与 `.../audit`，本地不再自己记
+3. `egress_guard.py` → **保留**（它管的是我们自己进程的启动期，不是 Router 的）
+4. **三个模块的变异测试整体移交 iDoris**，但**本地保留一份直到对方跑通**
+   —— iDoris 侧现在还没写一行代码（`T1.1.1` 起 pnpm workspace 才是第一步），
+   这个窗口会持续一阵，**先别删**（对方记为 FU-7，已确认）
 
 **Documents 六个动作里的五个、Creative 的 `copy`，全都还在收 `model_output` 参数
 —— 没有一条真的调过模型。** 规则写好了、测好了（113 条变异），
