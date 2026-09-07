@@ -1,0 +1,51 @@
+# Documents 的检查。
+#
+# **为什么每个产品一个 workflow 文件**：原先所有步骤都挤在 `check.yml` 里，
+# 于是两条并行的开发栈各自往同一个文件加步骤，**必然在合并时冲突** ——
+# 而冲突内容永远是「两边都该留」，纯属人工搬运。
+#
+# 拆开之后，动 Documents 的 PR 只碰这一个文件，跟别的产品的 PR 天然不冲突。
+# 代价是 GitHub 上多几个 check 名字；比起每次并行开发都要手工解一次冲突，
+# 这个代价便宜得多。
+name: check-documents
+
+on:
+  pull_request:
+  push:
+    branches: [main, preview]
+
+concurrency:
+  group: check-documents-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  documents:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      # Documents 的 DocIR 隔离层。两条最要紧:出处能回溯、泰文按字符不按空格切。
+      - name: Documents 测试（DocIR · 泰历 · extract · translate · summarize · compare · rewrite · search）
+        if: always()
+        run: |
+          cd products/documents
+          python3 docir.py
+          python3 test_docir.py
+          python3 thai_dates.py
+          python3 extract.py
+          python3 test_extract.py
+          python3 translate.py
+          python3 test_translate.py
+          python3 summarize.py --self-test
+          python3 test_summarize.py
+          python3 compare.py --self-test
+          python3 test_compare.py
+          python3 rewrite.py --self-test
+          python3 test_rewrite.py
+          python3 search.py --self-test
+          python3 test_search.py
+
+      - name: Documents 变异测试（证明测试能变红）
+        if: always()
+        run: products/documents/mutation_check.sh

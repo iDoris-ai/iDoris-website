@@ -24,5 +24,11 @@ docs_dir: docs/agent
 # 没检查的情况下放行,那是一句人做的担保,现在没人担保。
 planning_source: docs
 
+# 开 PR 前必须跑过的检查。本仓库的检查一直都在 scripts/deploy.sh 的 --check 模式里
+# (页面文件齐全、站内 href/src 无断链、多语脚本引入完整、首帧语言属性、图片与资源体积),
+# 只是从没在这里声明过,于是 git-guard 的 pr-create 闸门报「no checks discovered」并 fail
+# closed。声明出来才是正解 —— PILOT_SKIP_PREFLIGHT=1 是绕过闸门,不是修好它。
+preflight: ./scripts/deploy.sh --check
+
 # 外部评审服务的根目录(默认值,写出来是为了显式)。
 pr_daemon_root: ~/Dev/tools/PR-Daemon

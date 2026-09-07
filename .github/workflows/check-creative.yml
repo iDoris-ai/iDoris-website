@@ -1,0 +1,39 @@
+# Creative 的检查。
+#
+# **为什么每个产品一个 workflow 文件**：原先所有步骤都挤在 `check.yml` 里，
+# 于是两条并行的开发栈各自往同一个文件加步骤，**必然在合并时冲突** ——
+# 而冲突内容永远是「两边都该留」，纯属人工搬运。
+#
+# 拆开之后，动 Creative 的 PR 只碰这一个文件，跟别的产品的 PR 天然不冲突。
+# 代价是 GitHub 上多几个 check 名字；比起每次并行开发都要手工解一次冲突，
+# 这个代价便宜得多。
+name: check-creative
+
+on:
+  pull_request:
+  push:
+    branches: [main, preview]
+
+concurrency:
+  group: check-creative-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  creative:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      # Creative 的 copy 动作。三条硬要求:字数上限、禁止项、敬语一致。
+      # 它是 Creative 里唯一零 License 风险、可以先交付的动作。
+      - name: Creative copy 测试
+        if: always()
+        run: |
+          cd products/creative
+          python3 copywriting.py
+          python3 test_copywriting.py
+
+      - name: Creative 变异测试（证明测试能变红）
+        if: always()
+        run: products/creative/mutation_check.sh

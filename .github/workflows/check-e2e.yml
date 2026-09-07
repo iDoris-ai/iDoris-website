@@ -1,0 +1,32 @@
+# 端到端 的检查。
+#
+# **为什么每个产品一个 workflow 文件**：原先所有步骤都挤在 `check.yml` 里，
+# 于是两条并行的开发栈各自往同一个文件加步骤，**必然在合并时冲突** ——
+# 而冲突内容永远是「两边都该留」，纯属人工搬运。
+#
+# 拆开之后，动 端到端 的 PR 只碰这一个文件，跟别的产品的 PR 天然不冲突。
+# 代价是 GitHub 上多几个 check 名字；比起每次并行开发都要手工解一次冲突，
+# 这个代价便宜得多。
+name: check-e2e
+
+on:
+  pull_request:
+  push:
+    branches: [main, preview]
+
+concurrency:
+  group: check-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      # 端到端演示。它断言的不是「演示能跑通」,而是**五条安全属性在真实路径上
+      # 没被绕过** —— 单元测试各自绿灯,不代表拼起来还守规矩。
+      - name: 端到端演示的安全属性
+        if: always()
+        run: python3 products/demo_meeting_to_tasks.py --self-test
