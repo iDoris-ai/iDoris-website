@@ -515,7 +515,8 @@ CUDA 兼容问题 2024-10-24 open 至今，修复 PR 2026-04-13 **被关掉未�
 - F3.4 ISO/IEC 29110 工程记录
 
 **实现的第一步已经写死在 `dev-plan.md` 阶段 A**：
-Voice 现状盘点 → Gateway 最小版 → Voice 泰语评测。
+~~Voice 现状盘点~~（**[已核 2026-09-07] 已完成**，见 `../business/verification-2026-09-07-voice-v0.md`）
+→ Gateway 最小版 → Voice 泰语评测（**真实场景那一层**）。
 
 ## 教训留档
 

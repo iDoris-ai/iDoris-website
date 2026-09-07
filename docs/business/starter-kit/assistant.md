@@ -40,7 +40,7 @@ Documents 处理**一份文档**，Assistant 处理**一条流程**。
 |:---|:---|:---|:---|
 | **LangGraph** | `0.2+` | MIT | 有状态的流程图 + **中断点（人工审批）** + 状态持久化 |
 | **iDoris Gateway** | 自建（LiteLLM 基座） | Apache 2.0 / MIT | 模型调用、路由、成本闸、审计 |
-| **iDoris Voice** | faster-whisper | MIT | 会议流程的语音输入 |
+| **iDoris Voice** | SenseVoiceSmall + whisper.cpp（经 AgentEar）| Apache-2.0 / MIT | 会议流程的语音输入　**[已核 2026-09-07] 已更正** |
 | **iDoris Documents** | 本 Kit | — | 文档流程的解析与抽取 |
 | **Postgres** | 16 | PostgreSQL License | LangGraph checkpointer + 审批队列 |
 

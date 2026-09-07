@@ -188,7 +188,8 @@ TZ=Pacific/Midway python3 products/gateway/test_audit.py
 
 | 组件 | 权重 | 许可 | 可商用 |
 |:---|:---|:---|:---|
-| Voice | `Systran/faster-whisper-large-v3` | MIT | ✅ [已核] |
+| Voice 主链路 | `SenseVoiceSmall q8 GGUF` + `fsmn-vad` | Apache-2.0 | ✅ [已核 2026-09-07] |
+| Voice 泰语 | `distill` q5_0 GGML（上游 `biodatlab/distill-whisper-th-large-v3`）| MIT | ✅ [已核 2026-09-07] |
 | Documents | `ds4sd/docling-models` | CDLA-Permissive-2.0 + Apache-2.0 | ✅ [已核] |
 | Creative 图像 | **尚未选定** | — | ❌ **[待核]，先不上** |
 
@@ -198,49 +199,45 @@ Creative 第一版**只上纯文案的 `copy`**，零 License 风险。
 客户问到图像生成时直说「还在核许可，这一版不含」——
 不要说「马上就有」，那是我们控制不了的时间。
 
-### 2.3.1 Voice：必须同时锁两个版本，并显式验 GPU 路径
+### 2.3.1 Voice：锁上游产物 + 自留副本
 
-**[已核] 2026-09-06**（见
-[`verification-2026-09-06-voice-stack.md`](verification-2026-09-06-voice-stack.md)）：
+> 🔶 **2026-09-07 本节整体重写。** 原来这里写的是「锁 `faster-whisper` 与
+> `ctranslate2` 两个版本 + 部署时显式验 GPU 路径」。
+> **那套步骤作废** —— [已核] Voice 的实际链路是 AgentEar 的
+> SenseVoiceSmall + FunASR llamacpp runtime，**不用 faster-whisper、
+> 不用 CTranslate2、没有 GPU 环境要管**（CPU/Metal 单二进制）。
+> 见 [`verification-2026-09-07-voice-v0.md`](verification-2026-09-07-voice-v0.md)。
+> 旧结论本身没错，只是核的不是我们的链路。
 
-`faster-whisper` **维护者已停更 9.5 个月**（最后提交 2025-11-19，
-社区仍在提 PR 但无人合并），而它的推理后端 `CTranslate2` **六天前还在发版**
-（v4.8.2 · 2026-08-31）。
+**风险换了形状**：我们不再怕「库停更」，怕的是
+**上游 `modelscope/FunASR` 不再发 runtime 产物** ——
+因为我们取的是**发布产物**，不是自己编译。
 
-CUDA 兼容问题从 2024-10-24 open 至今；有人提过 `pin ctranslate2<4.6.3`
-的修复，**PR 于 2026-04-13 被关掉、未合并**。
+#### 所以这三件事都要做
 
-**风险的形状不是「哪天它坏了」，是「它已经在坏，只是我们还没装」** ——
-后端每发一版，缺口就宽一点，而没有人在补。
-
-#### 所以这两件事都要做，缺一不可
-
-**① 同时锁两个包的版本。**
+**① 锁 runtime 的 tag 与权重的 sha256。**
 
 ```
-faster-whisper==1.2.1
-ctranslate2==<与上面实测配对通过的版本>
+runtime-llamacpp-<版本>   # AgentEar 的 NOTICE 记的是 v0.1.9;我们锁哪个 V1 要定
+sensevoice-small-q8.gguf  sha256=<记下来>
+fsmn-vad.gguf             sha256=<记下来>
 ```
 
-**只锁 `faster-whisper` 不够** —— 问题恰恰出在后端会自己往前走。
-`requirements.txt` 里两行都要有，都要是 `==` 不是 `>=`。
+**② 自留一份产物副本 —— 这条比锁版本号更要紧。**
+**版本号挡不住上游删 release。** 锁了 tag 而产物没了，锁的是一句空话。
+副本要放在我们自己能长期控制的地方。
 
-**② 部署时显式验 GPU 路径，不能只验 import 成功。**
+**③ 写一份 `NOTICE`。**
+照 AgentEar 的 `NOTICE` 形状做：逐个组件写来源、版本、许可。
+MIT 组件要带**版权声明与许可声明全文两样**，不是只带版权声明。
 
-```bash
-python3 - <<'EOF'
-from faster_whisper import WhisperModel
-# 必须真的加载到 GPU 并跑一段,不能只 import。
-# 那个报错(This CTranslate2 package was not compiled with CUDA)
-# **在 import 阶段不出现,跑起来才出现**。
-m = WhisperModel("large-v3", device="cuda", compute_type="float16")
-segs, info = m.transcribe("<一段 5 秒的测试音频>.wav", language="th")
-print("✓ GPU 路径可用，识别到语言:", info.language)
-EOF
-```
+> 🔴 **换泰语模型时的门禁**：三个候选上游许可**不一样**
+> （`distill`/`turbo` 是 MIT，`medium` 是 Apache-2.0）。
+> **换成 `medium` 之前必须重做一次许可与 NOTICE 审查** ——
+> 不是换完再补。默认不要换，理由见 `starter-kit/voice.md` §3.2。
 
-**看到 `This CTranslate2 package was not compiled with CUDA` 就停下来** ——
-这不是配置问题，是版本配对不对。回到 ① 换 `ctranslate2` 版本重试。
+> ⚠️ **[待核] 本节的步骤没有在真机上跑过。** 我们至今没有安装过 AgentEar，
+> 也没有在 Linux 上组装过。第一次实装时**按本节逐条验，并把结果写回这里**。
 
 ### 2.4 审批队列
 
@@ -341,7 +338,7 @@ Documents 的四个动作在 documents 分支上验证 —— 各分支合进 `p
 |:--|:---|:---|:---|
 | 1 | 图像模型权重许可 | Dev | 选定模型后读该模型的 LICENSE 与使用条款 |
 | 2 | Voice 组件现状 | Dev | 需读 iDoris 代码仓库（不在本仓库） |
-| 2b | faster-whisper × ctranslate2 的**可用版本配对** | Dev | 按 §2.3.1 ② 的脚本实测；配对确定后写死进 `requirements.txt` |
+| 2b | **锁 runtime tag + 权重 sha256 + 自留产物副本 + 写 `NOTICE`** | Dev | 按 §2.3.1 三步；**首次实装要把实测结果写回该节**（目前全节未在真机验证）|
 | 3 | LiteLLM 升级后 `enterprise/` 变动 | 做升级的人 | `git log --stat -- enterprise/` |
 | 4 | 其他库的遥测开关 | Dev | 逐库读文档 |
 

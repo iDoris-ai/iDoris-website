@@ -40,7 +40,7 @@
 | LiteLLM | 统一多家模型 API、路由、成本追踪、虚拟 key | **AI Gateway 的直接基座** | MIT，**但 `enterprise/` 目录另有许可**（[已核] 2026-09-05） |
 | LangGraph | 有状态 Agent 图、断点/人工审批 | Agent 状态机、human-in-the-loop | MIT |
 | Open WebUI | 自托管聊天前端、多模型、RAG、用户管理 | Workspace 的前端起点 | BSD-3 + 品牌条款：**>50 用户不得去品牌**（[已核] 2026-09-05）|
-| Whisper / faster-whisper | 语音转文字，含泰语 | Voice 模块基座 | MIT / MIT |
+| ~~Whisper / faster-whisper~~ **SenseVoiceSmall / whisper.cpp** | 语音转文字，含泰语 | Voice 模块基座（**经外部组件 AgentEar**）| Apache-2.0 / MIT　**[已核 2026-09-07] 已更正** |
 | Docling / Unstructured | 文档解析（PDF/表格/扫描件）转结构化 | Office 模块的解析层 | MIT / Apache 2.0 |
 | Qdrant / pgvector | 向量检索 | 知识库存储 | Apache 2.0 / PostgreSQL License |
 | ComfyUI | 图像生成工作流 | Creative 模块 | GPL-3.0（**传染性，须隔离为独立服务，不可静态链接进闭源件**） |
@@ -76,7 +76,7 @@
 **站在巨人肩上（不自建）**
 - 模型路由与成本控制 → LiteLLM
 - Agent 状态机与人工审批 → LangGraph
-- 语音转写 → faster-whisper
+- 语音转写 → **SenseVoiceSmall（主）+ whisper.cpp（泰语）**，经 AgentEar
 - 文档解析 → Docling
 - 向量检索 → pgvector（先不上独立向量库，一个 Postgres 够用到很久）
 - 图像生成 → ComfyUI（**独立服务，GPL 隔离**）

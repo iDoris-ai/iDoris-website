@@ -1,7 +1,13 @@
 # 待核事实清单
 
 > **这份文档是防止「自洽地错着」的唯一机械保障。**
-> 全仓库 `[待核]` 标记共 **79 处**，归并为下表 **22 条**。
+> 全仓库 `[待核]` 标记共 **122 处**（`docs/business` 下 98 处），归并为下表 **22 条**。
+> **这个数会随文档增长而变，别信写死的数字 —— 自己数**：
+> ```bash
+> grep -ro "\[待核\]" docs/ --include=*.md | wc -l
+> ```
+> （2026-09-07 复核：原文记的 79 处早已过时，是一个没人重数过的旧数。
+> **一个不会自动失效的数字，就是一个迟早会骗人的数字** —— 所以这里改成给命令。）
 > 版本：v0.1 · 2026-09-05
 
 ## 0. 为什么有这份文档
@@ -27,7 +33,7 @@
 
 ---
 
-## 2. P0 · 阻塞级（5 条 → **已解决 3 条，剩 2 条**）
+## 2. P0 · 阻塞级（5 条 → **已解决 4 条，剩 1 条**）
 
 > **2026-09-05 验证报告**：[`verification-2026-09-05.md`](verification-2026-09-05.md)
 > 证据脚本：[`../../tools/verify/`](../../tools/verify/)（可重跑）
@@ -36,12 +42,14 @@
 |:--|:---|:---|:---|:---|:---|
 | ~~1~~ | **LangGraph 完全离线时零出网** | — | ~~阻塞~~ **已解除** | **[已核 2026-09-05]** socket 层拦截 + 正对照。不设变量时 **0 次外部连接**；但设 `LANGSMITH_TRACING=true` 时**确实会连** `api.smith.langchain.com`。**风险不在库，在部署配置** —— 见下方「新增控制手段」 | ✅ |
 | 2 | **图像生成模型权重可商用** | 未核 | **Creative 图像部分不对外交付** | 找到权重发布页/model card，读 license 段的 commercial use 条款 | Dev |
-| ~~3~~ | **Voice 组件现状** | ~~源文档一句话~~ | ~~阻塞~~ **已解除** | **[已核 2026-09-07]** 基础在 `iDoris-ai/AgentEar`（不在 iDoris 主仓库）。主链路 = SenseVoiceSmall q8 + FunASR llamacpp runtime，**不是 whisper**；泰语是**独立的 whisper.cpp 引擎**；有发布版 `.app`；本地全离线但**限 Apple Silicon Mac**。见 `verification-2026-09-07-voice-v0.md` | ✅ |
-| ~~4~~ | **Whisper 模型权重许可** | — | ~~阻塞~~ **已解除** | **[已核 2026-09-05]** `Systran/faster-whisper-large-v3` = **MIT**；`openai/whisper-large-v3` = Apache-2.0。**可商用** | ✅ |
+| ~~3~~ | **Voice 组件现状** | ~~源文档一句话~~ | ~~阻塞~~ **已解除** | **[已核 2026-09-07]** 基础在 `iDoris-ai/AgentEar`（不在 iDoris 主仓库）。主链路 = SenseVoiceSmall q8 + FunASR llamacpp runtime，**不是 whisper**；泰语是**独立的 whisper.cpp 引擎**；有官方 `.app`。⚠️ **「能跑起来」「离线」目前只是 AgentEar 自述，我们没装过**；官方产物只覆盖 Apple Silicon Mac。见 `verification-2026-09-07-voice-v0.md` | ✅ |
+| ~~4~~ | ~~**Whisper 模型权重许可**~~ | — | ~~阻塞~~ **已解除，且已不适用** | **[已核 2026-09-05]** 当时结论：`Systran/faster-whisper-large-v3` = MIT。**[已核 2026-09-07] 我们已不用该链路** —— 现行权重是 SenseVoiceSmall（Apache-2.0）与泰语 `distill` q5_0（MIT），见 `deployment-runbook.md` §2.3 | ✅ |
 | ~~5~~ | **Docling 的 OCR/版面模型权重许可** | — | ~~阻塞~~ **已解除**（有条件）| **[已核 2026-09-05]** `ds4sd/docling-models` = CDLA-Permissive-2.0 + Apache-2.0；`DocumentFigureClassifier` = MIT。**可商用**。条件：**第一版只用 Docling 自带模型，不启用外部 OCR 引擎**（EasyOCR/Tesseract 许可需另核）| ✅ |
 
-> **第 3 条仍是 Dev 入职第一周的第一件事**（见 `onboarding-day1.md` §4）。
-> 第 1 条已在 2026-09-05 验证解除。
+> **第 3 条已于 2026-09-07 解除**（见 `verification-2026-09-07-voice-v0.md`）。
+> 接替它成为 Dev 第一件事的是**首次实装 AgentEar 做实测** —— 那份盘点全靠读文档完成，
+> **所有「跑得起来」的结论目前都只是自述**。第 1 条已在 2026-09-05 验证解除。
+> **剩下未解除的只有第 2 条（图像权重）。**
 
 ### 新增控制手段（由 P0 #1 的验证结果推出）
 

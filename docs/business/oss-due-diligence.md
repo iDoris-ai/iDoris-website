@@ -62,14 +62,18 @@ GitHub 对 LiteLLM 返回的是 `NOASSERTION`——**这个信号本身就说明
 **这是否是问题？** 分两层，第二层还没核清：
 
 - **[已核]** 装上 ≠ 会上传数据。LangSmith 的追踪通常由环境变量开关控制。
-- **[待核]** **必须验证「完全不设任何 LangSmith 环境变量时，是否有任何出网请求」。**
-  核法：在断网容器里跑一个最小 LangGraph 流程，用 `tcpdump` 或
-  `HTTPS_PROXY` 抓包确认零出网。
-  **谁核**：Dev，在 Assistant 开工前第一件事。
-  **核之前不能做什么**：不得在任何客户环境部署 Assistant——
-  客户的会议内容、客户消息是最敏感的数据，「大概不会上传」不是可接受的答案。
+- **[已核 2026-09-05]** 已在 socket 层拦截 + 正对照验过：**不设变量时 0 次外部连接**；
+  但设 `LANGSMITH_TRACING=true` 时**确实会连** `api.smith.langchain.com`。
+  **所以风险不在库，在部署配置。** 证据见
+  [`verification-2026-09-05.md`](verification-2026-09-05.md)。
 
-**降级路径**：若确认无法完全离线，改为自己写状态机 + Postgres 存 checkpoint。
+**对策**：启动断言（`products/assistant/egress_guard.py`，检测到就**拒绝启动**）+ 部署清单。
+
+> 🔶 **2026-09-07 顺手改的（本条与 Voice 无关）**：这里原来还挂着
+> 「[待核] 必须验证零出网」和一条「改为自己写状态机」的降级路径，
+> 但 `facts-to-verify.md` P0 #1 与 `dev-plan.md` §5 都已记为 2026-09-05 解除。
+> **同一件事在三份文档里两种状态**，读到这份的人会以为 Assistant 还不能部署。
+> **降级路径已取消**（`dev-plan.md` 同款结论）。
 工作量约 2–3 天，**远低于数据外流的代价**。
 
 ---
@@ -253,7 +257,7 @@ runtime **MIT**、SenseVoice 与 FSMN-VAD **Apache-2.0**（均见其 `NOTICE`）
 ## 5. 待核清单（汇总进 `facts-to-verify.md`）
 
 1. LangGraph 完全离线时是否零出网 —— **Dev，Assistant 开工前，阻塞客户部署**
-2. Whisper 权重许可 —— Dev，Voice 商业交付前
+2. ~~Whisper 权重许可~~ **[已核 2026-09-07] 已不适用**（链路已换）。接替它的是：**首次实装 AgentEar 把「能跑/离线」从自述变实测** —— Dev，Voice 商业交付前
 3. Docling OCR 权重许可 —— Dev，Documents 商业交付前
 4. 图像模型权重许可 —— Dev，**Creative 图像部分交付前，阻塞**
 5. LINE 平台商用服务条款 —— BD/PM，LINE Agent 立项前

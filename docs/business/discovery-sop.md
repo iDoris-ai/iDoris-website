@@ -52,7 +52,7 @@
 
 | 环节 | 工具 | 说明 |
 |:---|:---|:---|
-| 访谈录音与转写 | **iDoris Voice**（AgentEar：SenseVoiceSmall；泰语走 whisper.cpp）| 泰/英/中混合。**录音前必须口头征得同意并记录在案**。⚠️ **要 Apple Silicon Mac** |
+| 访谈录音与转写 | **iDoris Voice**（AgentEar：SenseVoiceSmall；泰语走 whisper.cpp）| **[已核 2026-09-07]** 泰/英/中各自可用，**混着说还不行**（夹英文 CER 31.1%）。**录音前必须口头征得同意并记录在案**。⚠️ **只有 Apple Silicon Mac 有官方产物** |
 | 转写后整理 | iDoris Office（summarize / extract） | 把转写稿抽成痛点条目 |
 | 泳道图 | Mermaid（写在 md 里） | 不用 Visio，交付物要能进 git |
 | 评分与矩阵 | `discovery-skill/scripts/score.py` | 输入五维分 → 出矩阵与排序 |

@@ -1,3 +1,9 @@
+> 🔶 **2026-09-07 部分内容已被取代。** 本文对 `faster-whisper` / `whisper` 权重
+> 许可的核查**在当时是对的**，但我们**已不再使用该链路** —— Voice 的实际基础是
+> AgentEar 的 SenseVoiceSmall + whisper.cpp。
+> 现行结论见 [`verification-2026-09-07-voice-v0.md`](verification-2026-09-07-voice-v0.md)。
+> **本文作为历史记录保留，不要据此做技术决策。** 其余各节不受影响。
+
 # P0 阻塞项验证报告 — 2026-09-05
 
 > 把 [`facts-to-verify.md`](facts-to-verify.md) 里 5 条 P0 中的 **3 条**变成 [已核]。

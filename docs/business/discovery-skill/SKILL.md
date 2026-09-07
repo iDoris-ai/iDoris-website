@@ -92,7 +92,7 @@ Day 1 结束必须有：engagement log、工作流地图 v0（可以是错的）
 
 | 环节 | 用什么 |
 |:---|:---|
-| 录音转写 | iDoris Voice（faster-whisper）· **录音前必须征得同意并记录** |
+| 录音转写 | iDoris Voice（AgentEar：SenseVoice + whisper.cpp）· **录音前必须征得同意并记录** · ⚠️ 只有 Apple Silicon Mac 有官方产物 |
 | 转写整理 | iDoris Documents（summarize / extract） |
 | 泳道图 | Mermaid 写在 md 里（交付物要能进 git，不用 Visio） |
 | 评分排序 | `scripts/score.py` |
