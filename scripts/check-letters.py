@@ -45,9 +45,23 @@ DIMS = (
     ("链接 <a>", r"<a[\s>]"),
 )
 
-# 语言码点区段
-_THAI = re.compile(r"[\u0e00-\u0e7f]")
-_CJK = re.compile(r"[\u4e00-\u9fff]")
+# 语言码点区段。**查表,不写两分支** —— 见下面 _LANG_NAME 那段的理由,
+# `count_lang` 犯的是同一个病:原本 `pat = _THAI if lang == "th" else _CJK`,
+# 数 "en" 时会**静默落进 CJK 分支**,报出一个看起来正常的错数字。
+_LANG_PAT = {
+    "th": re.compile(r"[\u0e00-\u0e7f]"),
+    "zh": re.compile(r"[\u4e00-\u9fff]"),
+    "en": re.compile(r"[A-Za-z]"),
+}
+
+# 报错信息里的语言名。**查表,不写两分支三元。**
+#
+# 原先两处都写成 `"中文" if x == "zh" else "泰文"` —— 今天 MAX_FOREIGN 只有
+# 一条 en→zh,else 走不到,所以是对的。但**这一维天然会长**
+# (「不该有别的语言」这个方向不止两种语言),加 {"zh": ("en", N)} 的那天,
+# 混进英文会被报成「泰文码点」—— 一条**报错信息说谎**的判据,
+# 比没有判据更难查。取不到就退回语言代码本身,不猜。
+_LANG_NAME = {"zh": "中文", "th": "泰文", "en": "英文"}
 # HTML 注释。**必须先剥掉再数** —— 三封信的 srcdoc 里都嵌着中文源码注释,
 # 英文信实测有 381 个 CJK 全部来自注释,不剥就会把"英文信含中文"当成正常。
 _COMMENT = re.compile(r"<!--.*?-->", re.S)
@@ -77,7 +91,17 @@ def strip_comments(body: str) -> str:
 
 
 def count_lang(body: str, lang: str) -> int:
-    pat = _THAI if lang == "th" else _CJK
+    """数某种语言的码点。**认不出的语言直接炸,不猜。**
+
+    原本写的是 `_THAI if lang == "th" else _CJK` —— 一个两分支的兜底。
+    今天只用到 th/zh 所以是对的,但这一维天然会长,
+    而它长出来的那天,数 "en" 会**静默返回 CJK 的计数** ——
+    一个数字看起来正常、实际量错了东西的判据,比报错的判据难查得多。
+    """
+    pat = _LANG_PAT.get(lang)
+    if pat is None:
+        raise KeyError(
+            "不认识的语言 %r —— 往 _LANG_PAT 里加一条,不要让它落进别的分支" % lang)
     return len(pat.findall(strip_comments(body)))
 
 
@@ -124,7 +148,7 @@ def check(source: str) -> list[str]:
                 "%s 那封信里有 %d 个%s码点(上限 %d)—— **混进了别的语言**。"
                 "注意这个数是**剥掉 HTML 注释之后**的:srcdoc 里嵌着中文源码注释,"
                 "不剥的话英文信本身就有 381 个 CJK"
-                % (lang, n, "中文" if foreign == "zh" else "泰文", ceiling))
+                % (lang, n, _LANG_NAME.get(foreign, foreign), ceiling))
 
     for lang, floor in MIN_CODEPOINTS.items():
         n = count_lang(bodies[lang], lang)
@@ -134,7 +158,7 @@ def check(source: str) -> list[str]:
                 "**整封很可能被换成了别的语言**。"
                 "注意:数的是剥掉 HTML 注释之后的正文,"
                 "因为 srcdoc 里嵌着中文源码注释,不剥会把英文信也算成有中文"
-                % (lang, n, "泰文" if lang == "th" else "中文", floor))
+                % (lang, n, _LANG_NAME.get(lang, lang), floor))
     return errors
 
 
