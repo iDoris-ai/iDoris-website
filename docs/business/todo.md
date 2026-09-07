@@ -48,9 +48,25 @@
 
 | | |
 |:---|:---|
-| **状态** | 🔴 **等 iDoris 侧答 R0** —— 见下 |
-| **负责人** | Dev |
+| **状态** | 🟡 **R0 已拍板（2026-09-07）：多租户属于 iDoris。等接口契约** |
+| **负责人** | Dev（等 iDoris 侧给契约）|
 | **卡着** | Documents D7 · Creative C2 · Assistant A4 之后的一切 |
+
+> ✅ **R0 的答案：多租户属于 iDoris 的范围。** 仓库主人原话：
+> 「未来为组织提供服务，要提供多租户，**iDoris 是组织大脑**」。
+>
+> **所以 T-0 的性质变了：我们不再自己接 LiteLLM。**
+> `products/gateway/` 降级为 iDoris Router 的**消费者**，
+> `routing.py` / `audit.py` / `egress_guard.py` 及其变异测试整体移交
+> （Apache-2.0，同组织仓库）。
+>
+> **现在等的是接口契约**，不是等拍板：`tenant` 怎么传（大概率沿用
+> `X-iDoris-*` header）· 预算怎么按 tenant 配与查 · 审计怎么按 tenant 查
+> （这是我们给客户看月度用量、也是计费依据）· `deploy_mode: tenant` 下
+> 能力①（订阅中转）是否直接不可用。
+>
+> **契约到手之前不动这三个模块** —— 改完又要跟着契约再改一遍。
+> 移交时我们保留一份直到 iDoris 侧跑通，避免出现「两边都没有」的窗口。
 
 **Documents 六个动作里的五个、Creative 的 `copy`，全都还在收 `model_output` 参数
 —— 没有一条真的调过模型。** 规则写好了、测好了（113 条变异），
