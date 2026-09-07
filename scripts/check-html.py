@@ -138,9 +138,138 @@ def check_i18n_attrs(source):
     return errors
 
 
+def _iter_tags(source):
+    """扫标签,**属性值里的 > 不算标签结束**。
+
+    这一条是这个函数存在的全部理由。用 `<[^>]*>` 去扫,会在属性值里第一个
+    `<b>`、`<br>`、`<span>` 处被截断 —— 于是「这个标签有没有 data-th」永远
+    看不到后半截,判据变成**几乎每一行都报错**。
+    写这条判据时第一版就是那样,74 条全是误报。
+    """
+    i, n = 0, len(source)
+    while i < n:
+        if source[i] != "<":
+            i += 1
+            continue
+        if i + 1 < n and not (source[i + 1].isalpha() or source[i + 1] == "/"):
+            i += 1
+            continue
+        j, quote = i + 1, None
+        while j < n:
+            c = source[j]
+            if quote:
+                if c == quote:
+                    quote = None
+            elif c in "\"'":
+                quote = c
+            elif c == ">":
+                break
+            j += 1
+        yield i, source[i:j + 1]
+        i = j + 1
+
+
+# 泰文 Unicode 区段 U+0E00–U+0E7F。
+_THAI_CP = re.compile(r"[\u0e00-\u0e7f]")
+
+# 允许**不含泰文**的 data-th 值:专名、品牌、域名、纯符号。
+# 判定用「归一化后完全相等」,不是子串 —— 子串会把
+# "Doris 是我们的吉祥物" 这种真漏译也放过去。
+# 结构是 {值: 为什么豁免},**理由必填**,由自检断言非空。
+#
+# 白名单是这条判据唯一的逃生舱:往里加一句真漏译,检查就会转绿,而且没有声音。
+# 堵法不是「钉住条目数」—— 那等于新增一个会随修改而过期的断言,
+# 和本仓库把写死的「63 份文档」「九条规则」改成自动计数的方向正好相反。
+#
+# 堵法是**让加一条豁免必须写下为什么**:理由写不出来的多半不该豁免,
+# 而写下的理由会出现在 diff 里,让下一个 reviewer 看得见。
+_TH_ALLOW_EXACT = {
+    "Doris": "角色名,三语一致",
+    "Cherry": "角色名,三语一致",
+    "Doris &amp; Cherry": "两个角色名,三语一致",
+    "iDoris": "公司名",
+    "— iDoris": "公司名带破折号前缀",
+    "Issues": "GitHub 界面术语,泰国开发者也用英文原词",
+    "GitHub": "产品名",
+    "Blog": "导航词,三语站点均保留英文",
+    "Meetup": "产品名",
+    "✍️ Blog / WeChat": "两个产品名 + emoji,无可译成分",
+    "Hyphae · Memory · Context · Skill": "产品名 + 四个技术术语,泰文技术文档同样用英文原词",
+    '<a href=&quot;https://blog.mushroom.cv&quot;>blog.mushroom.cv ↗</a>':
+        "纯外链,域名不译",
+}
+# 曾经这里还有一个 `_TH_ALLOW_CONTAINS` 子串白名单(域名那几条)。**已删。**
+#
+# 理由:它用 `any(k in value)`,于是 `data-th="idoris.ai is completely untranslated"`
+# 直接放行 —— 一个子串白名单就是一个逃生舱。而实测它几乎什么都没豁免:
+# 24 页全部 data-th 值里,`blog.mushroom.cv` 命中 1、`github.com` 0、`idoris.ai` 0。
+# **风险最大的两条承载为零。** 那一条真命中的已并入下面的完全相等白名单。
+#
+# **一个白名单,一种语义。** 两套判定规则并存,人只会记住松的那套。
+
+
+def check_thai_actually_thai(source):
+    """判据 4:data-th 的值必须真的含泰文,除非在白名单里。
+
+    **判据 3 只保证属性在,不保证里面是泰文。**
+    把英文原样抄进 data-th,页面在泰文下看起来"有翻译"、检查也是绿的 ——
+    但泰国读者看到的还是英文。这是 PR-Daemon 在 review 里指出的:
+    `site/services/index.html` 有一格 `data-th="Discover — AI Discovery Sprint"`,
+    一个泰文字符都没有,而当时全绿。
+
+    白名单收的是**专名与品牌**(Doris / Cherry / iDoris / 域名),
+    它们在三种语言里本来就该长一样。用「完全相等」判定而不是子串,
+    否则 "Doris 是我们的吉祥物" 这种真漏译会被放过去。
+    """
+    errors = []
+    for m in _I18N_ATTR.finditer(source):
+        if m.group(1) != "th":
+            continue
+        value = m.group(3).strip()
+        if not value or _THAI_CP.search(value):
+            continue
+        # 纯符号/纯数字的值不算漏译 —— "2026"、"→"、"01 / Products" 这类
+        # 本来就没有可译的东西。**必须放在白名单判断之前** ——
+        # 否则第一个写数字或箭头的人会被直接推向白名单,
+        # 而白名单是个无声的逃生舱:往里加一条真漏译,检查会转绿。
+        if not re.search(r"[A-Za-z]", value):
+            continue
+        if value in _TH_ALLOW_EXACT:
+            continue
+        line = source.count("\n", 0, m.start()) + 1
+        errors.append(
+            "第 %d 行 data-th 里没有一个泰文字符:%r —— "
+            "泰国读者看到的还是英文。真是专名就加进 _TH_ALLOW_EXACT"
+            % (line, value[:60]))
+    return errors
+
+
+def check_trilingual(source):
+    """判据 3:带 data-zh 的元素必须同时带 data-th，反之亦然。
+
+    **站点是中英泰三语,英文是 inline 默认,中泰靠这两个属性换。**
+    只写一个的元素,在缺的那个语种下会**静默保持英文** ——
+    页面不会报错、不会塌,看起来一切正常,只是那一句没被翻译。
+    这类漏译靠肉眼在三个语种间来回切是抓不完的。
+    """
+    errors = []
+    for pos, tag in _iter_tags(source):
+        has_zh, has_th = "data-zh=" in tag, "data-th=" in tag
+        if has_zh == has_th:
+            continue
+        line = source.count("\n", 0, pos) + 1
+        missing = "data-th" if has_zh else "data-zh"
+        errors.append(
+            "第 %d 行:有 %s 却没有 %s —— 该语种下这一句会静默留在英文"
+            % (line, "data-zh" if has_zh else "data-th", missing))
+    return errors
+
+
 CHECKS = (
     ("整篇标签平衡", check_tag_balance),
     ("data-zh/data-th 属性值尖括号配对", check_i18n_attrs),
+    ("三语齐全(有 zh 必有 th)", check_trilingual),
+    ("data-th 不是未翻译的英文", check_thai_actually_thai),
 )
 
 
@@ -171,6 +300,68 @@ _BARE_QUOTE = (
     '</body>\n</html>\n'
 )
 
+# 判据 3 的负对照:只写了 data-zh,泰文那一版会静默留在英文
+_MISSING_TH = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="只有中文">English</p>\n'
+    '</body>\n</html>\n'
+)
+
+# 判据 3 的**另一个方向**:只写了 data-th
+_MISSING_ZH = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-th="ไทยอย่างเดียว">English</p>\n'
+    '</body>\n</html>\n'
+)
+
+# 判据 3 最容易写错的地方:属性值里有 <b>/<br>,扫描不能被它截断。
+# 这个样本**三语齐全,必须绿**。第一版用 `<[^>]*>` 扫,它是红的 —— 74 条误报。
+_TAGS_INSIDE_VALUE = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="中文<b>重点</b>与<br>换行" data-th="ไทย<b>เน้น</b>และ<br>ขึ้นบรรทัด">en<b>x</b></p>\n'
+    '</body>\n</html>\n'
+)
+
+# 判据 4 的样本
+_TH_IS_ENGLISH = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="发现冲刺" data-th="Discovery Sprint">Discovery Sprint</p>\n'
+    '</body>\n</html>\n'
+)
+_TH_REAL = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="发现冲刺" data-th="สปรินต์ค้นพบ">Discovery Sprint</p>\n'
+    '</body>\n</html>\n'
+)
+_TH_PROPER_NOUN = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="Doris" data-th="Doris">Doris</p>\n'
+    '</body>\n</html>\n'
+)
+# 专名混在句子里 —— 必须仍然红
+_TH_PROPER_NOUN_IN_SENTENCE = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="Doris 是我们的吉祥物" data-th="Doris is our mascot">Doris is our mascot</p>\n'
+    '</body>\n</html>\n'
+)
+
+_TH_SYMBOLS_ONLY = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="→" data-th="→">→</p>\n'
+    '</body>\n</html>\n'
+)
+_TH_DIGITS_ONLY = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="2026" data-th="2026">2026</p>\n'
+    '</body>\n</html>\n'
+)
+# 含域名的整句英文 —— 曾经被子串白名单放行,现在必须红
+_TH_DOMAIN_IN_SENTENCE = (
+    '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
+    '<p data-zh="完全没翻译" data-th="idoris.ai is completely untranslated">x</p>\n'
+    '</body>\n</html>\n'
+)
+
 # 普通的开合不匹配
 _UNBALANCED = (
     '<!DOCTYPE html>\n<html lang="en" data-lang="en">\n<body>\n'
@@ -187,14 +378,78 @@ def self_test():
         if fn(_CLEAN):
             failures.append("[%s] 在干净样本上误报了 —— 假阳性" % name)
 
-    # 裸引号那一车:两条判据都应该红。这正是 2026-09-05 的真实形状。
+    # 裸引号那一车:**结构类**判据都应该红。这正是 2026-09-05 的真实形状。
+    #
+    # 判据 4(data-th 里真的有泰文)不在此列 —— 它管的是**内容**不是结构,
+    # 对裸引号没有反应是正确的。把它硬塞进这个循环,只会逼人写一条
+    # 「为了让自检过」的假逻辑。**每条判据配自己的对照,不套别人的。**
+    _STRUCTURAL = ("整篇标签平衡", "data-zh/data-th 属性值尖括号配对", "三语齐全(有 zh 必有 th)")
     for name, fn in CHECKS:
+        if name not in _STRUCTURAL:
+            continue
         if not fn(_BARE_QUOTE):
             failures.append("[%s] 对「属性值裸双引号」没有反应 —— 这条判据是死的" % name)
+
+    # 判据 4 的负对照:英文原样抄进 data-th → 必须红
+    if not check_thai_actually_thai(_TH_IS_ENGLISH):
+        failures.append("[data-th 不是未翻译的英文] 对「英文抄进 data-th」没有反应 —— "
+                        "泰国读者看到的还是英文,而检查是绿的")
+
+    # 判据 4 的正对照 1:真泰文 → 必须绿
+    if check_thai_actually_thai(_TH_REAL):
+        failures.append("[data-th 不是未翻译的英文] 对真正的泰文误报了 —— 假阳性")
+
+    # 判据 4 的正对照 2:白名单里的专名 → 必须绿。
+    # 少了这一格,Doris/Cherry 这类三语本来就一样的专名会天天报错,
+    # 然后这条判据会被人整条注释掉。
+    if check_thai_actually_thai(_TH_PROPER_NOUN):
+        failures.append("[data-th 不是未翻译的英文] 把白名单里的专名报错了 —— "
+                        "天天误报的判据会被人整条注释掉")
+
+    # 白名单每一条都必须写下**为什么** —— 这是它唯一的约束。
+    # 不钉条目数(那是会过期的断言),而是让加一条必须写理由,
+    # 理由写不出来的多半不该豁免,写下的理由会出现在 diff 里。
+    for value, why in _TH_ALLOW_EXACT.items():
+        if not why or not why.strip():
+            failures.append(
+                "[data-th 不是未翻译的英文] 白名单条目 %r 没写豁免理由 —— "
+                "白名单是这条判据唯一的逃生舱,进来的每一条都要说清为什么" % value[:40])
+
+    # 判据 4 的正对照 3:纯符号/纯数字 → 必须绿。
+    # 少了这一格,第一个写 "2026" 或 "→" 的人会被推向白名单 ——
+    # 而白名单是逃生舱,越多人被推进去,这条判据越没用。
+    for sample in (_TH_SYMBOLS_ONLY, _TH_DIGITS_ONLY):
+        if check_thai_actually_thai(sample):
+            failures.append("[data-th 不是未翻译的英文] 把纯符号/纯数字报成漏译了 —— "
+                            "会把人推向白名单逃生舱")
+
+    # 判据 4 的负对照 3:**曾经的子串白名单**已删,这一格钉住它别回来。
+    if not check_thai_actually_thai(_TH_DOMAIN_IN_SENTENCE):
+        failures.append("[data-th 不是未翻译的英文] 含域名的整句英文被放行了 —— "
+                        "子串白名单又回来了")
+
+    # 判据 4 的负对照 2:专名**混在句子里**必须仍然红 ——
+    # 白名单用「完全相等」而不是子串,就是为了守住这一格。
+    if not check_thai_actually_thai(_TH_PROPER_NOUN_IN_SENTENCE):
+        failures.append("[data-th 不是未翻译的英文] 白名单退化成了子串匹配 —— "
+                        "「Doris is our mascot」这种真漏译会被放过去")
 
     # 普通失衡:判据 1 应该红
     if not check_tag_balance(_UNBALANCED):
         failures.append("[整篇标签平衡] 对普通开合不匹配没有反应 —— 这条判据是死的")
+
+    # 判据 3:两个方向都要红
+    if not check_trilingual(_MISSING_TH):
+        failures.append("[三语齐全] 对「只有 data-zh」没有反应 —— 泰文会静默留在英文")
+    if not check_trilingual(_MISSING_ZH):
+        failures.append("[三语齐全] 对「只有 data-th」没有反应 —— 中文会静默留在英文")
+
+    # 判据 3 的正对照:属性值里带 <b>/<br> 的三语元素**必须绿**。
+    # 少了这一格,一个把每行都报错的判据也是「能变红」的 —— 而它毫无用处。
+    if check_trilingual(_TAGS_INSIDE_VALUE):
+        failures.append(
+            "[三语齐全] 对属性值里带 <b>/<br> 的正常三语元素误报了 —— "
+            "扫描被属性值里的尖括号截断了(第一版就是这么错的,74 条全假)")
 
     # 单引号定界的失衡:判据 2 应该红(这一格曾经是盲区)
     if not check_i18n_attrs(_SINGLE_QUOTE_UNBALANCED):
@@ -216,9 +471,15 @@ def main(argv):
     if "--self-test" in argv:
         return self_test()
 
-    root = argv[1] if len(argv) > 1 else "site"
-    if not os.path.isdir(root):
-        print("%s✗ 目录不存在:%s%s" % (RED, root, OFF), file=sys.stderr)
+    # 默认扫 site **与 subsites**。
+    # 只扫 site 的话,子站(agent./model.)不在判据里 —— 而它们同样是"网站"的一部分,
+    # 同样用 data-zh/data-th。PR-Daemon 在 review 里指出子站漏了一条活的外链,
+    # 而我当时报的是「零残留」—— 因为我只扫了 site/。**范围没覆盖到的地方,绿灯不代表干净。**
+    roots = [argv[1]] if len(argv) > 1 and not argv[1].startswith("-") else \
+            [d for d in ("site", "subsites") if os.path.isdir(d)]
+    root = roots[0]
+    if not roots:
+        print("%s✗ 没有可扫的目录%s" % (RED, OFF), file=sys.stderr)
         return 1
 
     # 先跑正对照。判据本身坏了的话,后面所有「绿」都不作数 —— 与其给出
@@ -227,29 +488,32 @@ def main(argv):
         return 1
 
     files, bad = 0, 0
-    for dirpath, _dirnames, filenames in os.walk(root):
-        for fn in sorted(filenames):
-            if not fn.endswith(".html"):
-                continue
-            path = os.path.join(dirpath, fn)
-            with open(path, encoding="utf-8") as fh:
-                source = fh.read()
-            files += 1
-            problems = []
-            for _name, check in CHECKS:
-                problems.extend(check(source))
-            if problems:
-                bad += 1
-                print("  %s%s%s" % (RED, path, OFF), file=sys.stderr)
-                for p in problems:
-                    print("      %s" % p, file=sys.stderr)
+    for r in roots:
+      for dirpath, _dirnames, filenames in os.walk(r):
+          for fn in sorted(filenames):
+              if not fn.endswith(".html"):
+                  continue
+              path = os.path.join(dirpath, fn)
+              with open(path, encoding="utf-8") as fh:
+                  source = fh.read()
+              files += 1
+              problems = []
+              for _name, check in CHECKS:
+                  problems.extend(check(source))
+              if problems:
+                  bad += 1
+                  print("  %s%s%s" % (RED, path, OFF), file=sys.stderr)
+                  for p in problems:
+                      print("      %s" % p, file=sys.stderr)
 
     if bad:
         print("%s✗ %d 个页面结构有问题%s" % (RED, bad, OFF), file=sys.stderr)
         return 1
 
-    print("%s✓%s HTML 结构完好（%d 个页面：标签平衡 + i18n 属性未被截断）"
-          % (GRN, OFF, files))
+    # 判据名由 CHECKS 自己列出,不写死 —— 加了第三条判据而这句还停在两条,
+    # 那就是一句过期的断言,比不说更糟。
+    print("%s✓%s HTML 结构完好（%d 个页面：%s）"
+          % (GRN, OFF, files, " · ".join(name for name, _ in CHECKS)))
     return 0
 
 

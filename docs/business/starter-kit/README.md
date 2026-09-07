@@ -77,6 +77,10 @@ Assistant 的所有流程默认要人点头。自动放行是**逐用例的白�
 **例外**：数据敏感度高的客户，Voice 可以单独部署在他们机器上
 （这正是选本地 whisper 而非云 API 的原因）。
 
+> 📐 **形态与里程碑见 [`PRODUCT-FORM-AND-ROADMAP.md`](PRODUCT-FORM-AND-ROADMAP.md)** ——
+> 那份文档回答「我们卖的到底是什么」（答案：**Harness 托管 Skill，出口是 LINE**，
+> 不是 skill 也不是 agent），并给出四个产品各自的里程碑与三个瓶颈。
+
 ## 6. 实现顺序
 
 | 序 | 做什么 | 为什么是它 |

@@ -148,7 +148,7 @@ LangGraph 本身不主动出网，**但环境变量存在时会上报**。所以
 
 | # | 断言 | 影响 | 怎么核 |
 |:--|:---|:---|:---|
-| 14 | **LINE 平台商用条款**允许第三方系统代客户生成回复 | **LINE Agent 立项** | **[已核] 该条款页拒绝自动抓取**（`terms2.line.me` → HTTP 400；`developers.line.biz/en/terms/` → HTTP 403）。**必须人用浏览器打开并截图存档**，找 third party / on behalf of / agency 相关条款；拿不准走 LINE 官方 partner 渠道书面确认。**不要引用二手解读** —— 这条决定 LINE Agent 立不立项 |
+| 14 | **LINE 平台商用条款**允许第三方系统代客户生成回复 | **LINE Agent 立项 + Commerce 组件**（若不允许，`shopping-agent` 那半边在泰国直接出局，见 [`eval-anthropic-commerce-agents.md`](eval-anthropic-commerce-agents.md) §7） | **[已核] 该条款页拒绝自动抓取**（`terms2.line.me` → HTTP 400；`developers.line.biz/en/terms/` → HTTP 403）。**必须人用浏览器打开并截图存档**，找 third party / on behalf of / agency 相关条款；拿不准走 LINE 官方 partner 渠道书面确认。**不要引用二手解读** —— 这条决定 LINE Agent 立不立项 |
 | 15 | ~~LiteLLM 升级后 `enterprise/` 目录有无吞掉我们用的功能~~ | Gateway 可持续性 | **[已核] 2026-09-06** —— 见下 |
 | 16 | ~~faster-whisper 维护活跃度~~ | 是否需换方案 | **[已核] 2026-09-06** —— 见下 |
 

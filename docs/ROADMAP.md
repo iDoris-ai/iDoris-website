@@ -118,7 +118,7 @@ AI 不只是替代岗位的生产力，它也可以是**辅助人类、提升生
 
 ## 07 / 案例 & 仓库库（首批「开卡」原料）
 
-> ⚠️ 这些是**候选原料**，绝大多数是**第三方外部 demo / 仓库**。上卡前需决定：自建 playground、还是仅作为「怎么复现」的外链参考。当前实现状态见 [BACKLOG](../../ai-atlas/BACKLOG.md)（ai-atlas 仓库）。
+> ⚠️ 这些是**候选原料**，绝大多数是**第三方外部 demo / 仓库**。上卡前需决定：自建 playground、还是仅作为「怎么复现」的外链参考。当前实现状态见 [ai-atlas 的 BACKLOG](https://github.com/iDoris-ai/ai-atlas/blob/main/BACKLOG.md)（**另一个仓库** —— 原先这里写的是相对路径 `../../ai-atlas/`，在本机有 checkout 时能打开，别人和 CI 上都是死链）。
 
 ### 🎬 动画 · 🎨 涂鸦成画
 

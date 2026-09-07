@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980">
   <defs>
     <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
       <path d="M 28 0 L 0 0 0 28" fill="none" stroke="#111111" stroke-opacity="0.055" stroke-width="1"/>
@@ -7,64 +7,64 @@
       <path d="M0,0 L14,7 L0,14 z" fill="#FF5A1F"/>
     </marker>
   </defs>
-
-  <rect width="1600" height="900" fill="#FAFAF7"/>
-  <rect width="1600" height="900" fill="url(#grid)"/>
-
-  <text x="90" y="95" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4" fill="#FF5A1F">THE iDORIS PATH</text>
-  <text x="90" y="160" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="800" fill="#111111">From curiosity to AI that works.</text>
-  <text x="90" y="205" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#6E6E68">One applied-AI partner. Three levels of engagement. Start where you are.</text>
-
-  <!-- connecting path -->
-  <line x1="320" y1="472" x2="1280" y2="472" stroke="#FF5A1F" stroke-width="8" marker-end="url(#arrow)"/>
-
-  <!-- stage 1 -->
-  <rect x="90" y="300" width="410" height="350" rx="0" fill="#FAFAF7" stroke="#111111" stroke-width="3"/>
-  <rect x="90" y="300" width="410" height="18" fill="#FF5A1F"/>
-  <text x="125" y="365" font-family="Courier New, monospace" font-size="18" font-weight="700" fill="#FF5A1F">01 / DISCOVER</text>
-  <text x="125" y="420" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="800" fill="#111111">AI Discovery</text>
-  <text x="125" y="465" font-family="Arial, Helvetica, sans-serif" font-size="19" fill="#6E6E68">Schools · universities · communities</text>
-  <text x="125" y="525" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#111111">Make AI understandable.</text>
-  <text x="125" y="565" font-family="Arial, Helvetica, sans-serif" font-size="19" fill="#111111">
-    <tspan x="125" dy="0">Playful projects, beginner coding,</tspan>
-    <tspan x="125" dy="30">creative challenges and hackathon kits.</tspan>
+  <rect width="1600" height="980" fill="#FAFAF7"/>
+  <rect width="1600" height="980" fill="url(#grid)"/>
+  <text x="78" y="95" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4" fill="#FF5A1F">THE iDORIS PATH</text>
+  <text x="78" y="162" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="800" fill="#111111">Four stages. Stop after any of them.</text>
+  <text x="78" y="208" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#6E6E68">One applied-AI partner. Enter where you are — finishing Discover and doing it yourself is a success too.</text>
+  <line x1="420" y1="530" x2="438" y2="530" stroke="#FF5A1F" stroke-width="7" marker-end="url(#arrow)"/>
+  <rect x="78" y="330" width="340" height="400" fill="#FAFAF7" stroke="#111111" stroke-width="3"/>
+  <rect x="78" y="330" width="340" height="18" fill="#FF5A1F"/>
+  <text x="106" y="392" font-family="Courier New, monospace" font-size="17" font-weight="700" fill="#FF5A1F">01 / DISCOVER</text>
+  <text x="106" y="448" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="800" fill="#111111">Discover</text>
+  <text x="106" y="482" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#6E6E68">3–5 working days · on site</text>
+  <text x="106" y="542" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#111111">Measure what the work costs.</text>
+  <text x="106" y="582" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#111111">
+    <tspan x="106" dy="0">Owner interview, shadowing, annual</tspan>
+    <tspan x="106" dy="28">hours costed. Nine deliverables —</tspan>
+    <tspan x="106" dy="28">including “don’t do AI yet”.</tspan>
   </text>
-  <rect x="125" y="610" width="190" height="34" fill="#111111"/>
-  <text x="140" y="634" font-family="Courier New, monospace" font-size="16" font-weight="700" fill="#FAFAF7">OUTCOME: CURIOSITY</text>
-
-  <!-- stage 2 -->
-  <rect x="595" y="300" width="410" height="350" rx="0" fill="#FAFAF7" stroke="#111111" stroke-width="3"/>
-  <rect x="595" y="300" width="410" height="18" fill="#FF5A1F"/>
-  <text x="630" y="365" font-family="Courier New, monospace" font-size="18" font-weight="700" fill="#FF5A1F">02 / LEARN</text>
-  <text x="630" y="420" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="800" fill="#111111">AI Training</text>
-  <text x="630" y="465" font-family="Arial, Helvetica, sans-serif" font-size="19" fill="#6E6E68">Teams · staff · operators</text>
-  <text x="630" y="525" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#111111">Build capability through work.</text>
-  <text x="630" y="565" font-family="Arial, Helvetica, sans-serif" font-size="19" fill="#111111">
-    <tspan x="630" dy="0">Hands-on sessions around real roles.</tspan>
-    <tspan x="630" dy="30">We build the first useful workflow together.</tspan>
+  <text x="106" y="700" font-family="Courier New, monospace" font-size="15" font-weight="700" letter-spacing="1.5" fill="#FF5A1F">OUTCOME: A NUMBER</text>
+  <line x1="784" y1="530" x2="802" y2="530" stroke="#FF5A1F" stroke-width="7" marker-end="url(#arrow)"/>
+  <rect x="442" y="330" width="340" height="400" fill="#FAFAF7" stroke="#111111" stroke-width="3"/>
+  <rect x="442" y="330" width="340" height="18" fill="#FF5A1F"/>
+  <text x="470" y="392" font-family="Courier New, monospace" font-size="17" font-weight="700" fill="#FF5A1F">02 / ENABLE</text>
+  <text x="470" y="448" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="800" fill="#111111">Enable</text>
+  <text x="470" y="482" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#6E6E68">Teams · by role</text>
+  <text x="470" y="542" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#111111">Build capability on real cases.</text>
+  <text x="470" y="582" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#111111">
+    <tspan x="470" dy="0">Hands-on sessions using what</tspan>
+    <tspan x="470" dy="28">Discovery found in your company.</tspan>
+    <tspan x="470" dy="28">Your examples, not a deck.</tspan>
   </text>
-  <rect x="630" y="610" width="220" height="34" fill="#111111"/>
-  <text x="645" y="634" font-family="Courier New, monospace" font-size="16" font-weight="700" fill="#FAFAF7">OUTCOME: CAPABILITY</text>
-
-  <!-- stage 3 -->
-  <rect x="1100" y="300" width="410" height="350" rx="0" fill="#FAFAF7" stroke="#111111" stroke-width="3"/>
-  <rect x="1100" y="300" width="410" height="18" fill="#FF5A1F"/>
-  <text x="1135" y="365" font-family="Courier New, monospace" font-size="18" font-weight="700" fill="#FF5A1F">03 / IMPLEMENT</text>
-  <text x="1135" y="420" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="800" fill="#111111">AI Implementation</text>
-  <text x="1135" y="465" font-family="Arial, Helvetica, sans-serif" font-size="19" fill="#6E6E68">Organizations · businesses · institutions</text>
-  <text x="1135" y="525" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#111111">Put AI inside real operations.</text>
-  <text x="1135" y="565" font-family="Arial, Helvetica, sans-serif" font-size="19" fill="#111111">
-    <tspan x="1135" dy="0">Integrate proven tools and APIs.</tspan>
-    <tspan x="1135" dy="30">Build the missing industry-specific pieces.</tspan>
+  <text x="470" y="700" font-family="Courier New, monospace" font-size="15" font-weight="700" letter-spacing="1.5" fill="#FF5A1F">OUTCOME: CAPABILITY</text>
+  <line x1="1148" y1="530" x2="1166" y2="530" stroke="#FF5A1F" stroke-width="7" marker-end="url(#arrow)"/>
+  <rect x="806" y="330" width="340" height="400" fill="#FAFAF7" stroke="#111111" stroke-width="3"/>
+  <rect x="806" y="330" width="340" height="18" fill="#FF5A1F"/>
+  <text x="834" y="392" font-family="Courier New, monospace" font-size="17" font-weight="700" fill="#FF5A1F">03 / IMPLEMENT</text>
+  <text x="834" y="448" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="800" fill="#111111">Implement</text>
+  <text x="834" y="482" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#6E6E68">Skills · agents · integration</text>
+  <text x="834" y="542" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#111111">Put it inside the work.</text>
+  <text x="834" y="582" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#111111">
+    <tspan x="834" dy="0">Voice, Documents, Creative,</tspan>
+    <tspan x="834" dy="28">Assistant — already designed.</tspan>
+    <tspan x="834" dy="28">Wired to your process.</tspan>
   </text>
-  <rect x="1135" y="610" width="270" height="34" fill="#111111"/>
-  <text x="1150" y="634" font-family="Courier New, monospace" font-size="16" font-weight="700" fill="#FAFAF7">OUTCOME: WORKING SYSTEMS</text>
-
-  <!-- feedback loop -->
-  <path d="M1395 705 C1395 815, 205 815, 205 705" fill="none" stroke="#111111" stroke-width="3" stroke-dasharray="12 10" marker-end="url(#arrow)"/>
-  <rect x="570" y="760" width="460" height="62" fill="#FAFAF7" stroke="#111111" stroke-width="2"/>
-  <text x="800" y="787" text-anchor="middle" font-family="Courier New, monospace" font-size="18" font-weight="700" fill="#111111">MEASURE · LEARN · IMPROVE · EXPAND</text>
-  <text x="800" y="812" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="#6E6E68">Implementation feeds new learning; learning reveals the next opportunity.</text>
-
-  <text x="90" y="865" font-family="Courier New, monospace" font-size="16" font-weight="700" fill="#111111">iDORIS · APPLIED AI PARTNER</text>
+  <text x="834" y="700" font-family="Courier New, monospace" font-size="15" font-weight="700" letter-spacing="1.5" fill="#FF5A1F">OUTCOME: SOMETHING RUNNING</text>
+  <rect x="1170" y="330" width="340" height="400" fill="#FAFAF7" stroke="#111111" stroke-width="3"/>
+  <rect x="1170" y="330" width="340" height="18" fill="#FF5A1F"/>
+  <text x="1198" y="392" font-family="Courier New, monospace" font-size="17" font-weight="700" fill="#FF5A1F">04 / OPERATE</text>
+  <text x="1198" y="448" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="800" fill="#111111">Operate</text>
+  <text x="1198" y="482" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#6E6E68">Monthly · managed</text>
+  <text x="1198" y="542" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#111111">Keep it working.</text>
+  <text x="1198" y="582" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#111111">
+    <tspan x="1198" dy="0">Measured against the baseline.</tspan>
+    <tspan x="1198" dy="28">Tune drift, control cost.</tspan>
+    <tspan x="1198" dy="28">Value decays without this.</tspan>
+  </text>
+  <text x="1198" y="700" font-family="Courier New, monospace" font-size="15" font-weight="700" letter-spacing="1.5" fill="#FF5A1F">OUTCOME: IT STILL WORKS</text>
+  <line x1="78" y1="800" x2="1522" y2="800" stroke="#111111" stroke-width="2" stroke-opacity="0.25"/>
+  <text x="78" y="848" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#111111">You can stop after any stage.</text>
+  <text x="78" y="882" font-family="Arial, Helvetica, sans-serif" font-size="19" fill="#6E6E68">Plenty of clients finish Discover and take it from there themselves — that is a successful delivery, not a lost sale.</text>
+  <text x="78" y="932" font-family="Courier New, monospace" font-size="16" letter-spacing="2" fill="#6E6E68">iDoris · Applied AI for real work · Chiang Mai</text>
 </svg>
