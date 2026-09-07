@@ -113,8 +113,19 @@ GitHub 对 LiteLLM 返回的是 `NOASSERTION`——**这个信号本身就说明
 见 `verification-2026-09-06-voice-stack.md` —— **结论仍成立，但只适用于
 泰语支线的相邻生态，不再是主链路风险。**
 
-**[待核]** AgentEar 的成果我们能不能直接用 —— **同一个组织不等于代码可以直接搬**，
-GGML 权重转换产物的再分发义务没谈过。问 jason，进 V1 之前。
+**[已核 2026-09-07] 可以用。** AgentEar 本体 **Apache-2.0**（仓库 `LICENSE`）；
+runtime **MIT**、SenseVoice 与 FSMN-VAD **Apache-2.0**（均见其 `NOTICE`）；
+泰语 GGML 上游 `biodatlab/distill-whisper-th-large-v3` **MIT**，
+再分发只需保留版权声明，Release 已注明出处、revision 与许可。
+
+> 🔴 **但有一条条件义务，V1 必须挂上**：三个泰语候选的上游许可**不一样**。
+> `distill` 与 `turbo` 是 MIT，而 **`medium`（`biodatlab/whisper-th-medium-combined`）
+> 是 Apache-2.0** —— ADR-0004 原话「如果日后换成 Apache-2.0 的 `medium`，
+> **NOTICE 义务要重新过一遍**」。
+>
+> 而 `medium` 恰好是 CER 表里最好的那个（0.0608）——**这就是陷阱所在**。
+> 但那 0.0014 的差距**未检出**（配对 CI [−0.0142, +0.0099]），
+> 换它还要多付 425 MB 内存。**默认跟随 `distill` q5_0，别为一个测不出来的差异换许可。**
 
 ---
 

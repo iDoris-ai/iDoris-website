@@ -25,6 +25,15 @@
 
 **所以 V0 判「已完成」，但 V1/V2 的对象全部要换。**
 
+> 🧭 **定位（jason 2026-09-07，不是核出来的，是拍板的）**：
+> **AgentEar 是外部输入法组件**，未来还包括**独立的、可插入任意 agent 的
+> 「说话器官」**。
+>
+> **所以我们对它的身份是「消费者」，不是「拥有者」** —— 这解释了为什么
+> §8 那套许可与 `NOTICE` 义务是真义务而不是形式：**它是外部依赖。**
+> 也意味着 Voice 这条线将来不止是入口（听），还可能是出口（说，见
+> AgentEar `ADR-0005 tts-selection`）。
+
 ---
 
 ## 1. [已核] 主链路不是 faster-whisper
@@ -216,8 +225,57 @@ gh api 'repos/iDoris-ai/AgentEar/contents/scripts/setup-llm.sh' \
 |:--|:---|:---|:---|:---|
 | 1 | Linux x64 上把 FunASR runtime 跑起来的真实成本 | 拿一台 Linux 机器实装一次 | Dev | 只有在遇到非 Mac 客户时才做 —— 现在做是浪费 |
 | 2 | 会议室/电话/噪声场景的泰语 CER | `voice.md` §4.1 的 20 段 | Dev | V2 |
-| 3 | AgentEar 的成果我们能不能直接用（同组织，但许可与边界没谈过）| 问 jason | BD | 进 V1 之前 |
+| ~~3~~ | ~~AgentEar 的成果能不能直接用~~ | ✅ **[已核 2026-09-07]，见 §8** | — | — |
 
-> 第 3 条不要跳过。**「同一个组织」不等于「代码可以直接搬」** ——
-> AgentEar 是发布过 `.app` 的成品，它的再分发义务（GGML 权重转换产物的托管）
-> 我们没核过。
+---
+
+## 8. [已核] AgentEar 的成果可以用 —— **但有一个会咬人的条件**
+
+原来这条列为 [待核]（「同一个组织不等于代码可以直接搬」）。
+**iDoris 侧指出 AgentEar 已经核完了，我逐条复核，成立。**
+
+| 项 | 许可 | 依据（我复核过的位置）|
+|:---|:---|:---|
+| AgentEar 本体 | **Apache-2.0** | 仓库 `LICENSE`（GitHub API `.license.spdx_id`）|
+| FunASR llamacpp runtime | **MIT** | `NOTICE`，注明版本 `runtime-llamacpp-v0.1.9` |
+| SenseVoiceSmall q8 GGUF | **Apache-2.0** | `NOTICE` |
+| FSMN-VAD GGUF | **Apache-2.0** | `NOTICE` |
+| **泰语 GGML（转换后权重）** | **MIT** | ADR-0004 §（上游 `biodatlab/distill-whisper-th-large-v3`）|
+
+**我最担心的那条已经被挡掉了**：`plan-i18n-thai.md` §4 本来就立了一条门禁
+——「**在确认再分发义务之前不要开始托管**」，然后 ADR-0004 里确认：
+MIT 再分发只需保留版权声明，Release 说明已注明出处、revision 与许可。
+
+> 值得学的是**门禁的形状**：不是「记得核一下许可」，
+> 而是「**核完之前不许开始托管**」—— 把待核项挂在一个具体动作前面，
+> 而不是挂在待办列表里。
+
+### 🔴 附带条件：**选 `medium` 就要重核 NOTICE，而 `medium` 恰好是 CER 最好的那个**
+
+ADR-0004 的原话：
+
+> 上游 `biodatlab/distill-whisper-th-large-v3` 是 **MIT**，再分发只需保留版权声明……
+> **如果日后换成 Apache-2.0 的 `medium`，NOTICE 义务要重新过一遍。**
+
+三个候选的上游许可**不一样**，这是最容易踩的地方：
+
+| 代号 | HF 仓库 | 许可 | 我们表里的 CER |
+|:---|:---|:---|---:|
+| `medium` | `biodatlab/whisper-th-medium-combined` | **Apache-2.0** | **0.0608（最好）** |
+| `distill` | `biodatlab/distill-whisper-th-large-v3` | **MIT** | 0.0622（AgentEar 选定）|
+| `turbo` | `typhoon-ai/typhoon-whisper-turbo` | MIT | 0.0948 |
+
+### ⚠️ 但更该说的是：**不要为了 6.08% 去选 `medium`**
+
+**那 0.0014 的差距是数不出来的。** ADR-0004 自己的配对比较写着：
+
+> `medium` q8_0 − `distill` q5_0：Δ95%CI = **[−0.0142, +0.0099]** —— **未检出差异**
+
+**为一个测不出来的差异，换来三样确定的成本**：
+① 多占 425 MB 内存（`medium` q8_0 峰值 RSS 1137 MB vs `distill` 712 MB）；
+② Apache-2.0 的 NOTICE 义务要重新过一遍；
+③ FLEURS 污染对 `medium`/`distill` 是同向的，这个排名本来就不中立。
+
+**结论：默认跟随 AgentEar 的 `distill` q5_0。**
+只有当 §4.1 的**真实场景**评测里 `medium` 拉开**可检出**的差距时，才谈换 ——
+**而那时第一件事是重核 NOTICE，不是先上线。**
