@@ -62,14 +62,18 @@ GitHub 对 LiteLLM 返回的是 `NOASSERTION`——**这个信号本身就说明
 **这是否是问题？** 分两层，第二层还没核清：
 
 - **[已核]** 装上 ≠ 会上传数据。LangSmith 的追踪通常由环境变量开关控制。
-- **[待核]** **必须验证「完全不设任何 LangSmith 环境变量时，是否有任何出网请求」。**
-  核法：在断网容器里跑一个最小 LangGraph 流程，用 `tcpdump` 或
-  `HTTPS_PROXY` 抓包确认零出网。
-  **谁核**：Dev，在 Assistant 开工前第一件事。
-  **核之前不能做什么**：不得在任何客户环境部署 Assistant——
-  客户的会议内容、客户消息是最敏感的数据，「大概不会上传」不是可接受的答案。
+- **[已核 2026-09-05]** 已在 socket 层拦截 + 正对照验过：**不设变量时 0 次外部连接**；
+  但设 `LANGSMITH_TRACING=true` 时**确实会连** `api.smith.langchain.com`。
+  **所以风险不在库，在部署配置。** 证据见
+  [`verification-2026-09-05.md`](verification-2026-09-05.md)。
 
-**降级路径**：若确认无法完全离线，改为自己写状态机 + Postgres 存 checkpoint。
+**对策**：启动断言（`products/assistant/egress_guard.py`，检测到就**拒绝启动**）+ 部署清单。
+
+> 🔶 **2026-09-07 顺手改的（本条与 Voice 无关）**：这里原来还挂着
+> 「[待核] 必须验证零出网」和一条「改为自己写状态机」的降级路径，
+> 但 `facts-to-verify.md` P0 #1 与 `dev-plan.md` §5 都已记为 2026-09-05 解除。
+> **同一件事在三份文档里两种状态**，读到这份的人会以为 Assistant 还不能部署。
+> **降级路径已取消**（`dev-plan.md` 同款结论）。
 工作量约 2–3 天，**远低于数据外流的代价**。
 
 ---
@@ -91,20 +95,41 @@ GitHub 对 LiteLLM 返回的是 `NOASSERTION`——**这个信号本身就说明
 
 ---
 
-### 1.4 faster-whisper — Voice
+### 1.4 ~~faster-whisper~~ → SenseVoice + whisper.cpp — Voice
 
-| 项 | 值 |
-|:---|:---|
-| 仓库 | `SYSTRAN/faster-whisper` |
-| SPDX | **[已核]** `MIT` |
-| 最新版本 | **[已核]** `1.2.1`，发布于 2025-10-31 |
+> 🔶 **[已核 2026-09-07] 本条整体换掉。** Voice 的实际基础在
+> `iDoris-ai/AgentEar`，**主链路不用 faster-whisper**。
+> 完整证据见 [`verification-2026-09-07-voice-v0.md`](verification-2026-09-07-voice-v0.md)。
 
-**⚠️ 活跃度提示**：最新发布距今约 10 个月，**是本清单里最不活跃的一个**。
-不是红灯（它是稳定的推理封装，不需要频繁更新），但**[待核] 应检查
-仓库的 commit 活跃度与未解决 issue 数**，判断是否仍在维护。
+| 链路 | 组件 | 许可 | 备注 |
+|:---|:---|:---|:---|
+| **主链路** | SenseVoiceSmall q8 GGUF | **[已核]** Apache-2.0 | 242 MiB |
+| 主链路 | FunASR llamacpp runtime | **[已核]** 取上游**发布产物** `runtime-llamacpp-*` | ⚠️ **产物停发 = 断供** |
+| 主链路 | fsmn-vad GGUF | 同上游 | 静音切分 |
+| **泰语支线** | whisper.cpp | **[已核]** MIT | 单二进制 |
+| 泰语支线 | `distill` q5_0 GGML | **[已核]** MIT | ⚠️ **我们要托管转换后的 GGML 产物 —— 再分发义务是真的，不是形式** |
 
-**[待核]** **Whisper 模型权重（large-v3 等）的许可需单独确认**——
-OpenAI 发布的 whisper 权重通常是 MIT，但要核实我们实际下载的那一份。
+**⚠️ 新的活跃度关注点**：不再是「某个库停更」，而是
+**「上游还发不发 runtime 产物」**。对策：锁版本 **+ 自留一份产物副本**
+（版本号锁不住上游删 release）。
+
+**[已核] 原来那条 faster-whisper 的核查**（停更 9.5 个月、CUDA 活口子）
+见 `verification-2026-09-06-voice-stack.md` —— **结论仍成立，但只适用于
+泰语支线的相邻生态，不再是主链路风险。**
+
+**[已核 2026-09-07] 可以用。** AgentEar 本体 **Apache-2.0**（仓库 `LICENSE`）；
+runtime **MIT**、SenseVoice 与 FSMN-VAD **Apache-2.0**（均见其 `NOTICE`）；
+泰语 GGML 上游 `biodatlab/distill-whisper-th-large-v3` **MIT**，
+再分发只需保留版权声明，Release 已注明出处、revision 与许可。
+
+> 🔴 **但有一条条件义务，V1 必须挂上**：三个泰语候选的上游许可**不一样**。
+> `distill` 与 `turbo` 是 MIT，而 **`medium`（`biodatlab/whisper-th-medium-combined`）
+> 是 Apache-2.0** —— ADR-0004 原话「如果日后换成 Apache-2.0 的 `medium`，
+> **NOTICE 义务要重新过一遍**」。
+>
+> 而 `medium` 恰好是 CER 表里最好的那个（0.0608）——**这就是陷阱所在**。
+> 但那 0.0014 的差距**未检出**（配对 CI [−0.0142, +0.0099]），
+> 换它还要多付 425 MB 内存。**默认跟随 `distill` q5_0，别为一个测不出来的差异换许可。**
 
 ---
 
@@ -220,7 +245,8 @@ OpenAI 发布的 whisper 权重通常是 MIT，但要核实我们实际下载的
 | LiteLLM | MIT（`enterprise/` 除外） | ✅ 用 | 绝不碰 `enterprise/` |
 | LangGraph | MIT | ⚠️ 待验证离线 | 确认零出网前不进客户环境 |
 | Docling | MIT | ✅ 用 | OCR 权重许可待核 |
-| faster-whisper | MIT | ✅ 用 | 权重许可待核；活跃度待观察 |
+| ~~faster-whisper~~ **SenseVoiceSmall** | Apache-2.0 | ✅ 用 | **[已核 2026-09-07]** 主链路已换；风险改为「上游 runtime 产物停发」|
+| **whisper.cpp + `distill` q5_0** | MIT | ✅ 用 | 泰语支线；**托管 GGML 产物有再分发义务** |
 | pgvector | PostgreSQL License | ✅ 用 | 无 |
 | LINE SDK | Apache-2.0 | ✅ 用 | 平台服务条款待核 |
 | ComfyUI | **GPL-3.0** | ⚠️ 仅隔离调用 | 不 import、不 vendor、不同镜像 |
@@ -231,9 +257,10 @@ OpenAI 发布的 whisper 权重通常是 MIT，但要核实我们实际下载的
 ## 5. 待核清单（汇总进 `facts-to-verify.md`）
 
 1. LangGraph 完全离线时是否零出网 —— **Dev，Assistant 开工前，阻塞客户部署**
-2. Whisper 权重许可 —— Dev，Voice 商业交付前
+2. ~~Whisper 权重许可~~ **[已核 2026-09-07] 已不适用**（链路已换）。接替它的是：**首次实装 AgentEar 把「能跑/离线」从自述变实测** —— Dev，Voice 商业交付前
 3. Docling OCR 权重许可 —— Dev，Documents 商业交付前
 4. 图像模型权重许可 —— Dev，**Creative 图像部分交付前，阻塞**
 5. LINE 平台商用服务条款 —— BD/PM，LINE Agent 立项前
 6. LiteLLM 升级时 `enterprise/` 目录变化 —— Dev，每次升级
-7. faster-whisper 维护活跃度 —— Dev，季度复查
+7. ~~faster-whisper 维护活跃度~~ → **`modelscope/FunASR` 还发不发 `runtime-llamacpp-*` 产物** —— Dev，季度复查
+8. **AgentEar 成果的内部使用边界与再分发义务** —— BD 问 jason，Voice V1 之前

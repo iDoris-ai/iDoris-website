@@ -169,7 +169,11 @@
 - **目标**：已有的东西到什么程度、缺什么才能当产品演示
 - **开发范围**：`docs/business/starter-kit/voice.md`。含现状盘点、
   泰语识别质量的评测方法、三语混合输入的处理、语音→文档模板的衔接
-- **验收命令**：`grep -q "faster-whisper\|whisper" docs/business/starter-kit/voice.md && grep -q "泰语" docs/business/starter-kit/voice.md`
+- **验收命令**：`grep -q "SenseVoice" docs/business/starter-kit/voice.md && grep -q "AgentEar" docs/business/starter-kit/voice.md && grep -q "泰语" docs/business/starter-kit/voice.md`
+  > 🔶 **2026-09-07 改过这条判据。** 原来 grep 的是 `faster-whisper\|whisper`，
+  > 而 [已核] 主链路根本不是 whisper —— 那条判据**会因为「泰语支线用 whisper.cpp」
+  > 而继续变绿**，绿灯的含义早就不是它当初要证明的那件事了。
+  > 这正是 `architecture.md` §5 第 9 条：**断言能因为别的原因变绿。**
 
 ### T2.2.2 Documents 组件设计  `DONE`
 - **优先级**：**highest**

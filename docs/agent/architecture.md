@@ -35,7 +35,7 @@ flowchart TD
     subgraph OSS["开源基座（不自建）"]
         LL[LiteLLM<br/>模型路由]
         LG[LangGraph<br/>Agent 状态机]
-        WH[faster-whisper<br/>语音]
+        WH[SenseVoice + whisper.cpp<br/>语音·经 AgentEar]
         DL[Docling<br/>文档解析]
         PG[(Postgres + pgvector)]
         CF[ComfyUI<br/>图像 · GPL 隔离]
@@ -133,7 +133,7 @@ flowchart LR
 
 | 模块 | 开源基座 | 我们加的 |
 |:---|:---|:---|
-| **Voice** | faster-whisper | 泰语优化、三语混合输入、语音→文档模板 |
+| **Voice** | **SenseVoice + whisper.cpp**（经 AgentEar，外部组件）| 泰语优化、三语混合输入（**当前 code-switch 未达标**）、语音→文档模板 |
 | **Office** | Docling + Gateway | 摘要/改写/对比/翻译/抽取的 Skill 化封装 |
 | **Creative** | ComfyUI（**独立进程**） | 品牌一致性模板、社媒尺寸预设 |
 | **Assistant** | LangGraph + Gateway | 会议→任务、邮件→草稿、LINE→建议回复 |
@@ -235,7 +235,7 @@ human-in-the-loop 断点）。
 | 模型网关 | LiteLLM | 自建 | 自建等于重写一遍别人做了两年的事 |
 | 向量库 | pgvector | Qdrant / Milvus | 一个 Postgres 撑到几百万向量没问题，少一个要运维的东西 |
 | 文档解析 | Docling | Unstructured | Docling 对表格与扫描件更好，MIT 更干净 |
-| 语音 | faster-whisper | 云 API | 泰语数据敏感度高，本地跑是卖点不是成本 |
+| 语音 | **SenseVoice + whisper.cpp**（本地，经 AgentEar）| 云 API | 泰语数据敏感度高，本地跑是卖点不是成本。**[已核 2026-09-07] 2026-09-07 前记的是 faster-whisper，已更正** |
 | 图像 | ComfyUI 独立服务 | 集成进主程序 | GPL 传染，只能隔离 |
 | 前端 | 先不做 | Open WebUI | 前 3 个客户不需要自己的前端，Skill + 现有工具够用 |
 

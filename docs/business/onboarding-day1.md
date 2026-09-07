@@ -187,7 +187,7 @@ Implement（真的做出来）→ Operate（保证它继续能用）。
 |:---|:---|
 | Day 1 | 读完必读五份；**把三条 License 红线背下来** |
 | Day 2 | 读 `starter-kit/` 四份组件设计 + `gateway-design.md` |
-| Day 3 | **做 Voice 现状盘点**（`starter-kit/voice.md` §1 的四个问题）|
+| Day 3 | ~~做 Voice 现状盘点~~ **已于 2026-09-07 完成，不要重做。** 改为：读 `verification-2026-09-07-voice-v0.md`，然后做它 §7 的 [待核] 第 1 条（**装一次 AgentEar，把「跑得起来」从自述变成实测**）|
 | Day 4 | **验证 LangGraph 完全离线**（`oss-due-diligence.md` §1.2 的待核项）|
 | Day 5 | 跑一遍 `score.py --self-test`，理解我们对「判据要能变红」的要求 |
 
@@ -214,29 +214,32 @@ Implement（真的做出来）→ Operate（保证它继续能用）。
    越线后果：整个 iDoris Core 被传染成 GPL，**不可逆**。
 2. **LiteLLM 的 `enterprise/` 目录另有许可**，绝不引用。
 3. **模型权重的许可独立于代码。** 代码 MIT 不代表权重可商用 —— 这一条吃过亏。
-   Voice 的三层已核（全部 MIT，可商用）；**图像模型权重仍 [待核]**
+   Voice 已核（主链路 SenseVoice/FSMN-VAD 为 Apache-2.0，泰语 `distill` 为 MIT，均可商用；
+   **注意三个泰语候选许可不同，换 `medium` 要重做审查**）；**图像模型权重仍 [待核]**
    （尚未选定具体模型，无从核起），**核清前 Creative 图像部分不对外交付**。
 
 ### 你的第一个产出物
 
-**Voice 现状盘点报告**。回答四个问题：
-用的哪个 whisper 实现与模型尺寸 / 泰语是否单独调过 /
-有没有可跑的 demo 入口 / 部署形态（本地还是云）。
+**AgentEar 首次实装报告** —— 把 Voice 那批「自述」变成「实测」。
 
-**为什么是这个**：整个 Starter Kit 的演示计划建立在「Voice 已有基础」这个假设上，
-而这个假设**从没被核实过**。不能在假设上继续叠设计。
+> 🔶 **原来这里写的是「Voice 现状盘点」，[已核 2026-09-07] 已完成，别重做。**
+> 结论见 [`verification-2026-09-07-voice-v0.md`](verification-2026-09-07-voice-v0.md)：
+> 基础在 `iDoris-ai/AgentEar`，主链路是 SenseVoiceSmall + FunASR llamacpp
+> runtime，**不是 faster-whisper**；泰语是独立的 whisper.cpp 引擎。
+> 旧的 `faster-whisper × ctranslate2` 版本配对与 GPU 路径验证**整套作废**
+> —— 现在是 CPU/Metal 单二进制，没有 GPU 环境要管。
 
-**这两件已经核过了，别重复劳动**（见 [`verification-2026-09-06-voice-stack.md`](verification-2026-09-06-voice-stack.md)）：
+**为什么改成这个**：那份盘点全靠读文档和查 API 完成，
+**所有「跑得起来」的结论目前都只是 AgentEar 自述，我们一次都没装过。**
+这正是我们自己写的第 9 条边界要防的事 —— **「产物存在」不等于「跑得起来」**。
 
-- **许可** [已核] `faster-whisper` / `CTranslate2` / `large-v3` 权重**三层全部 MIT，可商用**
-- **维护状况** [已核] `faster-whisper` **维护者停更 9 个多月**（最后提交 2025-11-19），
-  而推理后端 `CTranslate2` 仍在活跃发版。CUDA 兼容问题从 2024-10-24 open 至今，
-  修复 PR **被关掉未合并**
+**你的报告要回答**：
+1. 在一台 Apple Silicon Mac 上装上 `.app`，**真的能录能转写吗**？
+2. 那三个自述数字（7.4 秒录音全程 7.8 秒、空闲常驻 13 MB）**复测下来是多少**？
+3. **断网之后还能不能转写**？（「录音不出你的机器」这句卖点靠它成立）
+4. 泰语走的那条 whisper.cpp 支线，**按需下载的模型能不能拉下来**？
 
-**所以你的报告要多回答一件事**：现有部署用的是哪一对
-`faster-whisper` × `ctranslate2` 版本组合，GPU 路径实测能不能跑。
-那个报错（`This CTranslate2 package was not compiled with CUDA`）
-**在 import 阶段不出现，跑起来才出现** —— 只验 import 成功等于没验。
+**四个答案写回 `verification-2026-09-07-voice-v0.md`，把 [AgentEar 自述] 改成 [已核]。**
 
 ### 遇到这些情况停下来问人
 

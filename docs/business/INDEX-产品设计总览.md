@@ -65,7 +65,7 @@
 |:---|:---|:---|:---|
 | [`starter-kit/README.md`](starter-kit/README.md) | 总览与共用契约 | 全经 Gateway · 输出带 usage 与出处 · 默认人工审批 | — |
 | [`starter-kit/PRODUCT-FORM-AND-ROADMAP.md`](starter-kit/PRODUCT-FORM-AND-ROADMAP.md) | **形态与里程碑** | 三层：界面 / Skill / Harness | 四条产品线的 V/D/C/A 里程碑 |
-| [`starter-kit/voice.md`](starter-kit/voice.md) | Voice | 录音不出客户机器 | **零代码**（V0 现状盘点是硬阻塞，需读 iDoris 代码仓库）|
+| [`starter-kit/voice.md`](starter-kit/voice.md) | Voice | 录音不出客户机器**（限 Apple Silicon Mac）** | 本仓库零代码，但 **[已核 2026-09-07] 基础在 `iDoris-ai/AgentEar`**，V0 已解除 |
 | [`starter-kit/documents.md`](starter-kit/documents.md) | Documents | 每条结论点回原文那一段 | **六动作建成五个**，72 条变异测试 |
 | [`starter-kit/creative.md`](starter-kit/creative.md) | Creative | 字数按各平台真实单位算 | `copy` 已建，15 条变异；图像等权重许可 |
 | [`starter-kit/assistant.md`](starter-kit/assistant.md) | Assistant | 默认全审，自动放行是白名单 | 审批队列 + 出网闸门已建，16 条变异 |
@@ -73,8 +73,14 @@
 
 ### ⚠️ 一件容易自欺的事
 
-五个 Documents 动作、Creative 的 `copy`，**规则都写好了、113 条变异都测过了 ——
+五个 Documents 动作、Creative 的 `copy`，**规则都写好了、87 条变异都测过了 ——
 但没有一条真的连过模型**（函数签名全是 `f(..., model_output)`）。
+
+> 📐 **这里点名的是 87 条，不是全部 113 条**：Documents 72 + Creative 15 = 87
+> 才落在「连没连过模型」这根轴上。Assistant 16 + Gateway 10 那 26 条测的是
+> **启动期环境变量与路由顺序**，根本不在这根轴上。
+> **数字大了是小事，告诫被扩大是大事** —— 而这是索引文档，
+> 它的全部价值就是让人不必自己去数。
 
 **这不是「快完成了」，是「完成了一半」。** 另一半是真实调用里才会暴露的东西：
 超时、限流、输出格式漂移、成本。
@@ -146,7 +152,7 @@
 | 阻塞项 | 卡着什么 | 谁能解 |
 |:---|:---|:---|
 | **iDoris Router 的多租户实现** | Documents D7 · Creative C2 · Assistant A4 之后的一切 | iDoris 侧（契约已给，等他们起 workspace）|
-| **Voice V0 现状盘点** | 整条 Voice 线 | Dev，**需读 iDoris 代码仓库**（不在本仓库）|
+| ~~**Voice V0 现状盘点**~~ | ~~整条 Voice 线~~ | ✅ **2026-09-07 已解除** —— 基础在 `iDoris-ai/AgentEar`，见 [`verification-2026-09-07-voice-v0.md`](verification-2026-09-07-voice-v0.md)。**新的已知限制**：本地部署限 Apple Silicon Mac |
 | **LINE 平台商用条款** | LINE Agent 立项 + Commerce 组件的顾客侧 | BD，**条款页拒绝机器抓取，须人用浏览器看并截图** |
 | **图像模型权重许可** | Creative 图像部分 | Dev，**尚未选定模型，无从核起** |
 | **dSURE 覆不覆盖纯软件** | ISO/IEC 29110 那笔认证投入 | BD，**一通电话**（+66 8 6430 2278）|
