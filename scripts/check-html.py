@@ -194,7 +194,8 @@ _TH_ALLOW_EXACT = {
     "Blog": "导航词,三语站点均保留英文",
     "Meetup": "产品名",
     "✍️ Blog / WeChat": "两个产品名 + emoji,无可译成分",
-    "Hyphae · Memory · Context · Skill": "产品名 + 四个技术术语,泰文技术文档同样用英文原词",
+    "Agent24 &amp; Hyphae · Memory · Context · Skill":
+        "两个产品名 + 四个技术术语,泰文技术文档同样用英文原词",
     '<a href=&quot;https://blog.mushroom.cv&quot;>blog.mushroom.cv ↗</a>':
         "纯外链,域名不译",
 }
