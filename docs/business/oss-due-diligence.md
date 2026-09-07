@@ -91,20 +91,30 @@ GitHub 对 LiteLLM 返回的是 `NOASSERTION`——**这个信号本身就说明
 
 ---
 
-### 1.4 faster-whisper — Voice
+### 1.4 ~~faster-whisper~~ → SenseVoice + whisper.cpp — Voice
 
-| 项 | 值 |
-|:---|:---|
-| 仓库 | `SYSTRAN/faster-whisper` |
-| SPDX | **[已核]** `MIT` |
-| 最新版本 | **[已核]** `1.2.1`，发布于 2025-10-31 |
+> 🔶 **[已核 2026-09-07] 本条整体换掉。** Voice 的实际基础在
+> `iDoris-ai/AgentEar`，**主链路不用 faster-whisper**。
+> 完整证据见 [`verification-2026-09-07-voice-v0.md`](verification-2026-09-07-voice-v0.md)。
 
-**⚠️ 活跃度提示**：最新发布距今约 10 个月，**是本清单里最不活跃的一个**。
-不是红灯（它是稳定的推理封装，不需要频繁更新），但**[待核] 应检查
-仓库的 commit 活跃度与未解决 issue 数**，判断是否仍在维护。
+| 链路 | 组件 | 许可 | 备注 |
+|:---|:---|:---|:---|
+| **主链路** | SenseVoiceSmall q8 GGUF | **[已核]** Apache-2.0 | 242 MiB |
+| 主链路 | FunASR llamacpp runtime | **[已核]** 取上游**发布产物** `runtime-llamacpp-*` | ⚠️ **产物停发 = 断供** |
+| 主链路 | fsmn-vad GGUF | 同上游 | 静音切分 |
+| **泰语支线** | whisper.cpp | **[已核]** MIT | 单二进制 |
+| 泰语支线 | `distill` q5_0 GGML | **[已核]** MIT | ⚠️ **我们要托管转换后的 GGML 产物 —— 再分发义务是真的，不是形式** |
 
-**[待核]** **Whisper 模型权重（large-v3 等）的许可需单独确认**——
-OpenAI 发布的 whisper 权重通常是 MIT，但要核实我们实际下载的那一份。
+**⚠️ 新的活跃度关注点**：不再是「某个库停更」，而是
+**「上游还发不发 runtime 产物」**。对策：锁版本 **+ 自留一份产物副本**
+（版本号锁不住上游删 release）。
+
+**[已核] 原来那条 faster-whisper 的核查**（停更 9.5 个月、CUDA 活口子）
+见 `verification-2026-09-06-voice-stack.md` —— **结论仍成立，但只适用于
+泰语支线的相邻生态，不再是主链路风险。**
+
+**[待核]** AgentEar 的成果我们能不能直接用 —— **同一个组织不等于代码可以直接搬**，
+GGML 权重转换产物的再分发义务没谈过。问 jason，进 V1 之前。
 
 ---
 
@@ -220,7 +230,8 @@ OpenAI 发布的 whisper 权重通常是 MIT，但要核实我们实际下载的
 | LiteLLM | MIT（`enterprise/` 除外） | ✅ 用 | 绝不碰 `enterprise/` |
 | LangGraph | MIT | ⚠️ 待验证离线 | 确认零出网前不进客户环境 |
 | Docling | MIT | ✅ 用 | OCR 权重许可待核 |
-| faster-whisper | MIT | ✅ 用 | 权重许可待核；活跃度待观察 |
+| ~~faster-whisper~~ **SenseVoiceSmall** | Apache-2.0 | ✅ 用 | **[已核 2026-09-07]** 主链路已换；风险改为「上游 runtime 产物停发」|
+| **whisper.cpp + `distill` q5_0** | MIT | ✅ 用 | 泰语支线；**托管 GGML 产物有再分发义务** |
 | pgvector | PostgreSQL License | ✅ 用 | 无 |
 | LINE SDK | Apache-2.0 | ✅ 用 | 平台服务条款待核 |
 | ComfyUI | **GPL-3.0** | ⚠️ 仅隔离调用 | 不 import、不 vendor、不同镜像 |
@@ -236,4 +247,5 @@ OpenAI 发布的 whisper 权重通常是 MIT，但要核实我们实际下载的
 4. 图像模型权重许可 —— Dev，**Creative 图像部分交付前，阻塞**
 5. LINE 平台商用服务条款 —— BD/PM，LINE Agent 立项前
 6. LiteLLM 升级时 `enterprise/` 目录变化 —— Dev，每次升级
-7. faster-whisper 维护活跃度 —— Dev，季度复查
+7. ~~faster-whisper 维护活跃度~~ → **`modelscope/FunASR` 还发不发 `runtime-llamacpp-*` 产物** —— Dev，季度复查
+8. **AgentEar 成果的内部使用边界与再分发义务** —— BD 问 jason，Voice V1 之前

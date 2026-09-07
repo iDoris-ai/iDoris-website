@@ -131,7 +131,7 @@ Skill Pack 本质是「针对某个角色的日常工作，预配好的一组 Sk
 |:--|:---|:---|:---|
 | 1 | Discovery Skill | ✅ v0.1 | — |
 | 2 | Discovery 样例 | 待做 | 无（可立即做） |
-| 3 | Starter Kit | 设计完成 | Voice 现状待盘点 |
+| 3 | Starter Kit | 设计完成 | ~~Voice 现状待盘点~~ **[已核 2026-09-07]** 基础在 `iDoris-ai/AgentEar`；新瓶颈是**本地部署限 Apple Silicon Mac** |
 | 4 | AI Gateway | 设计完成 | 无（可立即做） |
 | 5 | Skill Pack 规格 | 待设计 | 依赖 Starter Kit 能跑 |
 | 6 | LINE Agent | 设计完成 | 依赖 Assistant |

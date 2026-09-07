@@ -1,5 +1,22 @@
 # 核查记录 · 2026-09-06 · Voice 技术栈的维护状况
 
+> 🔶 **2026-09-07 适用范围变更 —— 先读这一段。**
+> 本文关于 faster-whisper 的核查**证据与结论都仍然成立**，
+> 但它**核的不是我们的主链路**。[已核 2026-09-07] Voice 的实际基础在
+> `iDoris-ai/AgentEar`，主链路是 **SenseVoiceSmall + FunASR llamacpp runtime**，
+> 不用 faster-whisper，也不用 CTranslate2。
+>
+> **所以本文 §「这对我们意味着什么」里的两条行动（锁 faster-whisper×ctranslate2
+> 版本、部署时显式验 GPU 路径）不再是 V1 的内容** —— 现在的链路是
+> CPU/Metal 单二进制，没有 GPU 环境要管。
+>
+> **不删本文的理由**：泰语支线走 whisper.cpp，whisper 生态的维护状况仍与我们相关，
+> 只是从「主链路存亡」降级为「相邻生态」。
+> 新的现状与新的上游风险见
+> [`verification-2026-09-07-voice-v0.md`](verification-2026-09-07-voice-v0.md)。
+>
+> ⚠️ 本文的 **§15（LiteLLM `enterprise/`）不受影响，结论完全有效。**
+
 > 核 `facts-to-verify.md` 的 P1 第 15、16 条。
 > 方法：GitHub API 直读仓库元数据与提交历史，不依赖二手描述。
 > 核的人：Dev。**证据命令都写在下面，可复现。**

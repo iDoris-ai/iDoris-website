@@ -52,7 +52,7 @@
 
 | 环节 | 工具 | 说明 |
 |:---|:---|:---|
-| 访谈录音与转写 | **iDoris Voice**（faster-whisper） | 泰/英/中混合。**录音前必须口头征得同意并记录在案** |
+| 访谈录音与转写 | **iDoris Voice**（AgentEar：SenseVoiceSmall；泰语走 whisper.cpp）| 泰/英/中混合。**录音前必须口头征得同意并记录在案**。⚠️ **要 Apple Silicon Mac** |
 | 转写后整理 | iDoris Office（summarize / extract） | 把转写稿抽成痛点条目 |
 | 泳道图 | Mermaid（写在 md 里） | 不用 Visio，交付物要能进 git |
 | 评分与矩阵 | `discovery-skill/scripts/score.py` | 输入五维分 → 出矩阵与排序 |
@@ -279,7 +279,7 @@ sample-discovery-<客户代号>/
 ```
 这个用例的核心动作是什么？
 ├── 读文档 / 抽信息 / 对比 → Documents 模块（Docling + Gateway）
-├── 说话变文字 / 会议纪要 → Voice 模块（faster-whisper）
+├── 说话变文字 / 会议纪要 → Voice 模块（SenseVoice + whisper.cpp 泰语支线）
 ├── 出图 / 出文案 / 社媒素材 → Creative 模块（ComfyUI 独立服务 + Gateway）
 ├── 多步骤 + 中间要人点头 → Assistant 模块（LangGraph）
 └── 客户在 LINE 上被问同样的问题 → LINE Agent 蓝图（先做半自动版）

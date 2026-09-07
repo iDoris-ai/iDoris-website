@@ -1,7 +1,7 @@
 # Thailand AI Starter Kit v0.1 — 总体设计
 
 > 四个组件的定位、边界与装配方式。各组件详设见同目录下的四份文档。
-> 版本：v0.1 · 2026-09-05
+> 版本：v0.2 · 2026-09-07（Voice 现状已核；§5 例外条款补平台前提）
 
 ## 1. 这个 Kit 解决的是什么
 
@@ -16,7 +16,7 @@
 
 | 组件 | 一句话 | 状态 | 详设 |
 |:---|:---|:---|:---|
-| **Voice** | 说话变文字，泰英中混合 | **已有基础**，待盘点 | [`voice.md`](voice.md) |
+| **Voice** | 说话变文字，泰英中混合 | **[已核 2026-09-07] 基础在 `iDoris-ai/AgentEar`** —— 已发布 `.app`，但**限 Apple Silicon Mac**（§5）| [`voice.md`](voice.md) |
 | **Documents** | 六个动作：摘要/抽取/对比/翻译/改写/检索 | 待实现 | [`documents.md`](documents.md) |
 | **Creative** | 社媒素材 + 泰英文案 | 待实现（**GPL 风险最高**） | [`creative.md`](creative.md) |
 | **Assistant** | 五条流程，每条都有人工审批 | 待实现（**最复杂**） | [`assistant.md`](assistant.md) |
@@ -75,7 +75,18 @@ Assistant 的所有流程默认要人点头。自动放行是**逐用例的白�
 - 我们要能快速改——第一批客户本质上是在帮我们把产品跑通
 
 **例外**：数据敏感度高的客户，Voice 可以单独部署在他们机器上
-（这正是选本地 whisper 而非云 API 的原因）。
+（这正是选本地 ASR 而非云 API 的原因）。
+
+> 🔴 **但这个例外有平台前提，[已核 2026-09-07]，谈客户前必须知道**：
+>
+> | 客户的机器 | 我们能给什么 |
+> |:---|:---|
+> | **Apple Silicon Mac**（M1+ / macOS 11+）| **开箱即用**，下载 `.app` |
+> | Linux / Windows **x64** | 上游 runtime 产物存在，但**要我们自己组装，未实测** |
+> | **Intel Mac** | **不行。** 上游从没发过 macOS x64 版 ASR 运行时 |
+>
+> 所以对客户的准确说法是「**如果你们用 Apple Silicon Mac，可以**」，
+> 不是无条件的「可以」。详见 [`voice.md`](voice.md) §7。
 
 > 📐 **形态与里程碑见 [`PRODUCT-FORM-AND-ROADMAP.md`](PRODUCT-FORM-AND-ROADMAP.md)** ——
 > 那份文档回答「我们卖的到底是什么」（答案：**Harness 托管 Skill，出口是 LINE**，
@@ -85,7 +96,7 @@ Assistant 的所有流程默认要人点头。自动放行是**逐用例的白�
 
 | 序 | 做什么 | 为什么是它 |
 |:--|:---|:---|
-| 1 | **Voice 现状盘点** | 整个 Kit 的演示计划建立在它之上，不能在假设上叠设计 |
+| ~~1~~ | ~~**Voice 现状盘点**~~ | ✅ **已完成 2026-09-07** —— 见 [`../verification-2026-09-07-voice-v0.md`](../verification-2026-09-07-voice-v0.md)。**假设成立但技术栈四项全错**，`voice.md` 已整体重写 |
 | 2 | **Assistant「会议→纪要→任务」** | 唯一能自己演示（不需客户数据）；一条跑通验证整个骨架 |
 | 3 | **Documents `extract` + `translate`** | 演示效果最直接，技术风险最低 |
 | 4 | **Creative `copy`（纯文案）** | 零 License 风险，可在图像部分尽调期间先交付 |

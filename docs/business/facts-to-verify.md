@@ -36,7 +36,7 @@
 |:--|:---|:---|:---|:---|:---|
 | ~~1~~ | **LangGraph 完全离线时零出网** | — | ~~阻塞~~ **已解除** | **[已核 2026-09-05]** socket 层拦截 + 正对照。不设变量时 **0 次外部连接**；但设 `LANGSMITH_TRACING=true` 时**确实会连** `api.smith.langchain.com`。**风险不在库，在部署配置** —— 见下方「新增控制手段」 | ✅ |
 | 2 | **图像生成模型权重可商用** | 未核 | **Creative 图像部分不对外交付** | 找到权重发布页/model card，读 license 段的 commercial use 条款 | Dev |
-| 3 | **Voice 组件现状**（哪个 whisper 实现、泰语调过没、有无 demo、部署形态） | 源文档一句「你已经有 Thai/English/Chinese Voice Input」 | **整个 Starter Kit 演示计划** | 读 iDoris 代码仓库 | Dev |
+| ~~3~~ | **Voice 组件现状** | ~~源文档一句话~~ | ~~阻塞~~ **已解除** | **[已核 2026-09-07]** 基础在 `iDoris-ai/AgentEar`（不在 iDoris 主仓库）。主链路 = SenseVoiceSmall q8 + FunASR llamacpp runtime，**不是 whisper**；泰语是**独立的 whisper.cpp 引擎**；有发布版 `.app`；本地全离线但**限 Apple Silicon Mac**。见 `verification-2026-09-07-voice-v0.md` | ✅ |
 | ~~4~~ | **Whisper 模型权重许可** | — | ~~阻塞~~ **已解除** | **[已核 2026-09-05]** `Systran/faster-whisper-large-v3` = **MIT**；`openai/whisper-large-v3` = Apache-2.0。**可商用** | ✅ |
 | ~~5~~ | **Docling 的 OCR/版面模型权重许可** | — | ~~阻塞~~ **已解除**（有条件）| **[已核 2026-09-05]** `ds4sd/docling-models` = CDLA-Permissive-2.0 + Apache-2.0；`DocumentFigureClassifier` = MIT。**可商用**。条件：**第一版只用 Docling 自带模型，不启用外部 OCR 引擎**（EasyOCR/Tesseract 许可需另核）| ✅ |
 
@@ -175,9 +175,10 @@ LangGraph 本身不主动出网，**但环境变量存在时会上报**。所以
 但检查频率从「每次升级」提到「每次升级 + 每季度主动扫目录结构」——
 缺口是在我们不升级的时候变宽的。
 
-**[待核] 备选语音方案**（`whisper.cpp` / `WhisperX` / 活跃 fork）
-的泰语准确率与许可 —— **只有在锁版本方案实测不通过时才核，现在核是浪费。**
-核法：各仓库 LICENSE + `dev-plan.md` 阶段 A 的「Voice 泰语评测」那一步。谁核：Dev。
+~~**[待核] 备选语音方案**（`whisper.cpp` / `WhisperX` / 活跃 fork）~~
+**[已核 2026-09-07] 这条问题本身作废** —— 我们并不在「faster-whisper 要不要换」
+这个岔口上。实际主链路是 SenseVoiceSmall，**泰语用的正是 `whisper.cpp`**
+（MIT，已核，有 ADR 固定模型指纹）。见 `verification-2026-09-07-voice-v0.md`。
 
 ---
 
