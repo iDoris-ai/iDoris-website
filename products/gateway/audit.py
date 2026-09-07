@@ -77,6 +77,10 @@ class AuditRecord:
     tokens_in: int
     tokens_out: int
     cost_usd: float
+    # ⚠️ 迁移到 iDoris Router 时改成 `cost_minor: int`（整数最小货币单位）——
+    # 契约 v1 用的是 `*_minor`,浮点在累加计费上会漂。
+    # **我们没有历史数据要换算**(从没跑过真实调用),所以一次改干净即可,
+    # 不需要定舍入方向。见 docs/business/todo.md 的 T-0。
     latency_ms: int
     status: str             # ok / error / blocked / degraded
     routing_reason: str = ""   # 路由决策的理由，来自 RoutingEngine.Decision
