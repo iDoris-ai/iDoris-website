@@ -190,7 +190,9 @@ Implement（真的做出来）→ Operate（保证它继续能用）。
 
 ### 你的必读五份（按顺序）
 
-1. [`../agent/architecture.md`](../agent/architecture.md) — **八条不可破边界**
+1. [`../agent/architecture.md`](../agent/architecture.md) — **不可破边界**（第 5 节）。
+   **第 9 条尤其要背**：绿灯不代表你以为的那件事成立 —— 写任何检查之前先问
+   「这个断言能不能因为别的原因变绿？它的量纲对得上要抓的错误方向吗？」
 2. [`oss-due-diligence.md`](oss-due-diligence.md) — **License 红线与待核清单**
 3. [`dev-plan.md`](dev-plan.md) — 分阶段实现路径
 4. [`starter-kit/README.md`](starter-kit/README.md) — 四组件与共用契约
