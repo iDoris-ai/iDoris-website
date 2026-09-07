@@ -1,5 +1,8 @@
 {
   "tenant": "example-hotel",
+  "_comment_budget_scope": "对接 iDoris Router 时用 budget.scope=paid_only（不是 all）。理由见下面 line.reply 那条：面向客人的回复本来就走 local、零成本，选 all 会让预算烧完时连客人的消息都没人回。paid_only 下停掉的是内部批处理（翻译/对比），那是看得见的、可以等的。",
+  "budget_scope": "paid_only",
+
   "default_tier": "cheap",
 
   "_comment_rules": "顺序匹配，先命中的赢。sensitivity=high 由引擎强制走 local，不需要在这里写。",
