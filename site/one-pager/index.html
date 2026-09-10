@@ -92,6 +92,27 @@
   .honest li::marker{color:var(--red)}
   @media(max-width:700px){.honest{padding:20px 18px}}
 
+  .edu{border:1px solid var(--line);border-radius:14px;padding:26px 28px;background:var(--ink-2);
+    margin-bottom:46px}
+  .edu h2{border-bottom:0;padding-bottom:0;margin-bottom:6px;color:var(--violet)}
+  .edu .kicker{font-family:var(--display),var(--han);font-weight:500;font-size:clamp(17px,2.2vw,21px);
+    line-height:1.45;color:var(--paper);margin:0 0 12px;max-width:34ch}
+  .edu > p{max-width:62ch}
+  .edu-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line-soft);
+    border:1px solid var(--line-soft);border-radius:10px;overflow:hidden;margin:18px 0 16px}
+  .edu-step{background:var(--ink-3);padding:14px 15px}
+  .edu-step .wk{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--violet);
+    margin-bottom:5px}
+  .edu-step b{display:block;font-size:13.5px;color:var(--paper);font-weight:500;margin-bottom:3px}
+  .edu-step span{font-size:12px;line-height:1.5;color:var(--muted)}
+  .edu-step.pivot{background:var(--violet-dim)}
+  @media(max-width:760px){.edu-steps{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:700px){.edu{padding:20px 18px}}
+  .edu-foot{display:flex;gap:18px;align-items:baseline;flex-wrap:wrap;padding-top:14px;
+    border-top:1px solid var(--line-soft);font-size:13px;color:var(--muted)}
+  .edu-foot .price{font-family:var(--mono);color:var(--paper-dim)}
+  .edu-foot a{color:var(--violet)}
+
   .cta{max-width:900px;margin:0 auto;text-align:center;padding:34px 30px;
     border:1px solid var(--line);border-radius:14px;background:var(--ink-2)}
   .cta p{margin:0 auto 18px;max-width:52ch;font-size:15px;line-height:1.7;color:var(--paper-dim)}
@@ -111,6 +132,7 @@
     <div class="nav-scroll">
       <a class="link" href="/#directions" data-zh="三个方向" data-th="สามทิศทาง">Three Directions</a>
       <a class="link" href="/services" data-zh="服务与价格" data-th="บริการและราคา">Services</a>
+      <a class="link" href="/education" data-zh="学校课程" data-th="หลักสูตรโรงเรียน">Schools</a>
       <a class="link" href="/hello" data-zh="我们发出的信" data-th="จดหมายของเรา">The letter</a>
       <a class="link" href="/pricing" data-zh="模型定价" data-th="ราคาโมเดล">Model pricing</a>
       <a class="link" href="/friends" data-zh="我们的 IP" data-th="ตัวละคร">Doris &amp; Cherry</a>
@@ -241,6 +263,30 @@
         <li>We default to <b>human approval on every AI output that reaches your customers.</b>
           Full automation is something you opt into, in writing, after the data supports it.</li>
       </ul>
+    </div>
+
+    <div class="op-sec edu">
+      <h2>Also &mdash; for schools</h2>
+      <p class="kicker">One semester. A high-school student ships something a stranger actually uses.</p>
+      <p>Not an AI literacy course and not prompt tricks &mdash; the government and the universities
+        teach those for free. This one ends with a public URL a student can put in a university
+        application, and <b>at least three real users from outside the school.</b></p>
+      <div class="edu-steps">
+        <div class="edu-step"><div class="wk">Wk 1&ndash;2</div><b>Break the shell</b>
+          <span>Something worth showing, in 90 minutes</span></div>
+        <div class="edu-step"><div class="wk">Wk 3&ndash;5</div><b>Fix my own annoyance</b>
+          <span>A tool they personally use every day</span></div>
+        <div class="edu-step pivot"><div class="wk">Wk 6&ndash;9</div><b>Someone else uses it</b>
+          <span>Three real users, from outside school</span></div>
+        <div class="edu-step"><div class="wk">Wk 10&ndash;12</div><b>Publish &amp; present</b>
+          <span>Public link + Demo Day with parents</span></div>
+      </div>
+      <p><b>One condition, non-negotiable:</b> at least one teacher takes the whole course too.
+        If nobody at the school owns it, the course dies the day we leave.</p>
+      <div class="edu-foot">
+        <span class="price">45,000 &ndash; 150,000 THB &middot; per class, per semester</span>
+        <a href="/education">Full curriculum, deliverables and when not to buy it &rarr;</a>
+      </div>
     </div>
 
     <div class="cta">

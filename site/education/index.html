@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<!--
+  /education —— 高中 AI 创造力课程,按班采购。
+  事实来源:docs/business/education-highschool.md。改内容先改那边,这一页是它的对外表达。
+
+  三条不能动的东西(动了这门课就不成立):
+  1. 「不教 Prompt 技巧 / AI 素养」必须写出来。那三样泰国政府和大学在免费教,
+     我们收钱做同样的事就是骗钱 —— services.md 自己写着「竞争不过免费」。
+  2. 「至少一位老师全程跟课」是硬门槛,和 Discovery 要决策层受访同一性质。
+     不写出来,最后卖给一堆行政挂名的学校,课程走不完。
+  3. 验收写 60% 而不是 100%。承诺 100% 只有两种结果:我们代写,或者交付时撒谎。
+
+  价格同 /one-pager 与 /services 的硬规矩:必须带「仅供参考」大字免责。
+  这一页的数字全是初始假设 —— 泰国学校预算我们没有一手数据,页面上不许出现「市场价」字样。
+
+  ⚠️ 单语英文,同 /one-pager:泰文未经 native 校对不得对外发送,校对人是 Arm。
+-->
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI creativity for high schools — iDoris</title>
+<meta name="description" content="One semester. A high-school student ships something a stranger actually uses, published on the public web. Not an AI literacy course, not prompt tricks — those are free elsewhere.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2309090C'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23FF3B30'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+  .ed-lead{max-width:780px;margin:0 auto 40px;text-align:center}
+  .ed-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:14px}
+  .ed-lead h1{font-family:var(--display),var(--han);font-weight:500;
+    font-size:clamp(29px,4.1vw,45px);line-height:1.16;letter-spacing:-.01em;margin-bottom:16px}
+  .ed-lead .claim{font-family:var(--display),var(--han);font-weight:500;
+    font-size:clamp(16px,2.1vw,20px);line-height:1.5;color:var(--paper-dim);max-width:52ch;margin:0 auto}
+  .ed-lead .claim b{color:var(--paper);font-weight:500}
+
+  .ed-sec{max-width:900px;margin:0 auto 46px}
+  .ed-sec h2{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 16px;font-weight:500;padding-bottom:10px;
+    border-bottom:1px solid var(--line-soft)}
+  .ed-sec > p{font-size:14.5px;line-height:1.7;color:var(--paper-dim);max-width:64ch;margin:0 0 12px}
+  .ed-sec > p b{color:var(--paper);font-weight:500}
+
+  .notcourse{border:1px solid var(--line);border-radius:12px;padding:22px 24px;background:var(--ink-2);
+    margin-bottom:16px}
+  .notcourse .neg{font-size:14.5px;line-height:1.8;color:var(--muted);margin:0 0 14px}
+  .notcourse .neg s{color:var(--muted);opacity:.75}
+  .notcourse .pos{font-family:var(--display),var(--han);font-weight:500;font-size:clamp(17px,2.2vw,21px);
+    line-height:1.45;color:var(--paper);margin:0}
+
+  .diffs{display:flex;flex-direction:column;gap:18px}
+  .diff{display:grid;grid-template-columns:38px 1fr;gap:16px;align-items:start}
+  .diff .n{font-family:var(--mono);font-size:22px;color:var(--red);line-height:1;padding-top:2px}
+  .diff h3{font-family:var(--display),var(--han);font-weight:500;font-size:17px;line-height:1.35;
+    margin:0 0 6px;color:var(--paper)}
+  .diff p{font-size:14px;line-height:1.65;color:var(--paper-dim);margin:0}
+  .diff p b{color:var(--paper);font-weight:500}
+
+  .steps{display:flex;flex-direction:column;gap:1px;background:var(--line-soft);
+    border:1px solid var(--line-soft);border-radius:12px;overflow:hidden}
+  .step{background:var(--ink-2);padding:20px 22px;display:grid;grid-template-columns:96px 1fr;gap:20px}
+  .step.pivot{background:var(--red-dim)}
+  .step .wk{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--red);
+    text-transform:uppercase;padding-top:4px}
+  .step h3{font-family:var(--display),var(--han);font-weight:500;font-size:18px;margin:0 0 5px;color:var(--paper)}
+  .step p{font-size:13.5px;line-height:1.6;color:var(--paper-dim);margin:0 0 8px}
+  .step .got{font-size:12.5px;line-height:1.55;color:var(--muted);padding-top:8px;
+    border-top:1px solid var(--line-soft)}
+  .step .got b{color:var(--paper-dim);font-weight:400}
+  @media(max-width:680px){.step{grid-template-columns:1fr;gap:8px}}
+
+  .pivot-note{margin-top:16px;padding:18px 20px;border:1px solid var(--red);border-radius:12px;
+    background:var(--red-dim)}
+  .pivot-note p{margin:0 0 10px;font-size:14.5px;line-height:1.7;color:var(--paper-dim);max-width:none}
+  .pivot-note p:last-child{margin-bottom:0}
+  .pivot-note b{color:var(--paper);font-weight:500}
+
+  table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.tbl th{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);text-align:left;font-weight:500;padding:0 14px 10px 0;
+    border-bottom:1px solid var(--line);white-space:nowrap}
+  table.tbl td{padding:12px 14px 12px 0;border-bottom:1px solid var(--line-soft);
+    color:var(--paper-dim);vertical-align:top;line-height:1.6}
+  table.tbl td b{color:var(--paper);font-weight:500}
+  table.tbl td:first-child{color:var(--paper);white-space:nowrap}
+  table.tbl td:nth-child(2){white-space:nowrap;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .tbl-wrap{overflow-x:auto}
+
+  .gate{border:1px solid var(--red);border-radius:14px;padding:26px 28px;background:var(--red-dim)}
+  .gate h2{border-bottom:0;padding-bottom:0;margin-bottom:14px;color:var(--red)}
+  .gate > p{font-size:15px;line-height:1.7;color:var(--paper);margin:0 0 16px;max-width:none}
+  .gate ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:9px}
+  .gate li{font-size:14px;line-height:1.6;color:var(--paper-dim)}
+  .gate li b{color:var(--paper);font-weight:500}
+  .gate li::marker{color:var(--red)}
+  @media(max-width:700px){.gate{padding:20px 18px}}
+
+  ol.deliv{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px}
+  ol.deliv li{font-size:14px;line-height:1.6;color:var(--paper-dim)}
+  ol.deliv li b{color:var(--paper);font-weight:500}
+  ol.deliv li::marker{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+  .accept{border:1px solid var(--line);border-radius:12px;padding:20px 22px;background:var(--ink-2)}
+  .accept ul{margin:0 0 14px;padding-left:18px;display:flex;flex-direction:column;gap:8px}
+  .accept li{font-size:14px;line-height:1.6;color:var(--paper-dim)}
+  .accept li b{color:var(--paper);font-weight:500}
+  .accept .why{margin:0;padding-top:14px;border-top:1px solid var(--line-soft);
+    font-size:13px;line-height:1.7;color:var(--muted)}
+  .accept .why b{color:var(--paper-dim);font-weight:500}
+
+  .disclaimer{max-width:900px;margin:0 auto 26px;padding:22px 26px;text-align:center;
+    border:1px solid var(--red);border-radius:14px;background:var(--red-dim)}
+  .disclaimer p{margin:0;font-family:var(--display),var(--han);font-weight:500;
+    font-size:clamp(17px,2.3vw,22px);line-height:1.4;color:var(--paper);max-width:none}
+  .disclaimer .sub{display:block;margin-top:10px;font-family:inherit;font-weight:300;
+    font-size:13.5px;line-height:1.6;color:var(--paper-dim)}
+
+  table.price{width:100%;border-collapse:collapse;font-size:13.5px;min-width:460px}
+  table.price th{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);text-align:right;font-weight:500;padding:0 0 10px 18px;
+    border-bottom:1px solid var(--line);white-space:nowrap}
+  table.price th:first-child{text-align:left;padding-left:0}
+  table.price td{padding:13px 0 13px 18px;border-bottom:1px solid var(--line-soft);text-align:right;
+    font-family:var(--mono);white-space:nowrap;color:var(--paper-dim)}
+  table.price td:first-child{text-align:left;padding-left:0;font-family:inherit;color:var(--paper)}
+  table.price .sub{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;font-family:inherit}
+
+  .nope{border:1px solid var(--line);border-radius:12px;padding:22px 24px;background:var(--ink-2)}
+  .nope ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:11px}
+  .nope li{font-size:14px;line-height:1.65;color:var(--paper-dim)}
+  .nope li b{color:var(--paper);font-weight:500}
+  .nope li::marker{color:var(--red)}
+
+  .cta{max-width:900px;margin:0 auto;text-align:center;padding:34px 30px;
+    border:1px solid var(--line);border-radius:14px;background:var(--ink-2)}
+  .cta p{margin:0 auto 18px;max-width:54ch;font-size:15px;line-height:1.7;color:var(--paper-dim)}
+  .cta p b{color:var(--paper);font-weight:500}
+  .cta-links{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+  .langnote{max-width:900px;margin:30px auto 0;padding-top:16px;border-top:1px solid var(--line-soft);
+    font-size:12px;line-height:1.7;color:var(--muted);text-align:center}
+  @media(max-width:700px){.ed-lead h1{font-size:26px}}
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap">
+    <a class="brand" href="/"><span class="dot"></span>iDORIS</a>
+    <div class="nav-scroll">
+      <a class="link" href="/#directions" data-zh="三个方向" data-th="สามทิศทาง">Three Directions</a>
+      <a class="link" href="/services" data-zh="服务与价格" data-th="บริการและราคา">Services</a>
+      <a class="link" href="/education" data-zh="学校课程" data-th="หลักสูตรโรงเรียน" style="color:var(--red)">Schools</a>
+      <a class="link" href="/hello" data-zh="我们发出的信" data-th="จดหมายของเรา">The letter</a>
+      <a class="link" href="/pricing" data-zh="模型定价" data-th="ราคาโมเดล">Model pricing</a>
+      <a class="link" href="/friends" data-zh="我们的 IP" data-th="ตัวละคร">Doris &amp; Cherry</a>
+      <a class="link" href="/buy" data-zh="购买体验卡" data-th="ซื้อบัตร">Buy cards</a>
+      <a class="link" href="https://github.com/iDoris-ai">GitHub ↗</a>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
+      <button class="lang-btn" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-btn" data-lang="zh" aria-pressed="false">中文</button>
+      <button class="lang-btn" data-lang="th" aria-pressed="false">ไทย</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+<section>
+  <div class="wrap">
+
+    <div class="ed-lead">
+      <div class="ed-eyebrow">For high schools &middot; one semester &middot; per class</div>
+      <h1>A student ships something<br>a stranger actually uses.</h1>
+      <p class="claim">Twelve weeks. What they take away isn't knowledge &mdash;
+        it's <b>a working thing on the public web, and the experience of a real person using it.</b></p>
+    </div>
+
+    <div class="ed-sec">
+      <h2>What this course is not</h2>
+      <div class="notcourse">
+        <p class="neg"><s>An AI literacy course.</s> &nbsp; <s>A prompt engineering workshop.</s>
+          &nbsp; <s>An intro to programming.</s></p>
+        <p class="pos">The Thai government, the universities and the big vendors all teach those
+          for free right now. <b>We can't compete with free &mdash; and we won't charge you for
+          something you can get for nothing.</b></p>
+      </div>
+      <p>What nobody else is doing is the thing below.</p>
+    </div>
+
+    <div class="ed-sec">
+      <h2>Why high school, not university</h2>
+      <div class="diffs">
+        <div class="diff">
+          <div class="n">01</div>
+          <div>
+            <h3>University students carry a debt that high schoolers don't.</h3>
+            <p>They were taught syntax &rarr; data structures &rarr; frameworks &rarr; <em>then</em> you may
+              build something. That sunk cost makes them reluctant to skip ahead, and a declared major
+              kills ideas early &mdash; "that's not my field." A 16-year-old never learned that route,
+              so when AI hands them the ability to build, <b>they don't feel like they're cheating.</b></p>
+          </div>
+        </div>
+        <div class="diff">
+          <div class="n">02</div>
+          <div>
+            <h3>They don't know where the edges are, so they don't stay inside them.</h3>
+            <p>This is the most valuable thing in the room &mdash; and <b>the easiest for us to destroy.</b>
+              Teach engineering discipline too early and the imagination goes out with it. So we don't.
+              Style, architecture and naming get taught the day a student is genuinely annoyed by their
+              own mess, and not one week before.</p>
+          </div>
+        </div>
+        <div class="diff">
+          <div class="n">03</div>
+          <div>
+            <h3>The ceiling was never technical.</h3>
+            <p>It sits in three places: not knowing what is even possible to make, never having carried
+              one idea all the way to a finished thing, and <b>making things nobody ever uses.</b>
+              So the course does exactly three jobs &mdash; protect the imagination, supply the
+              ability to build, and manufacture real feedback.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ed-sec">
+      <h2>Twelve weeks, four steps</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="wk">Week 1&ndash;2</div>
+          <div>
+            <h3>Break the shell</h3>
+            <p>Something worth showing a classmate, made in the first 90 minutes. We hand them a
+              working card and get out of the way &mdash; <b>no theory in week one.</b></p>
+            <div class="got">They leave with: <b>a thing they can send to a friend</b></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="wk">Week 3&ndash;5</div>
+          <div>
+            <h3>Fix my own annoyance</h3>
+            <p>Start from "what do you redo every single day and hate?" &mdash; the same question we
+              ask a company's staff on a Discovery Sprint. Then build the thing that kills it.</p>
+            <div class="got">They leave with: <b>a small tool they personally use</b></div>
+          </div>
+        </div>
+        <div class="step pivot">
+          <div class="wk">Week 6&ndash;9</div>
+          <div>
+            <h3>Make something someone else will use</h3>
+            <p>Find <b>three real users outside the school</b> and iterate until those people are
+              actually using it. Classmates cheering for each other doesn't count.</p>
+            <div class="got">They leave with: <b>users. Actual ones.</b></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="wk">Week 10&ndash;12</div>
+          <div>
+            <h3>Publish, then stand up and explain it</h3>
+            <p>Ship to a public URL, then present at a Demo Day with parents and school leadership
+              in the room.</p>
+            <div class="got">They leave with: <b>a public link for their university portfolio</b></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pivot-note">
+        <p><b>Weeks 6&ndash;9 are where the ceiling actually breaks.</b> The moment a stranger uses
+          something you made is the moment it stops being homework. Everything before it still is.</p>
+        <p>University courses are usually missing exactly this stretch &mdash; assignments get graded
+          and then nobody ever opens them again. A student can finish four years of projects
+          without a single piece of real user feedback.</p>
+        <p>And if a student <b>can't find three users, that is the most valuable result of the term.</b>
+          It means the idea solved nobody's problem. We say so, they change direction, and they've
+          learned something most adults haven't.</p>
+      </div>
+    </div>
+
+    <div class="ed-sec">
+      <h2>What a week looks like</h2>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Segment</th><th>Time</th><th>What happens</th></tr></thead>
+          <tbody>
+            <tr><td>Show &amp; tell</td><td>15 min</td>
+              <td><b>Students present, not the teacher.</b> Whoever got a real user this week goes first.</td></tr>
+            <tr><td>This week's step</td><td>20 min</td>
+              <td>Only what's needed for this week. Nothing extra.</td></tr>
+            <tr><td>Build</td><td>60 min</td>
+              <td>Teacher and assistant in the room. <b>They do not write it for them</b> &mdash;
+                help arrives only after a student has been stuck for ten minutes.</td></tr>
+            <tr><td>Commit</td><td>10 min</td>
+              <td>Each student says out loud what they'll have by next week, and writes it down.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:16px">The show &amp; tell isn't optional. No lecture we give competes with
+        one classmate saying <b>"my mum actually uses this."</b></p>
+    </div>
+
+    <div class="ed-sec">
+      <h2>Tools</h2>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Stage</th><th>What we use</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>Breaking the shell</td><td>Our existing experience cards</td>
+              <td>Animation, doodle-to-art, small games, train-your-own-AI, chat assistants, finish-my-idea</td></tr>
+            <tr><td>Building</td><td>AI coding assistant, browser-first</td>
+              <td><b>Nothing to install.</b> Environment setup drives off half a class of teenagers
+                and has nothing to do with creativity</td></tr>
+            <tr><td>Publishing</td><td>GitHub Pages / Cloudflare Pages</td>
+              <td>Free, public, and the link survives &mdash; it goes in their portfolio</td></tr>
+            <tr><td>Cost control</td><td>Metered through our gateway</td>
+              <td><b>The school can see exactly what each class spent.</b> No surprise bill</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="ed-sec gate">
+      <h2>One condition, and it is not negotiable</h2>
+      <p><b>At least one teacher takes the whole course alongside the students.</b>
+        Not an administrator whose name is on a form.</p>
+      <ul>
+        <li>If nobody at the school owns this, <b>the course dies the day we leave</b> &mdash;
+          and what you're left with is a pile of unused accounts.</li>
+        <li>That teacher joins a <b>two-day workshop before week one.</b> They don't need to know how
+          to code. They need to know how to not write it for the student, how to judge an idea by
+          "would anyone use this" rather than "is this technically hard," and what to do with a
+          student who is stuck.</li>
+        <li>The school must allow student work to be <b>published on the public internet.</b>
+          Ask this early &mdash; discovering it's forbidden in week 10 kills the whole term.</li>
+      </ul>
+    </div>
+
+    <div class="ed-sec">
+      <h2>What we deliver, per class</h2>
+      <ol class="deliv">
+        <li>Two-day teacher workshop, plus a teacher handbook</li>
+        <li><b>Twelve weekly lesson plans</b> &mdash; each stating what to teach, what to build, what to check</li>
+        <li>Experience-card credits for the whole class, with a usage dashboard</li>
+        <li>Weekly archive of student work as public links</li>
+        <li>One online clinic at week 6 &mdash; the pivot week</li>
+        <li>On-site support for Demo Day</li>
+        <li><b>A class portfolio page</b> &mdash; one public link per student, usable in university applications</li>
+        <li>End-of-term report: completion, which projects found real users, and what the teacher
+          recommends changing next time</li>
+      </ol>
+      <p style="margin-top:16px">Item 7 is what the school will actually show the outside world &mdash;
+        and <b>the only part parents will understand without explanation.</b></p>
+    </div>
+
+    <div class="ed-sec">
+      <h2>How you know it worked</h2>
+      <div class="accept">
+        <ul>
+          <li>All eight deliverables handed over</li>
+          <li><b>At least 60% of the class has a working public URL</b></li>
+          <li><b>At least 3 students have real users from outside the school</b></li>
+          <li>Demo Day happened, with school leadership and parents present</li>
+        </ul>
+        <p class="why"><b>Why 60% and not everyone:</b> promising 100% has exactly two outcomes &mdash;
+          we quietly build it for them, or we lie at handover. Both are worse than 60%.
+          These two numbers are our starting assumptions and we'll revise them
+          against the first real class rather than defend them.</p>
+      </div>
+    </div>
+
+    <div class="ed-sec">
+      <h2>Pricing (THB)</h2>
+      <div class="disclaimer">
+        <p>Indicative ranges only &middot; your quote is what counts
+          <span class="sub">We have no first-hand data on what Thai schools budget for this,
+          and we won't invent a market figure. These are starting assumptions we expect to revise
+          against the first three schools &mdash; not a price list, not a quote, not a commitment.</span></p>
+      </div>
+      <div class="tbl-wrap">
+        <table class="price">
+          <thead><tr><th>Package</th><th>Range</th></tr></thead>
+          <tbody>
+            <tr><td>Pilot class<span class="sub">early reference school &mdash; see below</span></td><td>45,000 &ndash; 80,000</td></tr>
+            <tr><td>Standard class<span class="sub">one class, up to 30 students, one semester</span></td><td>80,000 &ndash; 150,000</td></tr>
+            <tr><td>Teacher workshop only<span class="sub">two days</span></td><td>20,000 &ndash; 60,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:18px">Includes all eight deliverables, card credits and Demo Day support.
+        Excludes model usage beyond the included credits &mdash; <b>metered transparently, never marked up</b>
+        &mdash; travel, and student devices.</p>
+      <p><b>Pilot schools get a discount in exchange for three things</b>, written into the agreement:
+        a publishable case study (student work needs written consent from the student <em>and</em> a guardian),
+        a quotable reference from the school, and one follow-up visit three months after the term ends.</p>
+    </div>
+
+    <div class="ed-sec">
+      <h2>When you should not buy this</h2>
+      <div class="nope">
+        <ul>
+          <li><b>No teacher will commit to the full term.</b> We won't sell it. See the condition above.</li>
+          <li><b>You want a one-off AI awareness talk.</b> Go take a free one &mdash; the government
+            and the universities are running them. Charging you for the same thing would be theft.</li>
+          <li><b>You want us to build the student projects</b> for a competition or an inspection.
+            We decline this one without discussing price. Doing it once makes every claim on this
+            page a lie.</li>
+          <li><b>You want it delivered to 600 students at once.</b> One class at a time.
+            Scale is what makes this kind of course meaningless.</li>
+          <li><b>Student work can't be published publicly.</b> Then the mechanism that makes the
+            course work doesn't exist. Change the rule, or don't buy the course.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cta">
+      <p>Start with a <b>free call</b>. We'll ask which teacher would own it and whether student work
+        can go public &mdash; <b>if the answers aren't there yet, we'll tell you to wait.</b></p>
+      <div class="cta-links">
+        <a class="btn primary" href="/one-pager">What else we do &rarr;</a>
+        <a class="btn" href="/cards">See the cards students start with</a>
+      </div>
+    </div>
+
+    <p class="langnote">
+      This page is in English only for now. The Thai edition is with our Thai-native reviewer &mdash;
+      we don't publish Thai we haven't had a native speaker check.
+    </p>
+
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div style="color:var(--paper);font-weight:500;margin-bottom:6px">iDoris.ai</div>
+      <div data-zh="iDoris · 应用 AI 伙伴 · 组织大脑 · 数字公共物品 · Apache 2.0" data-th="iDoris · พาร์ทเนอร์ AI ที่ใช้ได้จริง · สมององค์กร · สาธารณประโยชน์ดิจิทัล · Apache 2.0">iDoris · Applied AI Partner · The Organizational Brain · Digital Public Goods · Apache 2.0</div>
+    </div>
+    <div class="links">
+      <a href="/" data-zh="返回首页" data-th="กลับหน้าแรก">Home</a>
+      <a href="/one-pager">One page</a>
+      <a href="/services" data-zh="服务与价格" data-th="บริการและราคา">Services</a>
+      <a href="https://github.com/iDoris-ai">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/i18n-v2.js"></script>
+</body>
+</html>
