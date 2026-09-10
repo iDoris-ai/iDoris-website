@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<!--
+  /one-pager —— 一页纸总览。内容来源是 docs/business/one-pager-en.md,那份是事实来源。
+  这一页的存在理由:销售(尤其 Arm)需要一个能直接发给客户的链接 —— 在此之前只能发 PDF 附件。
+
+  和 /services 的分工:这一页是「一眼看完」,/services 是「看细节」。
+  四阶段在这里只有一句话,展开在 /services;价格在这里只有区间,判据在 /pricing。
+  两页的数字必须一致 —— 改价格先改 docs/business/pricing.md,再同步这两页。
+
+  继承 /services 的两条硬规矩:
+  1. 价格必须带「仅供参考」大字免责,且比它免的那件事更显眼。
+  2. 必须写「什么情况下不该买」。我们卖的是判断力。
+
+  ⚠️ 单语英文页,故意的。泰文版(docs/business/one-pager-th.md)由 AI 生成、
+  未经泰语 native 校对,仓库明令未校对前不得对外发送 —— 校对人是 Arm,2026-09-10 已发给他。
+  他回信改完之前,这一页不加 data-th。中文版同理:还没写,不要用机翻凑数。
+  nav/footer 仍是三语(它们本来就有译文),所以切换语言时正文不变 —— 底部那句 langnote 解释了这件事。
+-->
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iDoris AI Thailand — one page</title>
+<meta name="description" content="We don't sell AI. We make AI work inside your organization. Four stages, indicative pricing, and the things we'll tell you that others won't — on one page.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2309090C'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23FF3B30'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+  .op-lead{max-width:760px;margin:0 auto 40px;text-align:center}
+  .op-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:14px}
+  .op-lead h1{font-family:var(--display),var(--han);font-weight:500;
+    font-size:clamp(30px,4.2vw,46px);line-height:1.14;letter-spacing:-.01em;margin-bottom:10px}
+  .op-lead .slogan{font-family:var(--mono);font-size:clamp(13px,1.7vw,15px);letter-spacing:.04em;
+    color:var(--red);margin-bottom:22px}
+  .op-lead .claim{font-family:var(--display),var(--han);font-weight:500;
+    font-size:clamp(17px,2.2vw,21px);line-height:1.45;color:var(--paper);max-width:22ch;margin:0 auto}
+
+  .op-sec{max-width:900px;margin:0 auto 46px}
+  .op-sec h2{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 14px;font-weight:500;padding-bottom:10px;
+    border-bottom:1px solid var(--line-soft)}
+  .op-sec p{font-size:14.5px;line-height:1.7;color:var(--paper-dim);max-width:64ch;margin:0 0 12px}
+  .op-sec p b{color:var(--paper);font-weight:500}
+
+  .stages{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line-soft);
+    border:1px solid var(--line-soft);border-radius:12px;overflow:hidden}
+  .st{background:var(--ink-2);padding:20px 22px}
+  .st .no{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--red);margin-bottom:7px}
+  .st h3{font-family:var(--display),var(--han);font-weight:500;font-size:19px;margin:0 0 3px;color:var(--paper)}
+  .st .days{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:9px}
+  .st p{font-size:13.5px;line-height:1.6;color:var(--paper-dim);margin:0 0 9px;max-width:none}
+  .st .out{font-size:12.5px;line-height:1.55;color:var(--muted);padding-top:9px;
+    border-top:1px solid var(--line-soft)}
+  .st .out b{color:var(--paper-dim);font-weight:400}
+  @media(max-width:720px){.stages{grid-template-columns:1fr}}
+
+  .stop-note{margin-top:16px;padding:14px 18px;border-left:2px solid var(--red);
+    background:var(--red-dim);border-radius:0 8px 8px 0}
+  .stop-note p{margin:0;color:var(--paper);font-size:14px}
+
+  .disclaimer{max-width:900px;margin:0 auto 26px;padding:22px 26px;text-align:center;
+    border:1px solid var(--red);border-radius:14px;background:var(--red-dim)}
+  .disclaimer p{margin:0;font-family:var(--display),var(--han);font-weight:500;
+    font-size:clamp(17px,2.3vw,22px);line-height:1.4;color:var(--paper);max-width:none}
+  .disclaimer .sub{display:block;margin-top:10px;font-family:inherit;font-weight:300;
+    font-size:13.5px;line-height:1.6;color:var(--paper-dim)}
+  @media(max-width:700px){.disclaimer{padding:18px}}
+
+  .price-wrap{overflow-x:auto}
+  table.price{width:100%;border-collapse:collapse;font-size:13.5px;min-width:460px}
+  table.price th{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);text-align:right;font-weight:500;padding:0 0 10px 18px;
+    border-bottom:1px solid var(--line);white-space:nowrap}
+  table.price th:first-child{text-align:left;padding-left:0}
+  table.price td{padding:12px 0 12px 18px;border-bottom:1px solid var(--line-soft);text-align:right;
+    font-family:var(--mono);white-space:nowrap;color:var(--paper-dim)}
+  table.price td:first-child{text-align:left;padding-left:0;font-family:inherit;color:var(--paper)}
+  table.price .sub{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;font-family:inherit}
+  table.price .free{color:var(--red)}
+
+  .why{display:flex;flex-direction:column;gap:20px}
+  .why-item{padding-left:16px;border-left:2px solid var(--line)}
+  .why-item h3{font-family:var(--display),var(--han);font-weight:500;font-size:17px;
+    line-height:1.35;margin:0 0 6px;color:var(--paper)}
+  .why-item p{margin:0}
+
+  .honest{border:1px solid var(--red);border-radius:14px;padding:26px 28px;background:var(--red-dim)}
+  .honest h2{border-bottom:0;padding-bottom:0;margin-bottom:16px;color:var(--red)}
+  .honest ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:11px}
+  .honest li{font-size:14.5px;line-height:1.65;color:var(--paper-dim)}
+  .honest li b{color:var(--paper);font-weight:500}
+  .honest li::marker{color:var(--red)}
+  @media(max-width:700px){.honest{padding:20px 18px}}
+
+  .cta{max-width:900px;margin:0 auto;text-align:center;padding:34px 30px;
+    border:1px solid var(--line);border-radius:14px;background:var(--ink-2)}
+  .cta p{margin:0 auto 18px;max-width:52ch;font-size:15px;line-height:1.7;color:var(--paper-dim)}
+  .cta p b{color:var(--paper);font-weight:500}
+  .cta-links{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+  .langnote{max-width:900px;margin:30px auto 0;padding-top:16px;border-top:1px solid var(--line-soft);
+    font-size:12px;line-height:1.7;color:var(--muted);text-align:center}
+  @media(max-width:700px){.op-lead h1{font-size:27px}}
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap">
+    <a class="brand" href="/"><span class="dot"></span>iDORIS</a>
+    <div class="nav-scroll">
+      <a class="link" href="/#directions" data-zh="三个方向" data-th="สามทิศทาง">Three Directions</a>
+      <a class="link" href="/services" data-zh="服务与价格" data-th="บริการและราคา">Services</a>
+      <a class="link" href="/hello" data-zh="我们发出的信" data-th="จดหมายของเรา">The letter</a>
+      <a class="link" href="/pricing" data-zh="模型定价" data-th="ราคาโมเดล">Model pricing</a>
+      <a class="link" href="/friends" data-zh="我们的 IP" data-th="ตัวละคร">Doris &amp; Cherry</a>
+      <a class="link" href="/buy" data-zh="购买体验卡" data-th="ซื้อบัตร">Buy cards</a>
+      <a class="link" href="/join" data-zh="招聘" data-th="ร่วมงาน">We're hiring</a>
+      <a class="link" href="https://github.com/iDoris-ai">GitHub ↗</a>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
+      <button class="lang-btn" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-btn" data-lang="zh" aria-pressed="false">中文</button>
+      <button class="lang-btn" data-lang="th" aria-pressed="false">ไทย</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+<section>
+  <div class="wrap">
+
+    <div class="op-lead">
+      <div class="op-eyebrow">iDoris AI Thailand &middot; Chiang Mai</div>
+      <h1>Open Source Globally.<br>Implement Locally.</h1>
+      <div class="slogan">one page &middot; everything we can honestly promise</div>
+      <p class="claim">We don't sell AI. We make AI work inside your organization.</p>
+    </div>
+
+    <div class="op-sec">
+      <h2>The problem</h2>
+      <p>Most organizations don't need another AI presentation. They need to know
+        <b>which of their everyday tasks are worth handing to AI &mdash; and which are not.</b></p>
+      <p>You probably don't know how many hours a year your team spends on repetitive work.
+        Almost nobody does. <b>That number is the first thing we give you.</b></p>
+    </div>
+
+    <div class="op-sec">
+      <h2>How we work &mdash; four stages</h2>
+      <div class="stages">
+        <div class="st">
+          <div class="no">01</div>
+          <h3>Discover</h3>
+          <div class="days">3&ndash;5 days on site</div>
+          <p>We watch how you actually work, measure it, and find the highest-value opportunities.</p>
+          <div class="out">Workflow map &middot; readiness score &middot; <b>annualised hours per pain point</b>
+            &middot; top 3 use cases &middot; working prototype &middot; 90-day roadmap</div>
+        </div>
+        <div class="st">
+          <div class="no">02</div>
+          <h3>Enable</h3>
+          <div class="days">1&ndash;3 days</div>
+          <p>We teach your staff to use AI <b>inside the work they already do</b> &mdash; not how to use a chatbot.</p>
+          <div class="out">Role-specific playbook &middot; <b>reusable Skill Pack</b></div>
+        </div>
+        <div class="st">
+          <div class="no">03</div>
+          <h3>Implement</h3>
+          <div class="days">1 week &ndash; 6 weeks+</div>
+          <p>Skills, agents, or integrations &mdash; scoped to what you're actually ready for.</p>
+          <div class="out">Working system &middot; UAT &middot; manuals &middot; <b>before/after measurement</b></div>
+        </div>
+        <div class="st">
+          <div class="no">04</div>
+          <h3>Operate</h3>
+          <div class="days">monthly</div>
+          <p>Models, prices and workflows keep changing. We keep it working.</p>
+          <div class="out">Monitoring &middot; cost control &middot; monthly optimisation</div>
+        </div>
+      </div>
+      <div class="stop-note">
+        <p><b>You can stop after any stage.</b> Many clients do Discovery and implement it themselves.
+          That is a successful outcome, not a lost sale.</p>
+      </div>
+    </div>
+
+    <div class="op-sec">
+      <h2>Indicative pricing (THB)</h2>
+      <div class="disclaimer">
+        <p>Indicative ranges only &middot; your quote is what counts
+          <span class="sub">These depend on scope, number of departments and language requirements.
+          This page is not a price list, not a quote, and not a commitment of any kind &mdash;
+          the formal quote we issue is what governs.</span></p>
+      </div>
+      <div class="price-wrap">
+        <table class="price">
+          <thead><tr><th>Service</th><th>Range</th></tr></thead>
+          <tbody>
+            <tr><td>AI Readiness Call<span class="sub">30&ndash;60 minutes</span></td><td class="free">Free</td></tr>
+            <tr><td>Discovery Sprint<span class="sub">3 days</span></td><td>25,000 &ndash; 45,000</td></tr>
+            <tr><td>Discovery Sprint<span class="sub">5 days</span></td><td>45,000 &ndash; 80,000</td></tr>
+            <tr><td>AI Enablement</td><td>20,000 &ndash; 60,000</td></tr>
+            <tr><td>Implementation</td><td>20,000 &ndash; 400,000+</td></tr>
+            <tr><td>Managed AI<span class="sub">per month</span></td><td>3,000 &ndash; 30,000+</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:18px">Model usage is billed separately and shown transparently through our gateway &mdash;
+        <b>we do not mark up tokens inside the service fee.</b>
+        Full breakdown on <a href="/pricing" style="color:var(--red)">the pricing page</a>.</p>
+    </div>
+
+    <div class="op-sec">
+      <h2>Why us</h2>
+      <div class="why">
+        <div class="why-item">
+          <h3>Our method is an open-source asset, not one consultant's know-how.</h3>
+          <p>Any of our engineers runs the same Discovery process and produces the same nine
+            deliverables. Tools are a crowded market; <b>a method for adopting AI is not.</b></p>
+        </div>
+        <div class="why-item">
+          <h3>Local means channel and trust, not translation.</h3>
+          <p>Thai-native project management, roots in the education sector, and work conducted
+            in Thai &mdash; <b>not English-with-subtitles.</b></p>
+        </div>
+        <div class="why-item">
+          <h3>We draw the line at convenience, not at features.</h3>
+          <p>The open-source version genuinely works. You pay us to save your time, to take
+            responsibility, and to scale &mdash; <b>not to unlock a crippled product.</b></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="op-sec honest">
+      <h2>What we will tell you that others won't</h2>
+      <ul>
+        <li>If your organisation <b>isn't ready for AI yet, we will say so</b> &mdash; in writing,
+          in the deliverables you paid for.</li>
+        <li>If a free government or university course covers what you need, <b>go take it.</b>
+          We can't compete with free, and we won't pretend to.</li>
+        <li>We default to <b>human approval on every AI output that reaches your customers.</b>
+          Full automation is something you opt into, in writing, after the data supports it.</li>
+      </ul>
+    </div>
+
+    <div class="cta">
+      <p>Next step: a <b>30&ndash;60 minute call, free.</b> We ask about your repetitive work;
+        you decide whether a Discovery Sprint is worth it.</p>
+      <div class="cta-links">
+        <a class="btn primary" href="/services">See the four stages in detail &rarr;</a>
+        <a class="btn" href="/hello">The letter we send</a>
+      </div>
+    </div>
+
+    <p class="langnote">
+      This page is in English only for now. The Thai edition is with our Thai-native reviewer &mdash;
+      we don't publish Thai we haven't had a native speaker check, because
+      "local means trust, not translation" would be an empty claim otherwise.
+    </p>
+
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div style="color:var(--paper);font-weight:500;margin-bottom:6px">iDoris.ai</div>
+      <div data-zh="iDoris · 应用 AI 伙伴 · 组织大脑 · 数字公共物品 · Apache 2.0" data-th="iDoris · พาร์ทเนอร์ AI ที่ใช้ได้จริง · สมององค์กร · สาธารณประโยชน์ดิจิทัล · Apache 2.0">iDoris · Applied AI Partner · The Organizational Brain · Digital Public Goods · Apache 2.0</div>
+    </div>
+    <div class="links">
+      <a href="/" data-zh="返回首页" data-th="กลับหน้าแรก">Home</a>
+      <a href="/services" data-zh="服务与价格" data-th="บริการและราคา">Services</a>
+      <a href="/pricing" data-zh="模型定价" data-th="ราคาโมเดล">Model pricing</a>
+      <a href="https://github.com/iDoris-ai">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/i18n-v2.js"></script>
+</body>
+</html>
