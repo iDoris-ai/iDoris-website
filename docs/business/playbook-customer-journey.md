@@ -81,7 +81,7 @@ stateDiagram-v2
 |:---|:---|:---|
 | **Lead → 首次接触** | [`/hello`](https://idoris.ai/hello) 那封信 | 三语版本内容一致（由 `scripts/check-letters.py` 守住：结构四维 + **正文语言**，整封被换成别的语言也会红；**担保的是「没漏改」不是「翻译对」**），发哪一版看对方习惯。**没有追踪像素、没有 slide、没有要签的东西** |
 | **Lead → Qualified** | [`discovery-skill/templates/scoping-checklist.md`](discovery-skill/templates/scoping-checklist.md) | 四条资格判据，30–60 分钟通话里问完。**这通话免费，进场之后一分钟都不免费** |
-| **Qualified → 报价** | [`quote-template.md`](quote-template.md) · [`pricing.md`](pricing.md) | 价格区间的性质写在 `pricing.md` §0：**不是市场价，不构成承诺** |
+| **Qualified → 报价** | [`quote-discovery.md`](quote-discovery.md)（Discovery 直接用这份）· [`quote-template.md`](quote-template.md) · [`pricing.md`](pricing.md) | 价格区间的性质写在 `pricing.md` §0：**不是市场价，不构成承诺** |
 | **DiscoveryScoped → 进场前** | [`discovery-skill/templates/pre-engagement-email.md`](discovery-skill/templates/pre-engagement-email.md) | 进场前 48 小时索取的五样材料 |
 | **DiscoveryRunning** | [`discovery-sop.md`](discovery-sop.md) | **逐小时**的执行手册。哪一小时见谁、问哪几个问题的原话、产出哪个文件 |
 | ┗ 老板访谈 | [`discovery-skill/interview/owner.md`](discovery-skill/interview/owner.md) | 12 题，标着「照念」。**顺序不可改** —— 从未来问到现在，反过来问老板会掉进汇报模式 |

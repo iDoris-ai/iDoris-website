@@ -2,6 +2,7 @@
 
 > 填空即可出。`{{...}}` 是待填字段。
 > 定价依据见 [`pricing.md`](pricing.md) §2 的九因素取值判据。
+> **报 Discovery 不要用这一份** —— 用 [`quote-discovery.md`](quote-discovery.md)，那份九项交付物已填死。
 > 版本：v0.1 · 2026-09-05
 
 ---

@@ -114,7 +114,8 @@
 | [`services.md`](services.md) | 四阶段各交付什么，**以及什么情况下不该卖** |
 | [`pricing.md`](pricing.md) | 泰铢价格区间与取值判据。⚠️ **[待核] 不是市场价**，靠前 5 个真实报价校准 |
 | [`alternatives.md`](alternatives.md) | 客户不买我们会怎样，我们怎么说 |
-| [`quote-template.md`](quote-template.md) | 报价单模板 |
+| [`quote-template.md`](quote-template.md) | 报价单模板（通用母版）|
+| [`quote-discovery.md`](quote-discovery.md) | **Discovery 专用报价单**：九项交付物已填死 + 价格取值工作表 + 填好样例 |
 | [`one-pager-en.md`](one-pager-en.md) · [`one-pager-th.md`](one-pager-th.md) | 一页纸（泰文版**待母语校对**）|
 | [`product-portfolio.md`](product-portfolio.md) | 产品清单与优先级 |
 | [`thailand-channels.md`](thailand-channels.md) | depa / Digital Catalog / 培训注册三条路径 |
