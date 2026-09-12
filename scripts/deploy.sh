@@ -35,6 +35,8 @@ PAGES=(
   "/hello"
   "/pricing"
   "/services"
+  "/one-pager"
+  "/education"
 )
 
 # ─────────────────────────────────────────────

@@ -11,10 +11,12 @@
   1. 价格必须带「仅供参考」大字免责,且比它免的那件事更显眼。
   2. 必须写「什么情况下不该买」。我们卖的是判断力。
 
-  ⚠️ 单语英文页,故意的。泰文版(docs/business/one-pager-th.md)由 AI 生成、
-  未经泰语 native 校对,仓库明令未校对前不得对外发送 —— 校对人是 Arm,2026-09-10 已发给他。
-  他回信改完之前,这一页不加 data-th。中文版同理:还没写,不要用机翻凑数。
-  nav/footer 仍是三语(它们本来就有译文),所以切换语言时正文不变 —— 底部那句 langnote 解释了这件事。
+  泰文(data-th)取自 docs/business/one-pager-th.md,2026-09-12 已由泰语 native Arm 逐条校对。
+  只有经他看过的句子才有 data-th;下面这几处 md 里没有、他没审过,切到泰文时故意留英文:
+  slogan、token 不加价那句、学校课程块、「See the four stages」按钮、langnote。
+  补泰文前先发 Arm,不要自己写。
+  中文(data-zh)按英文原意写,用语对齐 /services(称「您」)。check-html.py 要求 zh/th 成对,
+  所以中文覆盖范围和泰文一样 —— 上面那几处留英文的地方,两种语言都要一起补。
 -->
 <html lang="en" data-lang="en">
 <head>
@@ -153,77 +155,77 @@
   <div class="wrap">
 
     <div class="op-lead">
-      <div class="op-eyebrow">iDoris AI Thailand &middot; Chiang Mai</div>
+      <div class="op-eyebrow" data-zh="iDoris AI Thailand &middot; 清迈" data-th="iDoris AI Thailand &middot; เชียงใหม่">iDoris AI Thailand &middot; Chiang Mai</div>
       <h1>Open Source Globally.<br>Implement Locally.</h1>
       <div class="slogan">one page &middot; everything we can honestly promise</div>
-      <p class="claim">We don't sell AI. We make AI work inside your organization.</p>
+      <p class="claim" data-zh="我们不卖 AI。我们让 AI 在您的组织里真正用起来。" data-th="เราไม่ได้ขาย AI เราช่วยให้องค์กรนำ AI ไปใช้งานได้จริง">We don't sell AI. We make AI work inside your organization.</p>
     </div>
 
     <div class="op-sec">
-      <h2>The problem</h2>
-      <p>Most organizations don't need another AI presentation. They need to know
+      <h2 data-zh="问题" data-th="ปัญหา">The problem</h2>
+      <p data-zh="大多数组织缺的不是又一场 AI 演讲，而是弄清楚：<b>日常工作里哪些事值得交给 AI，哪些不值得。</b>" data-th="องค์กรส่วนใหญ่ไม่ได้ต้องการแค่คำแนะนำเรื่อง AI อีกหนึ่งชุด สิ่งที่ต้องการคือ<b>รู้ว่างานประจำวันชิ้นไหนคุ้มที่จะให้ AI ทำ และชิ้นไหนไม่คุ้ม</b>">Most organizations don't need another AI presentation. They need to know
         <b>which of their everyday tasks are worth handing to AI &mdash; and which are not.</b></p>
-      <p>You probably don't know how many hours a year your team spends on repetitive work.
+      <p data-zh="您大概不知道团队一年在重复工作上花了多少小时 —— 几乎没人知道。<b>那个数字是我们给您的第一样东西。</b>" data-th="คุณอาจยังไม่รู้ว่าทีมใช้เวลาไปกับงานซ้ำ ๆ กี่ชั่วโมงต่อปี แทบไม่มีใครรู้ &mdash; <b>ตัวเลขนี้คือสิ่งแรกที่เราส่งมอบให้</b>">You probably don't know how many hours a year your team spends on repetitive work.
         Almost nobody does. <b>That number is the first thing we give you.</b></p>
     </div>
 
     <div class="op-sec">
-      <h2>How we work &mdash; four stages</h2>
+      <h2 data-zh="我们怎么合作 &mdash; 四个阶段" data-th="เราทำงานอย่างไร &mdash; สี่ขั้นตอน">How we work &mdash; four stages</h2>
       <div class="stages">
         <div class="st">
           <div class="no">01</div>
           <h3>Discover</h3>
-          <div class="days">3&ndash;5 days on site</div>
-          <p>We watch how you actually work, measure it, and find the highest-value opportunities.</p>
-          <div class="out">Workflow map &middot; readiness score &middot; <b>annualised hours per pain point</b>
+          <div class="days" data-zh="驻场 3&ndash;5 天" data-th="ลงพื้นที่ 3&ndash;5 วัน">3&ndash;5 days on site</div>
+          <p data-zh="看您真实的工作怎么流转，把它量出来，找出最值得让 AI 干的那几件事。" data-th="ดูวิธีการทำงานจริง วัดผล และหาโอกาสที่มีมูลค่าสูงสุด">We watch how you actually work, measure it, and find the highest-value opportunities.</p>
+          <div class="out" data-zh="工作流地图 &middot; Readiness 评分 &middot; <b>每个痛点的年化工时</b> &middot; Top 3 用例 &middot; 能跑的原型 &middot; 90 天路线图" data-th="แผนผังกระบวนการ &middot; คะแนนความพร้อม AI &middot; <b>จำนวนชั่วโมงที่เสียไปกับแต่ละปัญหาต่อปี</b> &middot; 3 งานแรกที่เหมาะกับการใช้ AI &middot; ต้นแบบที่รันได้ &middot; แผน 90 วัน">Workflow map &middot; readiness score &middot; <b>annualised hours per pain point</b>
             &middot; top 3 use cases &middot; working prototype &middot; 90-day roadmap</div>
         </div>
         <div class="st">
           <div class="no">02</div>
           <h3>Enable</h3>
-          <div class="days">1&ndash;3 days</div>
-          <p>We teach your staff to use AI <b>inside the work they already do</b> &mdash; not how to use a chatbot.</p>
-          <div class="out">Role-specific playbook &middot; <b>reusable Skill Pack</b></div>
+          <div class="days" data-zh="1&ndash;3 天" data-th="1&ndash;3 วัน">1&ndash;3 days</div>
+          <p data-zh="教员工把 AI 放进<b>他们每天已经在做的工作里</b> —— 不是教怎么用聊天机器人。" data-th="สอนพนักงานนำ AI ไปใช้<b>กับงานที่ทำเป็นประจำ</b> ไม่ใช่สอนวิธีใช้แชตบอต">We teach your staff to use AI <b>inside the work they already do</b> &mdash; not how to use a chatbot.</p>
+          <div class="out" data-zh="按角色的操作手册 &middot; <b>可复用的 Skill 包</b>" data-th="คู่มือสำหรับแต่ละบทบาท &middot; <b>ชุด Skill ที่นำกลับมาใช้ซ้ำได้</b>">Role-specific playbook &middot; <b>reusable Skill Pack</b></div>
         </div>
         <div class="st">
           <div class="no">03</div>
           <h3>Implement</h3>
-          <div class="days">1 week &ndash; 6 weeks+</div>
-          <p>Skills, agents, or integrations &mdash; scoped to what you're actually ready for.</p>
-          <div class="out">Working system &middot; UAT &middot; manuals &middot; <b>before/after measurement</b></div>
+          <div class="days" data-zh="1 周 &ndash; 6 周以上" data-th="1&ndash;6+ สัปดาห์">1 week &ndash; 6 weeks+</div>
+          <p data-zh="Skill、Agent 或系统集成 &mdash; 按您真实的准备度选档。" data-th="Skill, Agent หรือการเชื่อมระบบ &mdash; ตามระดับความพร้อมจริงขององค์กร">Skills, agents, or integrations &mdash; scoped to what you're actually ready for.</p>
+          <div class="out" data-zh="可运行的系统 &middot; UAT &middot; 使用手册 &middot; <b>实施前后对比测量</b>" data-th="ระบบที่ใช้งานได้ &middot; UAT &middot; คู่มือ &middot; <b>การวัดผลก่อน/หลัง</b>">Working system &middot; UAT &middot; manuals &middot; <b>before/after measurement</b></div>
         </div>
         <div class="st">
           <div class="no">04</div>
           <h3>Operate</h3>
-          <div class="days">monthly</div>
-          <p>Models, prices and workflows keep changing. We keep it working.</p>
-          <div class="out">Monitoring &middot; cost control &middot; monthly optimisation</div>
+          <div class="days" data-zh="按月" data-th="รายเดือน">monthly</div>
+          <p data-zh="模型、价格和流程一直在变。我们让它持续可用。" data-th="โมเดล ราคา และกระบวนการต่าง ๆ เปลี่ยนอยู่เสมอ เราดูแลให้ระบบยังใช้งานได้อย่างต่อเนื่อง">Models, prices and workflows keep changing. We keep it working.</p>
+          <div class="out" data-zh="监控 &middot; 成本控制 &middot; 月度优化" data-th="การเฝ้าระวัง &middot; ควบคุมต้นทุน &middot; ปรับปรุงรายเดือน">Monitoring &middot; cost control &middot; monthly optimisation</div>
         </div>
       </div>
       <div class="stop-note">
-        <p><b>You can stop after any stage.</b> Many clients do Discovery and implement it themselves.
+        <p data-zh="<b>您可以在任何一个阶段停下。</b>很多客户做完 Discovery 就自己动手了 —— 那也是一次成功的交付，不是丢了一单。" data-th="<b>คุณสามารถหยุดได้ทุกขั้นตอน</b> ลูกค้าหลายรายเลือกทำเพียง Discovery แล้วนำผลลัพธ์ไปดำเนินการต่อเอง ซึ่งสำหรับเราก็ถือว่าสำเร็จแล้ว"><b>You can stop after any stage.</b> Many clients do Discovery and implement it themselves.
           That is a successful outcome, not a lost sale.</p>
       </div>
     </div>
 
     <div class="op-sec">
-      <h2>Indicative pricing (THB)</h2>
+      <h2 data-zh="价格区间（泰铢）" data-th="ราคาโดยประมาณ (THB)">Indicative pricing (THB)</h2>
       <div class="disclaimer">
-        <p>Indicative ranges only &middot; your quote is what counts
+        <p data-zh="价格仅供参考 &middot; 以最终报价为准<span class='sub'>区间取决于范围、部门数量、语言要求等因素。这一页不是刊例价，不构成报价，也不构成任何承诺 —— 一切以我们给您的正式报价单为准。</span>" data-th="ช่วงราคาโดยประมาณ ไม่ใช่ราคาตายตัว<span class='sub'>ราคาจริงขึ้นกับขอบเขต จำนวนแผนก และความต้องการด้านภาษา</span>">Indicative ranges only &middot; your quote is what counts
           <span class="sub">These depend on scope, number of departments and language requirements.
           This page is not a price list, not a quote, and not a commitment of any kind &mdash;
           the formal quote we issue is what governs.</span></p>
       </div>
       <div class="price-wrap">
         <table class="price">
-          <thead><tr><th>Service</th><th>Range</th></tr></thead>
+          <thead><tr><th data-zh="服务" data-th="บริการ">Service</th><th data-zh="区间" data-th="ช่วงราคา">Range</th></tr></thead>
           <tbody>
-            <tr><td>AI Readiness Call<span class="sub">30&ndash;60 minutes</span></td><td class="free">Free</td></tr>
-            <tr><td>Discovery Sprint<span class="sub">3 days</span></td><td>25,000 &ndash; 45,000</td></tr>
-            <tr><td>Discovery Sprint<span class="sub">5 days</span></td><td>45,000 &ndash; 80,000</td></tr>
+            <tr><td data-zh="AI Readiness 通话<span class='sub'>30&ndash;60 分钟</span>" data-th="AI Readiness Call<span class='sub'>30&ndash;60 นาที</span>">AI Readiness Call<span class="sub">30&ndash;60 minutes</span></td><td class="free" data-zh="免费" data-th="ฟรี">Free</td></tr>
+            <tr><td data-zh="Discovery Sprint<span class='sub'>3 天</span>" data-th="Discovery Sprint<span class='sub'>3 วัน</span>">Discovery Sprint<span class="sub">3 days</span></td><td>25,000 &ndash; 45,000</td></tr>
+            <tr><td data-zh="Discovery Sprint<span class='sub'>5 天</span>" data-th="Discovery Sprint<span class='sub'>5 วัน</span>">Discovery Sprint<span class="sub">5 days</span></td><td>45,000 &ndash; 80,000</td></tr>
             <tr><td>AI Enablement</td><td>20,000 &ndash; 60,000</td></tr>
             <tr><td>Implementation</td><td>20,000 &ndash; 400,000+</td></tr>
-            <tr><td>Managed AI<span class="sub">per month</span></td><td>3,000 &ndash; 30,000+</td></tr>
+            <tr><td data-zh="AI 托管运维<span class='sub'>每月</span>" data-th="Managed AI<span class='sub'>/ เดือน</span>">Managed AI<span class="sub">per month</span></td><td>3,000 &ndash; 30,000+</td></tr>
           </tbody>
         </table>
       </div>
@@ -233,34 +235,34 @@
     </div>
 
     <div class="op-sec">
-      <h2>Why us</h2>
+      <h2 data-zh="为什么选我们" data-th="ทำไมต้องเรา">Why us</h2>
       <div class="why">
         <div class="why-item">
-          <h3>Our method is an open-source asset, not one consultant's know-how.</h3>
-          <p>Any of our engineers runs the same Discovery process and produces the same nine
+          <h3 data-zh="我们的方法是开源资产，不是某个顾问脑子里的经验。" data-th="วิธีการทำงานของเราเปิดเป็นโอเพนซอร์ส ไม่ใช่ความรู้ในหัวที่ปรึกษาคนเดียว">Our method is an open-source asset, not one consultant's know-how.</h3>
+          <p data-zh="我们任何一位工程师都跑同一套 Discovery 流程，交出同样的九项交付物。AI 工具已经很多了；<b>让 AI 真正落地的方法，还很少。</b>" data-th="วิศวกรของเราทุกคนใช้กระบวนการ Discovery เดียวกันและส่งมอบผลงานเก้าชิ้นเหมือนกัน เครื่องมือ AI มีอยู่มากมายแล้ว แต่<b>สิ่งที่ยังขาดคือวิธีนำ AI มาใช้ให้เกิดผลจริง</b>">Any of our engineers runs the same Discovery process and produces the same nine
             deliverables. Tools are a crowded market; <b>a method for adopting AI is not.</b></p>
         </div>
         <div class="why-item">
-          <h3>Local means channel and trust, not translation.</h3>
-          <p>Thai-native project management, roots in the education sector, and work conducted
+          <h3 data-zh="本地化指的是渠道和信任，不是翻译。" data-th="Local ไม่ได้หมายถึงแค่การแปลภาษา แต่หมายถึงการเข้าใจบริบทและสร้างความไว้วางใจ">Local means channel and trust, not translation.</h3>
+          <p data-zh="泰国本地团队做项目管理，扎根教育领域，工作真正用泰语进行 —— <b>不是英语配字幕。</b>" data-th="บริหารโครงการโดยทีมไทยที่เข้าใจภาษาและบริบทในประเทศ พร้อมประสบการณ์จากภาคการศึกษา">Thai-native project management, roots in the education sector, and work conducted
             in Thai &mdash; <b>not English-with-subtitles.</b></p>
         </div>
         <div class="why-item">
-          <h3>We draw the line at convenience, not at features.</h3>
-          <p>The open-source version genuinely works. You pay us to save your time, to take
+          <h3 data-zh="我们在便利上收费，不在功能上设卡。" data-th="เราไม่ได้คิดเงินเพื่อปลดล็อกฟีเจอร์ แต่คิดจากเวลาและความรับผิดชอบที่เราช่วยคุณประหยัด">We draw the line at convenience, not at features.</h3>
+          <p data-zh="开源版本是真能用的。您付钱是为了省时间、让我们担责、以及规模化 —— <b>不是为了解锁一个被阉割的产品。</b>" data-th="เวอร์ชันโอเพนซอร์สใช้งานได้จริง คุณจ่ายเงินเพื่อประหยัดเวลา เพื่อให้เรารับผิดชอบ และเพื่อขยายผล &mdash; <b>ไม่ใช่เพื่อปลดล็อกฟีเจอร์ที่ถูกจำกัดไว้</b>">The open-source version genuinely works. You pay us to save your time, to take
             responsibility, and to scale &mdash; <b>not to unlock a crippled product.</b></p>
         </div>
       </div>
     </div>
 
     <div class="op-sec honest">
-      <h2>What we will tell you that others won't</h2>
+      <h2 data-zh="别人不一定会告诉您，但我们会说的事" data-th="สิ่งที่เราเชื่อว่าลูกค้าควรได้ยิน">What we will tell you that others won't</h2>
       <ul>
-        <li>If your organisation <b>isn't ready for AI yet, we will say so</b> &mdash; in writing,
+        <li data-zh="如果您的组织<b>现在还没准备好上 AI，我们会直说</b> —— 白纸黑字写进您付费的交付物里。" data-th="ถ้าองค์กร<b>ยังไม่พร้อมสำหรับ AI</b> เราจะบอกตรง ๆ และอธิบายเหตุผลให้ชัดเจน">If your organisation <b>isn't ready for AI yet, we will say so</b> &mdash; in writing,
           in the deliverables you paid for.</li>
-        <li>If a free government or university course covers what you need, <b>go take it.</b>
+        <li data-zh="如果政府或大学的免费课程已经能满足您的需要，<b>那就去上。</b>我们竞争不过免费，也不会假装能。" data-th="ถ้าหลักสูตรฟรีจากภาครัฐหรือมหาวิทยาลัยตอบโจทย์สิ่งที่คุณต้องการ <b>เราแนะนำให้เลือกเรียนหลักสูตรนั้นได้เลย</b>">If a free government or university course covers what you need, <b>go take it.</b>
           We can't compete with free, and we won't pretend to.</li>
-        <li>We default to <b>human approval on every AI output that reaches your customers.</b>
+        <li data-zh="<b>所有会送到您客户面前的 AI 输出，默认都要人工确认。</b>全自动是您在数据支持之后、书面选择开启的。" data-th="ผลลัพธ์จาก AI ทุกชิ้นก่อนนำไปใช้กับลูกค้า <b>ต้องผ่านการอนุมัติจากคนเป็นค่าตั้งต้น</b> การทำงานแบบอัตโนมัติเต็มรูปแบบจะเปิดใช้ได้ต่อเมื่อองค์กรเลือกและอนุมัติเอง หลังจากมีข้อมูลรองรับ">We default to <b>human approval on every AI output that reaches your customers.</b>
           Full automation is something you opt into, in writing, after the data supports it.</li>
       </ul>
     </div>
@@ -290,17 +292,18 @@
     </div>
 
     <div class="cta">
-      <p>Next step: a <b>30&ndash;60 minute call, free.</b> We ask about your repetitive work;
+      <p data-zh="下一步：<b>免费聊 30&ndash;60 分钟。</b>我们问您哪些活最重复，您自己决定 Discovery Sprint 值不值得做。" data-th="ขั้นตอนถัดไป: <b>คุยกับเราฟรี 30&ndash;60 นาที</b> เราจะคุยกันว่างานไหนในองค์กรใช้เวลาซ้ำ ๆ แล้วคุณค่อยตัดสินใจเองว่า Discovery Sprint เหมาะกับคุณหรือไม่">Next step: a <b>30&ndash;60 minute call, free.</b> We ask about your repetitive work;
         you decide whether a Discovery Sprint is worth it.</p>
       <div class="cta-links">
         <a class="btn primary" href="/services">See the four stages in detail &rarr;</a>
-        <a class="btn" href="/hello">The letter we send</a>
+        <a class="btn" href="/hello" data-zh="看我们发出的信" data-th="จดหมายของเรา">The letter we send</a>
       </div>
     </div>
 
     <p class="langnote">
-      This page is in English only for now. The Thai edition is with our Thai-native reviewer &mdash;
-      we don't publish Thai we haven't had a native speaker check, because
+      The Thai edition has been checked line by line by our Thai-native colleague. A few lines &mdash;
+      the note on model usage and the schools section &mdash; stay in English until they have been checked too:
+      we don't publish Thai a native speaker hasn't read, because
       "local means trust, not translation" would be an empty claim otherwise.
     </p>
 
